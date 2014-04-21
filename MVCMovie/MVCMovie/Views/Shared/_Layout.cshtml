@@ -1,8 +1,11 @@
 ﻿<!DOCTYPE html>
+<!-- Contains the "shell" that defines the shared layour of all the pages within the app -->
+<!-- View-specific rendering is done via the RenderBody() call within this file -->
+<!-- Allows changes to be made once and be reflected in all pages -->
 <html lang="en">
     <head>
         <meta charset="utf-8" />
-        <title>@ViewBag.Title - My ASP.NET MVC Application</title>
+        <title>@ViewBag.Title - Movie App</title>
         <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
         <meta name="viewport" content="width=device-width" />
         @Styles.Render("~/Content/css")
@@ -12,7 +15,7 @@
         <header>
             <div class="content-wrapper">
                 <div class="float-left">
-                    <p class="site-title">@Html.ActionLink("your logo here", "Index", "Home")</p>
+                    <p class="site-title">@Html.ActionLink("MVC Movie", "Index", "Home")</p>
                 </div>
                 <div class="float-right">
                     <section id="login">
