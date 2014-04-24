@@ -11,6 +11,10 @@
 
 <h2>Index</h2>
 
+<!--
+    A HTML object is an object that helps render html elements. For a link, call
+    Html.ActionLink("linkInnerText", "nameOfActionCalled") to return a simple link
+-->
 <p>
     @Html.ActionLink("Create New", "Create")
 </p>
@@ -46,6 +50,7 @@
             @Html.DisplayFor(modelItem => item.Price)
         </td>
         <td>
+            <!--  ActionLink("linkText", "actionName", objectWithParametersNeeded) -->
             @Html.ActionLink("Edit", "Edit", new { id=item.ID }) |
             @Html.ActionLink("Details", "Details", new { id=item.ID }) |
             @Html.ActionLink("Delete", "Delete", new { id=item.ID })

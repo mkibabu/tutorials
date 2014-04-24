@@ -8,8 +8,9 @@
 
 <p>
     @Html.ActionLink("Create New", "Create")
-    <!-- specifies that the information sublitted by the form be processed via GET -->
-    @using (Html.BeginForm("SearchIndex", "Movies", FormMethod.Get)) { 
+    <!-- specifies that the information submitted by the form be processed via GET -->
+    @using (Html.BeginForm("SearchIndex", "Movies", FormMethod.Get)) {
+        <!-- add a Html.DropDownList helper to deal with the genres --> 
         <p>Genre: @Html.DropDownList("movieGenre", "All")</p>
         <p>Title: @Html.TextBox("SearchString")<br />
             <input type="submit" value="Filter" /></p>

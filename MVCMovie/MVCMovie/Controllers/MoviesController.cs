@@ -131,22 +131,28 @@ namespace MVCMovie.Controllers
         // allows /Controller/action?param=value urls
         public ActionResult SearchIndex(string movieGenre, string searchString)
         {
+            // list to hold all the grnres in the database
             var GenreList = new List<String>();
+            // retrieve all the genre values in the database, including duplicates
             var GenreQry = from d in db.Movies
                            orderby d.Genre
                            select d.Genre;
 
+            // append all the distinct Genre values from the query to the end of
+            // the list
             GenreList.AddRange(GenreQry.Distinct());
+            // then add this list to the ViewBag
             ViewBag.movieGenre = new SelectList(GenreList);
-
+            // now, get all the movies in the database
             var movies = from m in db.Movies
                          select m;
-
+            // filter by the search word, if one exists
             if (!string.IsNullOrEmpty(searchString))
             {
                 movies = movies.Where(s => s.Title.Contains(searchString));
             }
-
+            // if a genre is given, filter/contrain the results to the given genre,
+            // else return the movies query results
             if(string.IsNullOrEmpty(movieGenre))
                 return View(movies);
             else
