@@ -1,4 +1,9 @@
-# 2. Adding a Controller
+# Section Notes on ASP.NET MVC Tutorial
+### Source
+[Getting Startted with ASP.NET MVC 5]
+(http://www.asp.net/mvc/tutorials/mvc-5/introduction/getting-started "Microsoft ASP.NET")
+## 2. Adding a Controller
+
 MVC == "Model View Controller"
 <dl>
 <dt>Models</dt>
