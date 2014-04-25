@@ -18,16 +18,23 @@ namespace MvcMovie.Controllers
             return "This is the <b>default</b> action...";
         }
 
+        // The method below passes its parameters as a query string, therefore not
+        // using the /[Parameter] section of the url. Query string format ==
+        // /Controller/Action?param1=value1&param2=value2
         // GET: HelloWorld/Welcome
-        public string Welcome(string name, int numTimes = 1)
-        {
-            string reply = "";
-            for (int i = 0; i < numTimes; i++)
-            {
-                reply += "<p>Hello " + name + "! NumTimes is " + numTimes + ".</p>";
-            }
+        //public string Welcome(string name, int numTimes = 1)
+        //{
+        //    return HttpUtility.HtmlEncode("Hello " + name + "! NumTimes is " + numTimes);
+        //}
 
-            return HttpUtility.HtmlEncode(reply);
+        // The method below passes its parameters using the routes mapped in
+        // App_Start/RouteConfig.RegisterRoutes(RouteCollection). This is because the parameter
+        // matche the names of the route sections used in the second mapped route.
+        // Later configur
+        // GET: HelloWorld/Welcome
+        public string Welcome(string name, int ID = 1)
+        {
+            return HttpUtility.HtmlEncode("Hello " + name + "! ID is " + ID);
         }
     }
 }
