@@ -19,6 +19,7 @@ namespace MvcMovie
                 defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
             );
 
+            // added to allow a url as /Controller/View/ID?name=value
             routes.MapRoute(
                 name: "Hello",
                 url: "{controller}/{action}/{name}/{id}"

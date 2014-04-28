@@ -9,13 +9,10 @@ namespace MvcMovie.Controllers
     public class HelloWorldController : Controller
     {
         // GET: HelloWorld
-        public string Index()
+        public ActionResult Index()
         {
-            // Note that returning html markup here ties the view and the controller
-            // together; generally frowned upon.
-            // Also, this action returns a string, while the Welcome action below
-            // encodes it. Encoding protects the application from maicious input.
-            return "This is the <b>default</b> action...";
+            // Action methods typically return an ActionResult, or a derived class thereof
+            return View();
         }
 
         // The method below passes its parameters as a query string, therefore not
