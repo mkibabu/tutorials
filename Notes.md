@@ -254,3 +254,71 @@ clean of code that interrogates the request and its associated environment/conte
 for data. The default way to do this is through the *DefaultModelBinder*, which
 provides a concrete implementation of the *IModelBinder* interface.
 
+
+## 4. Adding a Model
+
+A model is the section of the framework that represents the data within the
+application, and the envinronment that goes towards persisting that data to storage.
+.NET utilizes the *Entity Framework (EF)* to define model classes. EF is an
+object-relational mapping framework, i.e. a framework that generates business objects
+and entities according to the  database schema provided. It employs a variety of 
+workflows to design and develop data-oriented applications. The main workflows 
+used are:
+<dl>
+    <dt>Code First</dt>
+    <dd>
+        Allows one to create model objects by writing simple objects, aka *POCO
+        classes* (i.e. *Plain Old CLR Objects*). The classes define the data and
+        the relationships/mapping between the data, and ASP.NET uses `Migration`
+        to evolve a database from the classes. Note that reverse-engineering tools
+        exist that allow one to use Code-First to define data and relationships
+        that fit into existing databases.
+    </dd>
+    <dt>Model First</dt>
+    <dd>
+        Uses UML diagrams and lines within a designer to describe a new database
+        structure/schema. The diagrams describe the data while the lines describe
+        the relationships between the data. From this visual description, ASP.NET
+        creates the models and business logic thaat represent the database.
+    </dd>
+    <dt>Database First</dt>
+    <dd>
+        Allows one to reverse-engineer an existing database into UML diagrams
+        and lines describing the data and relationships between the data. Is
+        essentially Model-First for existing databases.
+    </dd>
+</dl>
+
+Using `Code First` paradigm, the following simple classes represent two objects
+within the database:
+
+```c#
+public class Book
+{
+    public int BookID { get; set; }
+    public string BookName { get; set; }
+    public string ISBN { get; set; }
+}
+
+public class Review
+{
+    public int ReviewID { get; set; }
+    public int BookID { get; set; }
+    public string ReviewText { get; set; }
+}
+```
+
+Typically, each model class is described within its own file. Along with the simple
+POCO class description, the file should also contains, as a separate class, a 
+subclass of the `DbContext` class. This subclass would be the portion of the model
+that, for each POCO, described the Entity Framework database context. It would
+handle the fetching, storing and updating of that POCO data to/from the database.
+An example DbContext file for the Book class described above would be as follows:
+
+```c#
+public class BookDBContext : DbContext
+{
+    public DbSet<Book> Books { get; set; }
+}
+```
+
