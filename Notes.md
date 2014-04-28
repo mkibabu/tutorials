@@ -168,9 +168,9 @@ Controller classes are invoked in response to an incoming url. They contain the
 code that handles the incoming browser requests (from the view), retrieve data
 from the database and decide what resonse to send back to the view. The controller
 is responsible for providing the data required by the view to render a HTML page.
-It performs business logic and communicates with the database; **the view
-template should never do any of these**. The view should only work with the data
-provided to it.
+It performs business logic (as defined by the model) and communicates with the 
+database; **the view template should never do any of these**. The view should only
+ work with the data provided to it.
 
 As the data/parameters passed from a view to a controller are dynamic, it follows
 that the controller should have a dynamic way to pass the response to the view.
@@ -238,21 +238,19 @@ most common of which are:
 </dl>
 
 
-
-
-
-
-
-
-
-
 ### Passing data from the View to the Controller
 
-As mentioned, url invoked from a view typically has the following pattern:
+As mentioned, a url invoked from a view typically has the following pattern:
 > /Controller/Action/Parameter
 
 The specified controller contains within it a method (here, action) that takes
 parameters matching the name and structure of the `/Parameter` portion of the url.
-
-**NOTE** **Complete this portion - model binding, etc**
+While the url's parameters are typically passed as strings, it's highly likely
+that the action acts on objects based on some model, and since ASP puts no
+restrictions on the kind of model objects allowed, it must provide a way to map
+POST-ed or url values to the expected object. Binding the parameters to a model
+is known as **model binding**, and it assists in keeping the application code
+clean of code that interrogates the request and its associated environment/context
+for data. The default way to do this is through the *DefaultModelBinder*, which
+provides a concrete implementation of the *IModelBinder* interface.
 
