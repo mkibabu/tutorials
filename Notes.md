@@ -2,9 +2,10 @@
 ### Source
 [Getting Started with ASP.NET MVC 5]
 (http://www.asp.net/mvc/tutorials/mvc-5/introduction/getting-started "Microsoft ASP.NET")
+
 ## 2. Adding a Controller
 
-**MVC == "Model View Controller"**
+MVC == **"Model View Controller"**
 <dl>
     <dt>Models</dt>
 <dd> Classes that represent the data of the application and use validation
@@ -101,7 +102,10 @@ with a *.cshtml* extension.
 
 Below are a few tips on Razor syntax and rules:
 
-1. Add code to a page using the **@** character
+1. Add code to a page using the **@** character.
+
+...The @ character starts inline expressions, single- and multi-line expressions
+
 2. Enclose code blocks in braces.
 3. Within a block, add a semicolon at the end of each code statement.
 4. Variables can be used to store values.
@@ -109,8 +113,6 @@ Below are a few tips on Razor syntax and rules:
 6. Code is case-sensitive, because d'uh!
 7. Most code involves objects, in JSON-like format.
 8. Logic blocks & loops are allowed.
-
- ...The @ character starts inline expressions, single- and multi-line expressions
 
    ```cshtml
    <!-- Single statement blocks -->
@@ -158,8 +160,6 @@ that explicitly sets the layout page. However, ASP.NET MVC5 also has a file in
 and has the same code snippet shown above. Therefore, within the View files, we
 can safely remove the snippet above and only use it in one place, the `_VieewStart`
 file.
-
-
 
 
 ### Passing Data from the Controller to the View
@@ -322,3 +322,78 @@ public class BookDBContext : DbContext
 }
 ```
 
+## 5. Creating a Connection String & Working with SQLServer LocalBD
+
+The DbContext created for each model handles the database connection and mapping
+the data and relationships in the models to the database. EF automatically picks
+the `LocalDB` database, a lightweight version of *SQL Server Express Database Engine*,
+as the database to use. LocalDB starts on demand, runs in user mode, and saves 
+databases as *.mdf* files in the `/App_Data` folder.
+
+(Note that SQL Server Express is not recommended for production environments.)
+
+EF specifies a few ways to specify which database it should connect to:
+<dl>
+<dt>Calling the DbContext Parameterless Constructor</dt>
+<dd>
+If no configuration hs been done on the application, , calling the parameterless
+constructor on DbContext causes DbContext to create a database and a connection
+to it, i.e.
+
+```c#
+namespace Demo.EF
+{
+    public class BloggingContext : DbContext
+    {
+        public BloggingContext()
+        {
+            // c# will call parameterless constructor by default
+        }
+    }
+}
+```
+
+Here, DbContext will use the qualified name of the derived context class - 
+`Demo.EF.BloggingContext` - as the database name and create a connectin to it.
+</dd>
+<dt>Calling the DbContext Constructor with Specified DB Name</dt>
+<dd>
+If no configuration hs been done on the application, calling the string constructor
+on DbContext will create a connection to the database by that name. For instance:
+
+```c#
+namespace Demo.EF
+{
+    public class BloggingContext : DbContext
+        : base("BloggingDatabase")
+    {
+        public BloggingContext()
+        {
+            
+        }
+    }
+}
+```  
+
+Here, a connection string is created with "BloggingDatabase" as the database to
+connect to.
+</dd>
+
+<dt>Specifying Connection String in /Web.config File</dt>
+<dd>
+In the application root `Web.config` file, one can specify the database that EF
+should connect to as a *connection string*. The format of a connection string is
+ a semicolon-delimited list of key/value pairs specifying the connection name, the
+ data source, authentication, etc.  A (much-shortened) example connection string
+ is as follows:
+
+```xml
+<add name="ConnectionStringName"
+    providerName="System.Data.SqlClient"
+    connectionString="Data Source=(LocalDB)\v11.0;AttachDbFileName=|DataDirectory|\DatabaseFileName.mdf;" />
+```
+
+See the [MSDN writeup on connection strings] (http://msdn.microsoft.com/en-us/library/ms254978) for more on their syntax and options.
+</dd>
+
+</dl>
