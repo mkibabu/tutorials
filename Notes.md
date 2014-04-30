@@ -35,7 +35,7 @@ This format is set in the App_Start/RouteConfig.cs file, as follows:
 ```c#
 public static void RegisterRoutes(RouteCollection routes)
 {
-    // patterns that shouldn't be checked for matches; here, HtthHandler files
+    // patterns that shouldn't be checked for matches; here, HttpHandler files
     routes.IgnoreRoutes("{resource}.axd/{*pathInfo]");
 
     // call RouteCollectionExtensions.MapRoute(RouteCollection, Stringx2, Object)
@@ -91,7 +91,9 @@ following code within `RegisterRoutes()`:
 > as `>` and `<` symbols. Same functionality as `HttpUtility.HtmlEncode(String)`.
 > Both protect the application from malicious input.
 
+
 ---
+
 
 ## 3. Adding a View
 
@@ -104,7 +106,7 @@ Below are a few tips on Razor syntax and rules:
 
 1. Add code to a page using the **@** character.
 
-...The @ character starts inline expressions, single- and multi-line expressions
+   ...The @ character starts inline expressions, single- and multi-line expressions
 
 2. Enclose code blocks in braces.
 3. Within a block, add a semicolon at the end of each code statement.
@@ -114,7 +116,9 @@ Below are a few tips on Razor syntax and rules:
 7. Most code involves objects, in JSON-like format.
 8. Logic blocks & loops are allowed.
 
-   ```cshtml
+Examples of these are shown below:
+
+```cshtml
    <!-- Single statement blocks -->
    @{ var total = 7; }
 
@@ -136,8 +140,8 @@ Below are a few tips on Razor syntax and rules:
    <!-- Embed quotes using verbatim literal & repeat the quotation marks -->
    @{var quoted = @"The swami says ""Hello, young one!"" "}
 
-   <p>The greting is: @greeting</p>
-   ``` 
+   <p>The greeting is: @greeting</p>
+``` 
 
 One can choose to have the Views within an application share a common layout. This
 allows the page-specific View files to share a common styling template that 
@@ -162,7 +166,7 @@ can safely remove the snippet above and only use it in one place, the `_VieewSta
 file.
 
 
-### Passing Data from the Controller to the View
+### Passing Dynamic Data from the Controller to the View
 
 Controller classes are invoked in response to an incoming url. They contain the
 code that handles the incoming browser requests (from the view), retrieve data
@@ -170,12 +174,12 @@ from the database and decide what resonse to send back to the view. The controll
 is responsible for providing the data required by the view to render a HTML page.
 It performs business logic (as defined by the model) and communicates with the 
 database; **the view template should never do any of these**. The view should only
- work with the data provided to it.
+work with the data provided to it.
 
 As the data/parameters passed from a view to a controller are dynamic, it follows
-that the controller should have a dynamic way to pass the response to the view.
-For small snippewts of data, ASP.NET MVC does this through a variety of ways, the
-most common of which are:
+that the controller should have a convenient late-bound way to pass the response
+back to the view. For small snippets of data, ASP.NET MVC does this through a 
+variety of ways, the most common of which are:
 <dl>
     <dt>ViewData</dt>
     <dd>
@@ -255,6 +259,9 @@ for data. The default way to do this is through the *DefaultModelBinder*, which
 provides a concrete implementation of the *IModelBinder* interface.
 
 
+---
+
+
 ## 4. Adding a Model
 
 A model is the section of the framework that represents the data within the
@@ -322,6 +329,10 @@ public class BookDBContext : DbContext
 }
 ```
 
+
+---
+
+
 ## 5. Creating a Connection String & Working with SQLServer LocalBD
 
 The DbContext created for each model handles the database connection and mapping
@@ -384,16 +395,221 @@ connect to.
 In the application root `Web.config` file, one can specify the database that EF
 should connect to as a *connection string*. The format of a connection string is
  a semicolon-delimited list of key/value pairs specifying the connection name, the
- data source, authentication, etc.  A (much-shortened) example connection string
- is as follows:
+ data source, authentication, etc.  An example connection string is as follows:
 
 ```xml
 <add name="ConnectionStringName"
     providerName="System.Data.SqlClient"
-    connectionString="Data Source=(LocalDB)\v11.0;AttachDbFileName=|DataDirectory|\DatabaseFileName.mdf;" />
+    connectionString="Data Source=(LocalDB)\v11.0;
+    AttachDbFileName=|DataDirectory|\DatabaseFileName.mdf;
+    InitialCatalog=DatabaseName;Integrated Security=True;
+    MultipleActiveResultSets=True" />
 ```
 
 See the [MSDN writeup on connection strings] (http://msdn.microsoft.com/en-us/library/ms254978) for more on their syntax and options.
 </dd>
 
 </dl>
+
+---
+
+
+## 6. Accessing Models Data from a Controller
+
+>**NOTE**
+> For this section, the observations made are partially dependent on how the 
+> controller is created, e.g choosing Code First paradigm, and other options.
+
+At this point, the model `(Movie)` and the DbContext `(MovieDBContext)` already
+exist. Creating a `MoviesController` controller based on the model and DbContext
+leads to VS2013 creating views for each of the CRUD operations. The automatic
+creation of CRUD action methods and their respective views by VS is known as
+*scaffolding*.
+
+The initial portion of the MoviesController class is as shown:
+
+```c#
+public class MoviesController : Controller
+{
+    private MovieDBContext db = new MovieDBContext();
+
+```
+
+The controller contains within it an instance of the MovieDBConext class. Recall
+that MovieDBContext contains  a `public DbSet<Movie> Movies` property. A `DbSet`
+is used to represent an entity that can perform CRUD operations on data,and 
+contains methods for tracking what changes have been made to the data and need
+to be persisted to the database. Each DbSet (there can be multiple) in a DbContext
+holds data of a particular model type. Intuitively, a DbContext corresponds to 
+an entire schema (i.e. a collection of tables and views, that may encompass the 
+database, and the connection to it), while a DbSet corresponds to a specific table
+or view within the database. The DbContext can therefore be used to query, edit
+and delete entries within the DbSet(s) it encompasses.
+
+The Index action is as follows:
+
+```c#
+    // GET: /Movies/
+    public ActionResult Index()
+    {
+        return View(db.Movies.ToList());
+    }
+```
+
+Here, a call to /Movies/ returns a View that takes a list containing all the
+movies in the application.
+
+### Strongly-Typed Models and the @model Keyword
+
+As mentioned earlier, ASP uses a variety of ways to pass late-bound data between
+controllers and views, such as the `ViewBag` object. These are dynamic objects to
+which data is bound at run-time as properties or, in the case of `ViewData`s and
+`TempData`s, as key/value pairs (which is the reason *Intellisense* won't work on
+them; no compile-time checking).
+
+MVC also provides the ability to send *strongly-typed* objects to a view template.
+This allows compile-time checking, and is the method used by the scaffolding
+mechanism to pass data between the MoviesController class and the views generated.
+
+The `Controllers/MoviesController/Details(int)` method is as shown below:
+
+```c#
+    public ActionResult Details(int? id)
+    {
+        if(id == null)
+            return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+    }
+
+    Movie movie = db.Movies.Find(id);
+    
+    if(movie == null)
+    {
+        return HttpNotFound();
+    }
+
+    return View(movie);
+
+```
+
+> **Note**
+
+> `int?` above represents a *Nullable type*, i.e. a type that represents
+> all possible values of its type, plus an additional `null` value. The type
+> cannot be a reference type.
+
+The `id` parameter is passed as route data, i.e. with the url structure 
+`movies/details/1`, to view the details of the movie with id == 1. It could also
+be passed as a query string, i.e. `movies/details?id=1`. In both cases, if a Movie
+is found, an instance of the Movie model is passed to the Details view.
+
+The `/View/Movies/Details.cshtml` file starts with the following line:
+
+```cshtml
+@model MvcMovie.Models.Movie
+```
+
+This directive specifies the kind of model that the view should expect. It allows
+the view to access the instance that the controller passed by using a strongly-
+typed Model object. With this, the view is able to pass the object to `HtmlHelpers`
+and access the instance's properties using a JS-property-like syntax, i.e. as
+`model => PropertyName`, e.g.
+
+```cshtml
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Title)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Title)
+        </dd>
+        <!-- shortened for clarity -->
+```
+> **Note**
+
+> The expression Html.DisplayNameFor(model => mode.Title) has the following parts:
+> * `Html` - this is a reference to `System.Web.Mvc.HtmlHelper<TModel>`, a static
+> class that provides support for rendering HTML controls in a view. It contains
+> static methods (of which `DisplayNameFor()` is one) that help render HTML to 
+> the page.
+> * (model => model.Title) - this is a `lambda expression`, an *anonymous function*
+> with the syntax `(input => output)`. While the view has the aforementioned
+> `@model MvcMovie.Models.Movie` declaration, the declaration **DOES NOT** mean 
+> that wherever the word `model` is used, it is automatically expanded to the 
+> instance of `MvcMovie.Models.Movie` passed to the view. Calls to `model` within
+> the code do not reference the `@model` within the reference. Hence, the lambda
+> expression merely takes something of type `Movie` and returns `Movie.Title`; 
+> the word `model` within the lambda expression can be changed to anything at all
+> (just like the name of any parameter within a regular function), since the compiler
+> knows that the input to the lambda is of type `Movie`.
+
+
+Strongly-typed objects are also used in the `/Controllers/MoviesController/Index`
+method:
+
+```c#
+    // GET: Movies
+    public ActionResult Index()
+    {
+        return View(db.Movies.ToList());
+    }
+```
+
+Here, the view gets a list of Movie instances, rather than a single instance. It
+therefore must have a declaration that allows it to access an enumerable list
+of Movie objects. Thus this declaration at the top of `/Views/Movies/Index.cshtml`:
+
+```cshtml
+@model IEnumerable<MvcMovie.Models.Movie>
+```
+
+This allows the Index view to access the object passed to it as a list of Movie
+instances. The view can then, for instance, iterate over them:
+
+```cshtml
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.Title)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.ReleaseDate)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Genre)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Price)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.ID }) |
+            @Html.ActionLink("Details", "Details", new { id=item.ID }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.ID })
+        </td>
+    </tr>
+}
+
+Since the `Model` object is strongly typed (as an `IEnumberable<Movie>` object),
+each `item` object in the loop is typed as `Movie`.
+
+> **Note**
+> A lambda, by definition, has the format `input => output`. This is true *even*
+> *if the lambda doesn't require any input in order to give some output*. Here,
+> the call `Html.DisplayFor(modelItem => item.Title)` is used to display the title
+> of the `item` instance of the `Movie`. Since `item` is already declared outside
+> of the lambda, but within the same scope as the lambda is declared, there is no
+> need to pass it as an input to the lambda. Hence `modelItem` is merely a token
+> placeholder; irrespective of what we pass to the lambda, `Item.Title` is always
+> the output of the lambda, where `item` refers to the `item` within the `foreach`
+> line.
+
+### Working with SQL Server LocalDB
+
+Through the *Code-First* paradigm, Entity Framework created a database automatically
+from the model class `Movie` that we created. The newly-created database is saved
+in `/App_Data/Movies.mdf`. By default, EF uses any property namde *ID* as the 
+database primary key.
+
+---
+
+
+
