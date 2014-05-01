@@ -108,6 +108,7 @@ with a `.cshtml` extension.
 Below are a few tips on Razor syntax and rules:
 
 1. Add code to a page using the **@** character.
+
    ...The @ character starts inline expressions, single- and multi-line expressions
 2. Enclose code blocks in braces.
 3. Within a block, add a semicolon at the end of each code statement.
@@ -289,6 +290,7 @@ exist that allow one to use Code-First to define data and relationships
 that fit into existing databases.
 </dd>
 **2. Model First**
+
 <dd>
 Uses UML diagrams and lines within a designer to describe a new database
 structure/schema. The diagrams describe the data while the lines describe
@@ -296,6 +298,7 @@ the relationships between the data. From this visual description, ASP.NET
 creates the models and business logic that represent the database.
 </dd>
 **3. Database First**
+
 <dd>
 Allows one to reverse-engineer an existing database into UML diagrams
 and lines describing the data and relationships between the data. Is
@@ -455,14 +458,14 @@ and delete entries within the DbSet(s) it encompasses.
 The Index action is as follows:
 
 ```c#
-    // GET: /Movies/
-    public ActionResult Index()
-    {
-        return View(db.Movies.ToList());
-    }
+// GET: /Movies/
+public ActionResult Index()
+{
+    return View(db.Movies.ToList());
+}
 ```
 
-Here, a call to /Movies/ returns a View that takes a list containing all the
+Here, a call to */Movies/* returns a View that takes a list containing all the
 movies in the application.
 
 ### Strongly-Typed Models and the @model Keyword
@@ -477,38 +480,38 @@ MVC also provides the ability to send *strongly-typed* objects to a view templat
 This allows compile-time checking, and is the method used by the scaffolding
 mechanism to pass data between the MoviesController class and the views generated.
 
-The `Controllers/MoviesController/Details(int)` method is as shown below:
+The *Controllers/MoviesController/Details(int)* method is as shown below:
 
 ```c#
-    public ActionResult Details(int? id)
-    {
-        if(id == null)
-            return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-    }
+public ActionResult Details(int? id)
+{
+    if(id == null)
+        return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+}
 
-    Movie movie = db.Movies.Find(id);
-    
-    if(movie == null)
-    {
-        return HttpNotFound();
-    }
+Movie movie = db.Movies.Find(id);
 
-    return View(movie);
+if(movie == null)
+{
+    return HttpNotFound();
+}
+
+return View(movie);
 
 ```
 
 > **Note**
 
 > `int?` above represents a *Nullable type*, i.e. a type that represents
-> all possible values of its type, plus an additional `null` value. The type
-> cannot be a reference type.
+> all possible values of its type, plus an additional `null` value. A nullable
+> type cannot be a reference type.
 
 The `id` parameter is passed as route data, i.e. with the url structure 
-`movies/details/1`, to view the details of the movie with id == 1. It could also
-be passed as a query string, i.e. `movies/details?id=1`. In both cases, if a Movie
-is found, an instance of the Movie model is passed to the Details view.
+*movies/details/1*, to view the details of the movie with id == 1. It could also
+be passed as a query string, i.e. *movies/details?id=1*. In both cases, if a `Movie`
+is found, an instance of the `Movie` model is passed to the Details view.
 
-The `/View/Movies/Details.cshtml` file starts with the following line:
+The */View/Movies/Details.cshtml* file starts with the following line:
 
 ```cshtml
 @model MvcMovie.Models.Movie
@@ -521,48 +524,49 @@ and access the instance's properties using a JS-property-like syntax, i.e. as
 `model => PropertyName`, e.g.
 
 ```cshtml
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.Title)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Title)
-        </dd>
-        <!-- shortened for clarity -->
+<dt>
+    @Html.DisplayNameFor(model => model.Title)
+</dt>
+<dd>
+    @Html.DisplayFor(model => model.Title)
+</dd>
+<!-- shortened for clarity -->
 ```
 > **Note**
 
-> The expression Html.DisplayNameFor(model => mode.Title) has the following parts:
+> The expression `Html.DisplayNameFor(model => mode.Title)` has the following parts:
 > * `Html` - this is a reference to `System.Web.Mvc.HtmlHelper<TModel>`, a static
 > class that provides support for rendering HTML controls in a view. It contains
 > static methods (of which `DisplayNameFor()` is one) that help render HTML to 
 > the page.
-> * (model => model.Title) - this is a `lambda expression`, an *anonymous function*
+> * `(model => model.Title)` - this is a *lambda expression*, an *anonymous function*
 > with the syntax `(input => output)`. While the view has the aforementioned
 > `@model MvcMovie.Models.Movie` declaration, the declaration **DOES NOT** mean 
 > that wherever the word `model` is used, it is automatically expanded to the 
 > instance of `MvcMovie.Models.Movie` passed to the view. Calls to `model` within
-> the code do not reference the `@model` within the reference. Hence, the lambda
-> expression merely takes something of type `Movie` and returns `Movie.Title`; 
-> the word `model` within the lambda expression can be changed to anything at all
-> (just like the name of any parameter within a regular function), since the compiler
-> knows that the input to the lambda is of type `Movie`.
+> the code are not references to the `@model` within the reference; Note that, to
+> render a strongly-typed object, a `ViewPage<TModel>` object is required, and this
+> has a `Model` property that is likely what the `@model` declaration refers to. 
+> Hence, the lambda expression merely takes something of type `Movie` and returns
+> `Movie.Title`; the word `model` within the lambda expression can be changed to
+>  anything at all(just like the name of any parameter within a regular function),
+>  since the compiler knows that the input to the lambda is of type `Movie`.
 
 
-Strongly-typed objects are also used in the `/Controllers/MoviesController/Index`
+Strongly-typed objects are also used in the */Controllers/MoviesController/Index*
 method:
 
 ```c#
-    // GET: Movies
-    public ActionResult Index()
-    {
-        return View(db.Movies.ToList());
-    }
+// GET: Movies
+public ActionResult Index()
+{
+    return View(db.Movies.ToList());
+}
 ```
 
 Here, the view gets a list of Movie instances, rather than a single instance. It
 therefore must have a declaration that allows it to access an enumerable list
-of Movie objects. Thus this declaration at the top of `/Views/Movies/Index.cshtml`:
+of Movie objects. Thus this declaration at the top of */Views/Movies/Index.cshtml*:
 
 ```cshtml
 @model IEnumerable<MvcMovie.Models.Movie>
@@ -593,6 +597,7 @@ instances. The view can then, for instance, iterate over them:
         </td>
     </tr>
 }
+```
 
 Since the `Model` object is strongly typed (as an `IEnumberable<Movie>` object),
 each `item` object in the loop is typed as `Movie`.
@@ -612,7 +617,7 @@ each `item` object in the loop is typed as `Movie`.
 
 Through the *Code-First* paradigm, Entity Framework created a database automatically
 from the model class `Movie` that we created. The newly-created database is saved
-in `/App_Data/Movies.mdf`. By default, EF uses any property namde *ID* as the 
+in */App_Data/Movies.mdf*. By default, EF uses any property named *ID* as the 
 database primary key.
 
 ---
@@ -805,3 +810,71 @@ All the CRUD methods have both `HttpGet` and `HttpPost` versions; this is becaus
 `HttpGet` operations are inherently unsafe. Per *REST* principles, *GET* operations
 should be safe, have no side effects, and not modify persisted data or change the
 state of the application.
+
+## 8. Adding Search
+
+Change the `Index` method to the following:
+
+```c#
+public ActionResult Index(string searchString)
+{
+    var movies = from m in db.Movies
+                 select m;
+
+    if(!string.IsNullOrEmpty(searchString))
+    {
+        movies = movies.Where(s => s.Title.Contains(searchString));
+    }
+
+    return View(movies);
+}
+```
+
+The first portion creates a *LINQ* query meant to select all movies in the
+database. Then if `searchString` is not blank, the query is modified to filter on
+the value of the search string. The query, while defined, has still not been run.
+
+LINQ query executio is deferred until its realized value is actually iterated
+over or the `ToList` method is called. Note that the `Contains` method is run on
+the database, not the c# code above; it maps to SQL's `LIKE`, which is case
+insensitive.
+
+The action above matches url calls that pass the searchString as a query string.
+If the parameters are to be passed as route data, the call should be modified to:
+
+```c#
+public ActionResult Index(string id)
+{
+    string searchString = id;
+    var movies = from m in db.Movies
+                 select m;
+
+    if(!string.IsNullOrEmpty(searchString))
+    {
+        movies = movies.Where(s => s.Title.Contains(searchString));
+    }
+
+    return View(movies);
+}
+```
+
+and the url woulld appear as */Movies/index/ghost/*, for instance, to search for
+movies with the word *ghost* (case insensitive) in their title.
+
+However, rather than using a url, the search functionality requires some UI to
+go with it. A simple form can be added to *Index.cshtml* as follows:
+
+```cshtml
+@using (Html.BeginForm("Index", "Movies", FormMethod.Get))
+{
+    <p> Title: @Html.TextBox("SearchString") <br />
+    <input type="submit" value="Filter" /> </p>
+}
+```
+
+The `Html.BeginForm` helper creates the opening `<form>` tag and causes the form
+to post to itself. The parameters added ensure that the url sent contains the
+search query string within it, and is therefore bookmark-able; it also ensures 
+that the `GET` version of Index is the one called, if a `POST` overload exists.
+
+### Adding Search By Genre
