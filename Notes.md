@@ -612,4 +612,190 @@ database primary key.
 ---
 
 
+## 7. Examining the Edit Action and View
 
+### Controlling Appearance of Field Nmaes in Forms
+
+In `Models/Movie/`, the properties of the `Movie` instance are as follows:
+
+```c#
+    public class Movie
+    {
+
+        public int ID { get; set; }
+        public string Title { get; set; }
+        public DateTime ReleaseDate { get; set; }
+        public string Genre { get; set; }
+        public decimal Price { get; set; }
+    }
+```
+
+When the application is deployed, the views containing forms use the property names
+(which are the column names in the Movie table as well) as the labels of any input
+controls. Hence the release date is labelled `ReleaseDate`.
+
+To change this, annotate the ReleaseDate field as follows:
+
+```c#
+    [Display(Name = "Release Date")]
+    [DataType(DataType.Date)]
+    [DisplayFormat(DataFormatString= "{0:yyyy-MM-dd}", ApplyFormatInEditMode=true)]
+    public DateTime ReleaseDate { get; set; }
+```
+
+The `Display` attribute describes how to label form fields. `DataType` specifies
+the type of data as a date, so the time portion isn't displayed. The `DisplayFormat`
+attribute specifies how to display the date, rather than leaving it to browsers.
+
+### The Edit Action/View
+
+In the Index view, the Edit link created for each movie in the list passed to the
+view is generated as follows:
+
+```cshtml
+    @HTML.ActionLink("Edit Me", "Edit", new { id=item.id} );
+```
+`Html` refers to the HtmlHelper mentioned previously. The `ActionLink` method
+makes it easy to link to action nethods on controlers. The first argument is the
+link text; the second is the naem of the action to invoke, and the third is an
+anonymous object that contains/generates the route data. This generates a link
+with the format:
+
+> http://movies/edit/id
+
+where *id* is a numerical value representing the id of the movie. The Edit action
+called is as follows:
+
+```c#
+    // GET: Movies/Edit/5
+    public ActionResult Edit(int? id)
+    {
+
+        if (id == null)
+        {
+            return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+        }
+        Movie movie = db.Movies.Find(id);
+        if (movie == null)
+        {
+            return HttpNotFound();
+        }
+        return View(movie);
+    }
+```
+The method uses the Entity Framework `Find()` method to search for a movie whose
+id matches the parameter, and returns it if found.
+
+Given a controller, action and additional data, `HtmlHelpers` use the routes
+configured in `App_Start/RouteConfig.cs` to create the link; the route configuration
+used is (from the `MapRoute()` method):
+
+```c#
+    routes.MapRoute(
+        name: "Default",
+        url: "{controller}/{action}/{id}",
+        defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
+    );
+```
+
+The `Edit` call can also be made via a query string, i.e. as
+
+> http://movies/edit?id=val
+
+where *val* is a numerical id. `App_Start/RouteConfig.MapRoute()` contains a route
+entry that matches this format, and the `Movies` controller has an Edit method to
+match:
+
+```c#
+    // POST: Movies/Edit/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public ActionResult Edit([Bind(Include = "ID,Title,ReleaseDate,Genre,Price")] Movie movie)
+    {
+        if (ModelState.IsValid)
+        {
+            db.Entry(movie).State = EntityState.Modified;
+            db.SaveChanges();
+            return RedirectToAction("Index");
+        }
+        return View(movie);
+    }
+```
+
+The `HttpPost` attribute specifies that the overload Edit method can only be
+invoked via *POST* requests. No `HttpGet` attribute is needed for the other Edit
+call, though one exists, sicne GET is the default. The `Bind` attribute helps
+avoid malicious over-posting; only the properties to be edited are included. The
+`ValidateAntiForgeryToken` attribute is ised to prevent forgery of requests, and
+is paired with the corresponding `@Html.AntiFogeryToken()` invocation in the Edit
+view, which generates hidden form anti-forgery token that must match the Edit
+action:
+
+```cshtml
+<!-- snippet -->
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal">
+        <h4>Movie</h4>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.HiddenFor(model => model.ID)
+
+<!-- snippet -->
+```
+
+Both Edit calls return a View that takes a `Movie` model, so the Edit view has
+this declaration:
+
+```cshtml
+@model MvcMovie.Models.Movie
+```
+
+Hence the Edit view expects a the model for the view template to be of type `Movie`.
+
+The Edit view is created through scaffolding when the controller is created, and
+it uses a variety of helper methods to create the markup. These include:
+<dl>
+<dt>`Html.LabelFor`</dt>
+<dd>Displays the name of the field, e.g. "Title", "Release Date", etc</dd>
+<dt>`Html.EditorFor`</dt>
+<dd>Renders a html `<input>` element for the editable field</dd>
+<dt>`Html.ValidationMessageFor`</dt>
+<dd>Displays any validation message associated with that property/field.</dd>
+</dl>
+
+### Processing the POST Request
+
+The `HttpPost` version of the Edit method is as shown below:
+
+```c#
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public ActionResult Edit([Bind(Include = "ID,Title,ReleaseDate,Genre,Price")] Movie movie)
+    {
+        if (ModelState.IsValid)
+        {
+            db.Entry(movie).State = EntityState.Modified;
+            db.SaveChanges();
+            return RedirectToAction("Index");
+        }
+        return View(movie);
+    }
+```
+
+The ASP.NET *MVC model binder* takes the posted and bound form values and creates
+a `Movie` object that's then passed to the Edit method. The `ModelState.IsValid`
+call verifies that the data passed through the form can be used to modify (update
+or delete) a `Movie` object. The data is saved to the `Movies` DbSet collection
+of the `MovieDBContext` instance `db`, then pushed to the database through the
+`SaveChanges()` call. The user is then redirected to the `Index` action.
+
+All the `HttpGet` methods follow the same pattern; model binding creates a `Movie`
+object from the data passed along, and pass the model on to the view where needed.
+All the CRUD methods have both `HttpGet` and `HttpPost` versions; this is because
+`HttpGet` operations are inherently unsafe. Per *REST* principles, *GET* operations
+should be safe, have no side effects, and not modify persisted data or change the
+state of the application.
