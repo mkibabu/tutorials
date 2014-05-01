@@ -867,8 +867,10 @@ go with it. A simple form can be added to *Index.cshtml* as follows:
 ```cshtml
 @using (Html.BeginForm("Index", "Movies", FormMethod.Get))
 {
-    <p> Title: @Html.TextBox("SearchString") <br />
-    <input type="submit" value="Filter" /> </p>
+    <p> 
+        Title: @Html.TextBox("SearchString") <br />
+        <input type="submit" value="Filter" />
+    </p>
 }
 ```
 
@@ -878,3 +880,77 @@ search query string within it, and is therefore bookmark-able; it also ensures
 that the `GET` version of Index is the one called, if a `POST` overload exists.
 
 ### Adding Search By Genre
+
+To make it possible to search by both title and genre, the Index method is
+modified to (commentary interspersed within code)
+
+```c#
+// GET: Movies
+public ActionResult Index(string movieGenre, string searchString)
+{
+    // create a list to hold all the movie genres
+    var genreList = new List<String>();
+
+    // create a query to get all genres from the database
+    var genreQuery = from g in db.Movies
+                     orderby g.Genre
+                     select g.Genre;
+
+    // add all distinct genre values into the list
+    genreList.AddRange(genreQuery.Distinct());
+
+    // store the list as a SelectList, to use later in a dropdown, and add the
+    // selectList to the ViewBag
+    ViewBag.movieGenre = new SelectList(genreList);
+
+    // as before, get all movies, and filter by title (within the "if" block)
+    var movies = from m in db.Movies
+                 select m;
+
+    if(!string.IsNullOrEmpty(searchString))
+    {
+        movies = movies.Where(s => s.Title.Contains(searchString));
+    }
+
+    // constrain the query further to match the genre desired.
+    if (!string.IsNullOrEmpty(movieGenre))
+    {
+        movies = movies.Where(x => x.Genre == movieGenre);
+    }
+
+    return View(movies);
+}
+```
+
+
+The markup in the *Views/Index.cshtml* file to support the markup would build up
+from the previous search functionality markup, to look as follows:
+
+```cshtml
+@using (Html.BeginForm("Index", "Movies", FormMethod.Get))
+{
+    <p> 
+        Genre: @Html.DropDownList("movieGenre", "All")
+        Title: @Html.TextBox("SearchString") <br />
+        <input type="submit" value="Filter" /> 
+    </p>
+}
+```
+
+In the code below:
+
+```cshtml
+@Html.DropDownList("MovieGenre", "All");
+```
+
+the `movieGenre` parameter provides the key for the `DropDownList` helper to 
+access the `IEnumerable<SelectListItem>` list within the `ViewBag` that was
+populated within the Index action. Recall that `ViewBag` is merely a wrapper for
+`ViewData`, so while primary access to its contents are through a JavaScript-like
+`property => value` syntax, the implementation is a key/value pair.
+
+The parameter `All` specifies the value to be preselected within the list. If no
+selection is made, the `movieGenre` parameter would be empty, since the posted
+data wouldn't send bacl `All` at it's not in the `SelectList`.
+
+
