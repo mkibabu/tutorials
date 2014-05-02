@@ -1,9 +1,11 @@
 # Section Notes on ASP.NET MVC Tutorial
-### Source
+
+#### Source
 [Getting Started with ASP.NET MVC 5]
 (http://www.asp.net/mvc/tutorials/mvc-5/introduction/getting-started "Microsoft ASP.NET")
 
 ## 2. Adding a Controller
+
 
 This section explains the basics of MVC, and sets up a new project.
 
@@ -102,19 +104,20 @@ following code within `RegisterRoutes()`:
 
 ## 3. Adding a View
 
+
 This section explains the intricacies of views and how they are used to cleanly
 encapsulate the process of gernerating HTML responses to a client.
 
 Views in ASP.NET can be created using the *Razor View Engine*, which creates pages
 with a `.cshtml` extension. 
 
-### Razor Syntax
+#### 3.1. Razor Syntax
 
 Below are a few tips on Razor syntax and rules:
 
 1. Add code to a page using the **@** character.
 
-   ...The @ character starts inline expressions, single- and multi-line expressions
+   The @ character starts inline expressions, single- and multi-line expressions.
 2. Enclose code blocks in braces.
 3. Within a block, add a semicolon at the end of each code statement.
 4. Variables can be used to store values.
@@ -172,7 +175,7 @@ and has the same code snippet shown above. Therefore, within the View files, we
 can safely remove the snippet above and only use it in one place, the *_ViewStart*
 file.
 
-### Passing Dynamic Data from the Controller to the View
+#### 3.2. Passing Dynamic Data from the Controller to the View
 
 Controller classes are invoked in response to an incoming url. They contain the
 code that handles the incoming browser requests (from the view), retrieve data
@@ -187,8 +190,8 @@ that the controller should have a convenient late-bound way to pass the response
 back to the view. For small snippets of data, ASP.NET MVC does this through a 
 variety of ways, the most common of which are:
 
-**1. ViewData**
-<dd>
+**(a). ViewData**
+
 This is a property of both the view and the controller that exposes the 
 `ViewDataDictionary` class. To pass data to a view, the data is added to the
 ViewData property of the controller as follows:
@@ -209,9 +212,9 @@ lifespan of a ViewData object is the current request; all data within it is
 lost when a new request is made. Similarly, if a request is redirected, the
 data is lost. Typecasting and basic null-checking is also the programmer's
 responsibility.
-</dd>
-**2. ViewBag**
-<dd>
+
+**(b). ViewBag**
+
 A ViewBag is a wrapper around a ViewData object that allows the user to create
 dynamic properties within it. As a dynamic object, ViewBag allows for behavior
 to be defined at run time. It doesn't require typecasting or complex null-
@@ -235,9 +238,9 @@ Note that since views already expect an explicit model as their data, Viewbags
 and ViewDatas are ideal for transporting extra data that is not included within
 the model, which is one reason both are implemented as properties of both the
 controller and the view.
-</dd>
-**3. TempData**
-<dd>
+
+**(c). TempData**
+
 A TempData object is a wrapper for the `TempDataDictionary` object. It was
 developed mainly to deal with the redirecting disadvantages of ViewData and 
 ViewBag, and thus, lasts from creation through the end of the subsequent request.
@@ -246,15 +249,14 @@ It uses the underlying `Session` object to save data in a dictionary-like manner
 leaves typecasting and null-checking to the programmer. TempData objects come
 in handy when data is to be accessed by multiple actions within the same controller,
 for instance.
-</dd>
-**4. Session**
-<dd>
+
+**(d). Session**
+
 A Session object is used to persist data throughout the current application
 runtime duration. Its lifetime spans all requests, and it too leaves null-
 checking and typecasting to the programmer while wrapping a dictionary underneath.
-</dd>
 
-### Passing data from the View to the Controller
+#### 3.3. Passing data from the View to the Controller
 
 As mentioned, a url invoked from a view typically has the following pattern:
 
@@ -277,6 +279,7 @@ provides a concrete implementation of the *IModelBinder* interface.
 
 ## 4. Adding a Model
 
+
 This section adds a `Movie` model to the application.
 
 A model is the section of the framework that represents the data within the
@@ -288,29 +291,26 @@ workflows to design and develop data-oriented applications. The main workflows
 used are:
 
 **1. Code First**
-<dd>
+
 Allows one to create model objects by writing simple objects, aka *POCO*
 *classes* (i.e. *Plain Old CLR Objects*). The classes define the data and
 the relationships/mapping between the data, and ASP.NET uses *Migration*
 to evolve a database from the classes. Note that reverse-engineering tools
 exist that allow one to use Code-First to define data and relationships
 that fit into existing databases.
-</dd>
+
 **2. Model First**
 
-<dd>
 Uses UML diagrams and lines within a designer to describe a new database
 structure/schema. The diagrams describe the data while the lines describe
 the relationships between the data. From this visual description, ASP.NET
 creates the models and business logic that represent the database.
-</dd>
+
 **3. Database First**
 
-<dd>
 Allows one to reverse-engineer an existing database into UML diagrams
 and lines describing the data and relationships between the data. Is
 essentially Model-First for existing databases.
-</dd>
 
 Using *Code First* paradigm, the following simple classes represent two objects
 within the database:
@@ -351,6 +351,7 @@ public class BookDBContext : DbContext
 
 ## 5. Creating a Connection String & Working with SQLServer LocalBD
 
+
 This section describes how to connect to the database created from the model.
 
 The DbContext created for each model handles the database connection and mapping
@@ -364,7 +365,7 @@ databases as *.mdf* files in the */App_Data/* folder.
 EF specifies a few ways to specify which database it should connect to:
 
 **1. Calling the DbContext Parameterless Constructor**
-<dd>
+
 If no configuration hs been done on the application, , calling the parameterless
 constructor on DbContext causes DbContext to create a database and a connection
 to it, i.e.
@@ -384,10 +385,9 @@ namespace Demo.EF
 
 Here, DbContext will use the qualified name of the derived context class - 
 `Demo.EF.BloggingContext` - as the database name and create a connectin to it.
-</dd>
 
 **2. Calling the DbContext Constructor with Specified DB Name**
-<dd>
+
 If no configuration hs been done on the application, calling the string constructor
 on DbContext will create a connection to the database by that name. For instance:
 
@@ -407,10 +407,9 @@ namespace Demo.EF
 
 Here, a connection string is created with "BloggingDatabase" as the database to
 connect to.
-</dd>
 
 **3. Specifying Connection String in /Web.config File**
-<dd>
+
 In the application root `Web.config` file, one can specify the database that EF
 should connect to as a *connection string*. The format of a connection string is
  a semicolon-delimited list of key/value pairs specifying the connection name, the
@@ -426,7 +425,7 @@ should connect to as a *connection string*. The format of a connection string is
 ```
 
 See the [MSDN writeup on connection strings] (http://msdn.microsoft.com/en-us/library/ms254978) for more on their syntax and options.
-</dd>
+
 
 
 ---
@@ -447,7 +446,7 @@ leads to VS2013 creating views for each of the CRUD operations. The automatic
 creation of CRUD action methods and their respective views by VS is known as
 *scaffolding*.
 
-The initial portion of the MoviesController class is as shown:
+The initial portion of the `MoviesController` class is as shown:
 
 ```c#
 public class MoviesController : Controller
@@ -456,8 +455,8 @@ public class MoviesController : Controller
 
 ```
 
-The controller contains within it an instance of the MovieDBConext class. Recall
-that MovieDBContext contains  a `public DbSet<Movie> Movies` property. A `DbSet`
+The controller contains within it an instance of the `MovieDBContext` class. Recall
+that `MovieDBContext` contains  a `public DbSet<Movie> Movies` property. A `DbSet`
 is used to represent an entity that can perform CRUD operations on data,and 
 contains methods for tracking what changes have been made to the data and need
 to be persisted to the database. Each DbSet (there can be multiple) in a DbContext
@@ -467,7 +466,7 @@ database, and the connection to it), while a DbSet corresponds to a specific tab
 or view within the database. The DbContext can therefore be used to query, edit
 and delete entries within the DbSet(s) it encompasses.
 
-The Index action is as follows:
+The `Index` action is as follows:
 
 ```c#
 // GET: /Movies/
@@ -477,10 +476,10 @@ public ActionResult Index()
 }
 ```
 
-Here, a call to */Movies/* returns a View that takes a list containing all the
+Here, a call to */Movies/* returns a view that takes a list containing all the
 movies in the application.
 
-### Strongly-Typed Models and the @model Keyword
+#### 6.1. Strongly-Typed Models and the @model Keyword
 
 As mentioned earlier, ASP uses a variety of ways to pass late-bound data between
 controllers and views, such as the `ViewBag` object. These are dynamic objects to
@@ -513,15 +512,14 @@ return View(movie);
 ```
 
 > **Note**
-
 > `int?` above represents a *Nullable type*, i.e. a type that represents
 > all possible values of its type, plus an additional `null` value. A nullable
 > type cannot be a reference type.
 
 The `id` parameter is passed as route data, i.e. with the url structure 
-*movies/details/1*, to view the details of the movie with id == 1. It could also
+*movies/details/1*, to view the details of the movie with id of 1. It could also
 be passed as a query string, i.e. *movies/details?id=1*. In both cases, if a `Movie`
-is found, an instance of the `Movie` model is passed to the Details view.
+is found, an instance of the Movie model is passed to the Details view.
 
 The */View/Movies/Details.cshtml* file starts with the following line:
 
@@ -545,7 +543,6 @@ and access the instance's properties using a JS-property-like syntax, i.e. as
 <!-- shortened for clarity -->
 ```
 > **Note**
-
 > The expression `Html.DisplayNameFor(model => mode.Title)` has the following parts:
 > * `Html` - this is a reference to `System.Web.Mvc.HtmlHelper<TModel>`, a static
 > class that provides support for rendering HTML controls in a view. It contains
@@ -625,7 +622,7 @@ each `item` object in the loop is typed as `Movie`.
 > the output of the lambda, where `item` refers to the `item` within the `foreach`
 > line.
 
-### Working with SQL Server LocalDB
+#### 6.2. Working with SQL Server LocalDB
 
 Through the *Code-First* paradigm, Entity Framework created a database automatically
 from the model class `Movie` that we created. The newly-created database is saved
@@ -640,20 +637,20 @@ database primary key.
 
 This section examines the generated `Edit` actions and view.
 
-### Controlling Appearance of Field Names in Forms
+### 7.1. Controlling Appearance of Field Names in Forms
 
 In `Models/Movie/`, the properties of the `Movie` instance are as follows:
 
 ```c#
-    public class Movie
-    {
+public class Movie
+{
 
-        public int ID { get; set; }
-        public string Title { get; set; }
-        public DateTime ReleaseDate { get; set; }
-        public string Genre { get; set; }
-        public decimal Price { get; set; }
-    }
+    public int ID { get; set; }
+    public string Title { get; set; }
+    public DateTime ReleaseDate { get; set; }
+    public string Genre { get; set; }
+    public decimal Price { get; set; }
+}
 ```
 
 When the application is deployed, the views containing forms use the property names
@@ -673,13 +670,13 @@ The `Display` attribute describes how to label form fields. `DataType` specifies
 the type of data as a date, so the time portion isn't displayed. The `DisplayFormat`
 attribute specifies how to display the date, rather than leaving it to browsers.
 
-### The Edit Action/View
+#### 7.2. The Edit Action/View
 
 In the Index view, the Edit link created for each movie in the list passed to the
 view is generated as follows:
 
 ```cshtml
-    @HTML.ActionLink("Edit Me", "Edit", new { id=item.id} );
+@HTML.ActionLink("Edit Me", "Edit", new { id=item.id} );
 ```
 `Html` refers to the HtmlHelper mentioned previously. The `ActionLink` method
 makes it easy to link to action nethods on controlers. The first argument is the
@@ -693,21 +690,21 @@ where *id* is a numerical value representing the id of the movie. The Edit actio
 called is as follows:
 
 ```c#
-    // GET: Movies/Edit/5
-    public ActionResult Edit(int? id)
-    {
+// GET: Movies/Edit/5
+public ActionResult Edit(int? id)
+{
 
-        if (id == null)
-        {
-            return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-        }
-        Movie movie = db.Movies.Find(id);
-        if (movie == null)
-        {
-            return HttpNotFound();
-        }
-        return View(movie);
+    if (id == null)
+    {
+        return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
     }
+    Movie movie = db.Movies.Find(id);
+    if (movie == null)
+    {
+        return HttpNotFound();
+    }
+    return View(movie);
+}
 ```
 The method uses the Entity Framework `Find()` method to search for a movie whose
 id matches the parameter, and returns it if found.
@@ -733,19 +730,19 @@ entry that matches this format, and the `Movies` controller has an Edit method t
 match:
 
 ```c#
-    // POST: Movies/Edit/5
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public ActionResult Edit([Bind(Include = "ID,Title,ReleaseDate,Genre,Price")] Movie movie)
+// POST: Movies/Edit/5
+[HttpPost]
+[ValidateAntiForgeryToken]
+public ActionResult Edit([Bind(Include = "ID,Title,ReleaseDate,Genre,Price")] Movie movie)
+{
+    if (ModelState.IsValid)
     {
-        if (ModelState.IsValid)
-        {
-            db.Entry(movie).State = EntityState.Modified;
-            db.SaveChanges();
-            return RedirectToAction("Index");
-        }
-        return View(movie);
+        db.Entry(movie).State = EntityState.Modified;
+        db.SaveChanges();
+        return RedirectToAction("Index");
     }
+    return View(movie);
+}
 ```
 
 The `HttpPost` attribute specifies that the overload Edit method can only be
@@ -767,9 +764,6 @@ action:
     <div class="form-horizontal">
         <h4>Movie</h4>
         <hr />
-        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-        @Html.HiddenFor(model => model.ID)
-
 <!-- snippet -->
 ```
 
@@ -784,32 +778,28 @@ Hence the Edit view expects a the model for the view template to be of type `Mov
 
 The Edit view is created through scaffolding when the controller is created, and
 it uses a variety of helper methods to create the markup. These include:
-<dl>
-<dt>`Html.LabelFor`</dt>
-<dd>Displays the name of the field, e.g. "Title", "Release Date", etc</dd>
-<dt>`Html.EditorFor`</dt>
-<dd>Renders a html `<input>` element for the editable field</dd>
-<dt>`Html.ValidationMessageFor`</dt>
-<dd>Displays any validation message associated with that property/field.</dd>
-</dl>
 
-### Processing the POST Request
+`Html.LabelFor` - Displays the name of the field, e.g. "Title", "Release Date", etc
+`Html.EditorFor` - Renders a html `<input>` element for the editable field
+`Html.ValidationMessageFor` - Displays any validation message associated with that property/field
+
+#### 7.3. Processing the POST Request
 
 The `HttpPost` version of the Edit method is as shown below:
 
 ```c#
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public ActionResult Edit([Bind(Include = "ID,Title,ReleaseDate,Genre,Price")] Movie movie)
+[HttpPost]
+[ValidateAntiForgeryToken]
+public ActionResult Edit([Bind(Include = "ID,Title,ReleaseDate,Genre,Price")] Movie movie)
+{
+    if (ModelState.IsValid)
     {
-        if (ModelState.IsValid)
-        {
-            db.Entry(movie).State = EntityState.Modified;
-            db.SaveChanges();
-            return RedirectToAction("Index");
-        }
-        return View(movie);
+        db.Entry(movie).State = EntityState.Modified;
+        db.SaveChanges();
+        return RedirectToAction("Index");
     }
+    return View(movie);
+}
 ```
 
 The ASP.NET *MVC model binder* takes the posted and bound form values and creates
@@ -834,7 +824,7 @@ state of the application.
 This section describes how to add extra functionality to the application, and how
 to change the controller and view to suit.
 
-### Updating the Inde Form
+#### 8.1. Updating the Index Form
 
 Change the `Index` method to the following:
 
@@ -857,13 +847,13 @@ The first portion creates a *LINQ* query meant to select all movies in the
 database. Then if `searchString` is not blank, the query is modified to filter on
 the value of the search string. The query, while defined, has still not been run.
 
-LINQ query executio is deferred until its realized value is actually iterated
+LINQ query execution is deferred until its realized value is actually iterated
 over or the `ToList` method is called. Note that the `Contains` method is run on
 the database, not the c# code above; it maps to SQL's `LIKE`, which is case
 insensitive.
 
 The action above matches url calls that pass the searchString as a query string.
-If the parameters are to be passed as route data, the call should be modified to:
+If the parameters are to be passed as route data, the action should be modified to:
 
 ```c#
 public ActionResult Index(string id)
@@ -902,7 +892,7 @@ to post to itself. The parameters added ensure that the url sent contains the
 search query string within it, and is therefore bookmark-able; it also ensures 
 that the `GET` version of Index is the one called, if a `POST` overload exists.
 
-### Adding Search By Genre
+#### 8.2. Adding Search By Genre
 
 To make it possible to search by both title and genre, the Index method is
 modified to (commentary interspersed within code)
@@ -963,7 +953,7 @@ from the previous search functionality markup, to look as follows:
 In the code below:
 
 ```cshtml
-@Html.DropDownList("MovieGenre", "All");
+@Html.DropDownList("movieGenre", "All");
 ```
 
 the `movieGenre` parameter provides the key for the `DropDownList` helper to 
@@ -989,18 +979,18 @@ To avoid obscure errors at runtime, Code First adds a table to the database that
 helps keep track of whether the schema of the database is in sync with the model
 it was derived from.
 
-### Setting up Code First Migrations for Model Changes
+#### 9.1. Setting up Code First Migrations for Model Changes
 
 Steps:
 
-1. Delete the *App_Data/Movies.mdf* database file
-2. Click *Tools > NuGet/Library Package Manager > Package Manager Console >*
-3. In the *Package Manager Console*, at the `PM>` prompt, enter:
+* Delete the *App_Data/Movies.mdf* database file
+* Click *Tools > NuGet/Library Package Manager > Package Manager Console >*
+* In the *Package Manager Console*, at the `PM>` prompt, enter:
 
 > `Enable-Migrations -ContextTypeName MvcMovie.Models.MovieDBContext`
 
 The `Enable-Migrations` command creates a *Migrations/Configuration.cs* file with
-a `Seed()` method stub. This method is calle dafter every migration (i.e. calling
+a `Seed()` method stub. This method is called after every migration (i.e. calling
 `update-database` in the Package Manager) and updates rows that have already been
 inserted, or inserts them if they don't exist. This is known as an *upsert* 
 operation (an amalgamation of update and insert). A shortened version of the 
@@ -1026,64 +1016,64 @@ check if a row already exists. For this database, its unlikely that movies would
 have the same title, so the Title field is used. The next parameter is the Movie
 object to add or update to the database.
 
-4. Create a `DbMigration` class for the initial migration. In the Package Manager
+* Create a `DbMigration` class for the initial migration. In the Package Manager
 Console, enter the command `add-migration Initial` to create the initial migration.
 The name `Initial` in the command is arbitrary.
 
-This creates another file *Migrations/{DateStamp}_Initial.cs* that contains the
+   This creates another file *Migrations/{DateStamp}_Initial.cs* that contains the
 code to create the database schema (tables, etc). 
 
-5. Update the database. Run `update-database` in the Package Manager Console. This
+* Update the database. Run `update-database` in the Package Manager Console. This
 will run the code in *Migrations/Configuration.cs* to create the table, and the
 `Seed(DbContext)` code in *Migrations/Configuration.cs* to add the values to the
 table.
 database.
 
-Build and run the application to view the data.
+* Build and run the application to view the data.
 
-### Adding a Rating Property to the Movie Model
+#### 9.2. Adding a Rating Property to the Movie Model
 
 The steps for this are as below:
 
-1. Add a `Rating` property to *Models/Movie.cs*, as shown below, then build.
+* Add a `Rating` property to *Models/Movie.cs*, as shown below, then build.
 
 ```c#
 public string Rating { get; set; }
 ```
 
-2. Update the binding *white-list* to include the new property, in the `Create`
+* Update the binding *white-list* to include the new property, in the `Create`
 and `Edit` action methods, i.e.
 
 ```c#
 public ...([Bind(Include = "ID,Title,ReleaseDate,Genre,Price,Rating")] Movie movie)
 ```
 
-3. Update the view templates in order to have the Rating property. The Index will
+* Update the view templates in order to have the Rating property. The Index will
 be edited to add a Rating column and to display the Rating data (trivial, copy
 from other columns and mirror). Add a Rating field in the other views, following
 the structure of the previous fields already on the page.
 
-4. Attempting to run the application now throws an `InvalidOperationException`
+* Attempting to run the application now throws an `InvalidOperationException`
 error. This is because the model (here, `Movie`) backing the `MovieDBContext` has
 changed. There are three possible solutions to this:
-    * Have the Entity Framework automatically drop and recreate the database with
+    + Have the Entity Framework automatically drop and recreate the database with
     the new model. This is convinient early in the development process, but it
     causes all the data to be lost. 
-    * Explicitly change the schema to reflect the new model. This method allows
+    + Explicitly change the schema to reflect the new model. This method allows
     you to keep your data, and can be done either manually or through a script.
-    * Use Code First Migrations, and adding the new column's data to the `Seed`
+    + Use Code First Migrations, and adding the new column's data to the `Seed`
     method. This is the method used here.
 
-5. Update the `Seed` method with data for the new column; for each `Movie` object
+* Update the `Seed` method with data for the new column; for each `Movie` object
 in the `AddOrUpdate` method, add a line for the rating and its value. Build the
 solution.
 
-6. Open the Package Manager Console and run the command `add-migration Rating`.
+* Open the Package Manager Console and run the command `add-migration Rating`.
 This tells the migration framework to examine the current model and create the
 code to migrate the database to the new model. The name `Rating` is arbitrary; it
 merely helps give the migration file a meaningful name.
 
-Much like the first migration, this command creates a file in the Migrations
+   Much like the first migration, this command creates a file in the Migrations
 folder that has the code to add the new column. The code within the file
 (*Migrations/{DateStamp}_Rating.cs*) is as follows:
 
@@ -1103,3 +1093,5 @@ public partial class Rating : DbMigration
 ```
 
 7. Run `update-database` in the Package manager Console
+
+
