@@ -5,6 +5,8 @@
 
 ## 2. Adding a Controller
 
+This section explains the basics of MVC, and sets up a new project.
+
 MVC == **"Model View Controller"**
 <dl>
     <dt>Models</dt>
@@ -99,6 +101,9 @@ following code within `RegisterRoutes()`:
 
 
 ## 3. Adding a View
+
+This section explains the intricacies of views and how they are used to cleanly
+encapsulate the process of gernerating HTML responses to a client.
 
 Views in ASP.NET can be created using the *Razor View Engine*, which creates pages
 with a `.cshtml` extension. 
@@ -272,6 +277,8 @@ provides a concrete implementation of the *IModelBinder* interface.
 
 ## 4. Adding a Model
 
+This section adds a `Movie` model to the application.
+
 A model is the section of the framework that represents the data within the
 application, and the envinronment that goes towards persisting that data to storage.
 .NET utilizes the *Entity Framework (EF)* to define model classes. EF is an
@@ -343,6 +350,8 @@ public class BookDBContext : DbContext
 
 
 ## 5. Creating a Connection String & Working with SQLServer LocalBD
+
+This section describes how to connect to the database created from the model.
 
 The DbContext created for each model handles the database connection and mapping
 the data and relationships in the models to the database. EF automatically picks
@@ -424,6 +433,9 @@ See the [MSDN writeup on connection strings] (http://msdn.microsoft.com/en-us/li
 
 
 ## 6. Accessing Models Data from a Controller
+
+This section describes how to create a `MoviesController` class and write code
+that retrieves and displays data.
 
 >**NOTE**
 > For this section, the observations made are partially dependent on how the 
@@ -620,12 +632,15 @@ from the model class `Movie` that we created. The newly-created database is save
 in */App_Data/Movies.mdf*. By default, EF uses any property named *ID* as the 
 database primary key.
 
+
 ---
 
 
 ## 7. Examining the Edit Action and View
 
-### Controlling Appearance of Field Nmaes in Forms
+This section examines the generated `Edit` actions and view.
+
+### Controlling Appearance of Field Names in Forms
 
 In `Models/Movie/`, the properties of the `Movie` instance are as follows:
 
@@ -811,7 +826,15 @@ All the CRUD methods have both `HttpGet` and `HttpPost` versions; this is becaus
 should be safe, have no side effects, and not modify persisted data or change the
 state of the application.
 
+---
+
+
 ## 8. Adding Search
+
+This section describes how to add extra functionality to the application, and how
+to change the controller and view to suit.
+
+### Updating the Inde Form
 
 Change the `Index` method to the following:
 
@@ -951,6 +974,71 @@ populated within the Index action. Recall that `ViewBag` is merely a wrapper for
 
 The parameter `All` specifies the value to be preselected within the list. If no
 selection is made, the `movieGenre` parameter would be empty, since the posted
-data wouldn't send bacl `All` at it's not in the `SelectList`.
+data wouldn't send back `All` at it's not in the `SelectList`.
+
+
+---
+
+
+## 9. Adding a New Field
+
+This section uses EF Code First migrations to migrate shanges to the model so
+that the change is applied to the database.
+
+To avoid obscure errors at runtime, Code First adds a table to the database that
+helps keep track of whether the schema of the database is in sync with the model
+it was derived from.
+
+### Setting up Code First Migrations for Model Changes
+
+Steps:
+
+1. Delete the *App_Data/Movies.mdf* database file
+2. Click *Tools > NuGet/Library Package Manager > Package Manager Console >*
+3. In the *Package Manager Console*, at the `PM>` prompt, enter:
+
+> `Enable-Migrations -ContextTypeName MvcMovie.Models.MovieDBContext`
+
+The `Enable-Migrations` command creates a *Migrations/Configuration.cs* file with
+a `Seed()` method stub. This method is calle dafter every migration (i.e. calling
+`update-database` in the Package Manager) and updates rows that have already been
+inserted, or inserts them if they don't exist. This is known as an *upsert* 
+operation (an amalgamation of update and insert). A shortened version of the 
+method is shown below:
+
+```c#
+protected override void Seed(MvcMovie.Models.MovieDBContext context)
+{
+    context.Movies.AddOrUpdate(i => i.Title,
+        new Movie
+        {
+            Title = "Snatch",
+            ReleaseDate = DateTime.Parse("2001-1-19"),
+            Genre = "Thriller",
+            Price = 12.99M
+        }
+    );
+}
+```
+
+The first parameter to the `AddOrUpdate` method specifies the property to use to
+check if a row already exists. For this database, its unlikely that movies would
+have the same title, so the Title field is used. The next parameter is the Movie
+object to add or update to the database.
+
+4. Create a `DbMigration` class for the initial migration. In the Package Manager
+Console, enter the command `add-migration Initial` to create the initial migration.
+The name `Initial` in the command is arbitrary.
+
+This creates another file `Migrations/{DateStamp}_Initial.cs` that contains the
+code to create the database schema (tables, etc). 
+
+5. Update the database. Run `update-database` in the Package Manager Console. This
+will run the code in `Migrations/Configuration.cs` to create the table, and the
+code in `Migrations/Configuration.Seed(DbContext)` to add the values to the table.
+database.
+
+Build and run the application to view the data.
+
 
 
