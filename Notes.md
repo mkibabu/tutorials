@@ -1222,3 +1222,81 @@ be changed there without making any changes to the controller and view(s).
 ## 11. Examining the Details and Delete Methods
 
 
+The `Details` method in `MoviesController` is as follows:
+
+```c#
+// GET: Movies/Details/5
+public ActionResult Details(int? id)
+{
+    if (id == null)
+    {
+        return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+    }
+
+    Movie movie = db.Movies.Find(id);
+
+    if (movie == null)
+    {
+        return HttpNotFound();
+    }
+    return View(movie);
+}
+```
+
+As the comment inserted by the MVC scaffolding engine shows, the method is called
+by a `Get` request with three url segments, including an `ID` value. The method
+performs null-checking to ensure database errors are not caused by attempting to
+`Find(id)` using an invalid `id` value.
+
+The `Delete` and `DeleteConfirmed` methods are as follows:
+
+```c#
+// GET: Movies/Delete/5
+public ActionResult Delete(int? id)
+{
+    if (id == null)
+    {
+        return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+    }
+    Movie movie = db.Movies.Find(id);
+    if (movie == null)
+    {
+        return HttpNotFound();
+    }
+    return View(movie);
+}
+
+// POST: Movies/Delete/5
+[HttpPost, ActionName("Delete")]
+[ValidateAntiForgeryToken]
+public ActionResult DeleteConfirmed(int id)
+{
+    Movie movie = db.Movies.Find(id);
+    db.Movies.Remove(movie);
+    db.SaveChanges();
+    return RedirectToAction("Index");
+}
+```
+
+Note that, keeping with *REST* principles, the `HttpGet Delete(int)` call does
+not actually delete the movie object. Instead, it returns a view of the movie
+where the `HttpPost DeleteConfirmed(id)` call can be made. 
+
+Since both methods take an int parameter, the names are different to ensure the
+signatures don't match. Another way to do this is to add an unused parameter, e.g:
+
+```c#
+public ActionResult Delete (FormCollection notUsed, int id = 0)
+{
+    Movie movie = db.Movies.Find(id);
+    if(movie == null)
+    {
+        return HttpNotFound();
+    }
+
+    db.Movies.Remove(movie);
+    db.SaveChanges();
+    return RedirectToAction("Index");
+}
+```
+
