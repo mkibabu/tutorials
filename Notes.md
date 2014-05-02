@@ -1030,15 +1030,76 @@ object to add or update to the database.
 Console, enter the command `add-migration Initial` to create the initial migration.
 The name `Initial` in the command is arbitrary.
 
-This creates another file `Migrations/{DateStamp}_Initial.cs` that contains the
+This creates another file *Migrations/{DateStamp}_Initial.cs* that contains the
 code to create the database schema (tables, etc). 
 
 5. Update the database. Run `update-database` in the Package Manager Console. This
-will run the code in `Migrations/Configuration.cs` to create the table, and the
-code in `Migrations/Configuration.Seed(DbContext)` to add the values to the table.
+will run the code in *Migrations/Configuration.cs* to create the table, and the
+`Seed(DbContext)` code in *Migrations/Configuration.cs* to add the values to the
+table.
 database.
 
 Build and run the application to view the data.
 
+### Adding a Rating Property to the Movie Model
 
+The steps for this are as below:
 
+1. Add a `Rating` property to *Models/Movie.cs*, as shown below, then build.
+
+```c#
+public string Rating { get; set; }
+```
+
+2. Update the binding *white-list* to include the new property, in the `Create`
+and `Edit` action methods, i.e.
+
+```c#
+public ...([Bind(Include = "ID,Title,ReleaseDate,Genre,Price,Rating")] Movie movie)
+```
+
+3. Update the view templates in order to have the Rating property. The Index will
+be edited to add a Rating column and to display the Rating data (trivial, copy
+from other columns and mirror). Add a Rating field in the other views, following
+the structure of the previous fields already on the page.
+
+4. Attempting to run the application now throws an `InvalidOperationException`
+error. This is because the model (here, `Movie`) backing the `MovieDBContext` has
+changed. There are three possible solutions to this:
+    * Have the Entity Framework automatically drop and recreate the database with
+    the new model. This is convinient early in the development process, but it
+    causes all the data to be lost. 
+    * Explicitly change the schema to reflect the new model. This method allows
+    you to keep your data, and can be done either manually or through a script.
+    * Use Code First Migrations, and adding the new column's data to the `Seed`
+    method. This is the method used here.
+
+5. Update the `Seed` method with data for the new column; for each `Movie` object
+in the `AddOrUpdate` method, add a line for the rating and its value. Build the
+solution.
+
+6. Open the Package Manager Console and run the command `add-migration Rating`.
+This tells the migration framework to examine the current model and create the
+code to migrate the database to the new model. The name `Rating` is arbitrary; it
+merely helps give the migration file a meaningful name.
+
+Much like the first migration, this command creates a file in the Migrations
+folder that has the code to add the new column. The code within the file
+(*Migrations/{DateStamp}_Rating.cs*) is as follows:
+
+```c#
+public partial class Rating : DbMigration
+{
+    public override void Up()
+    {
+        AddColumn("dbo.Movies", "Rating", c => c.String());
+    }
+    
+    public override void Down()
+    {
+        DropColumn("dbo.Movies", "Rating");
+    }
+}
+```
+
+7. Run `update-database` in the Package manager Console
