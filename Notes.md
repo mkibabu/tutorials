@@ -290,7 +290,7 @@ and entities according to the  database schema provided. It employs a variety of
 workflows to design and develop data-oriented applications. The main workflows 
 used are:
 
-**1. Code First**
+**(a). Code First**
 
 Allows one to create model objects by writing simple objects, aka *POCO*
 *classes* (i.e. *Plain Old CLR Objects*). The classes define the data and
@@ -299,14 +299,14 @@ to evolve a database from the classes. Note that reverse-engineering tools
 exist that allow one to use Code-First to define data and relationships
 that fit into existing databases.
 
-**2. Model First**
+**(b). Model First**
 
 Uses UML diagrams and lines within a designer to describe a new database
 structure/schema. The diagrams describe the data while the lines describe
 the relationships between the data. From this visual description, ASP.NET
 creates the models and business logic that represent the database.
 
-**3. Database First**
+**(c). Database First**
 
 Allows one to reverse-engineer an existing database into UML diagrams
 and lines describing the data and relationships between the data. Is
@@ -364,7 +364,7 @@ databases as *.mdf* files in the */App_Data/* folder.
 
 EF specifies a few ways to specify which database it should connect to:
 
-**1. Calling the DbContext Parameterless Constructor**
+**(a). Calling the DbContext Parameterless Constructor**
 
 If no configuration hs been done on the application, , calling the parameterless
 constructor on DbContext causes DbContext to create a database and a connection
@@ -386,7 +386,7 @@ namespace Demo.EF
 Here, DbContext will use the qualified name of the derived context class - 
 `Demo.EF.BloggingContext` - as the database name and create a connectin to it.
 
-**2. Calling the DbContext Constructor with Specified DB Name**
+**(b). Calling the DbContext Constructor with Specified DB Name**
 
 If no configuration hs been done on the application, calling the string constructor
 on DbContext will create a connection to the database by that name. For instance:
@@ -408,7 +408,7 @@ namespace Demo.EF
 Here, a connection string is created with "BloggingDatabase" as the database to
 connect to.
 
-**3. Specifying Connection String in /Web.config File**
+**(c). Specifying Connection String in /Web.config File**
 
 In the application root `Web.config` file, one can specify the database that EF
 should connect to as a *connection string*. The format of a connection string is
@@ -779,9 +779,11 @@ Hence the Edit view expects a the model for the view template to be of type `Mov
 The Edit view is created through scaffolding when the controller is created, and
 it uses a variety of helper methods to create the markup. These include:
 
-`Html.LabelFor` - Displays the name of the field, e.g. "Title", "Release Date", etc
-`Html.EditorFor` - Renders a html `<input>` element for the editable field
-`Html.ValidationMessageFor` - Displays any validation message associated with that property/field
+* `Html.LabelFor` - Displays the name of the field, e.g. "Title", "Release Date", 
+etc
+* `Html.EditorFor` - Renders a html `<input>` element for the editable field
+* `Html.ValidationMessageFor` - Displays any validation message associated with 
+that property/field
 
 #### 7.3. Processing the POST Request
 
@@ -1092,6 +1094,131 @@ public partial class Rating : DbMigration
 }
 ```
 
-7. Run `update-database` in the Package manager Console
+* Run `update-database` in the Package manager Console
+
+---
+
+
+## 10. Adding Validation
+
+This section adds validation support to the `Movie` model, and ensures the 
+validation rules are enforced in the views. ASP's validation support allows one
+to specify the rules once and have them enforced throughout the application.
+
+#### 10.1. Adding Validation Rules to the Movie Model
+
+Add annotations to the `Movie` model to appear as follows:
+
+```c#
+public class Movie
+{
+
+    public int ID { get; set; }
+
+    [StringLength(60, MinimumLength=3)]
+    public string Title { get; set; }
+
+    [Display(Name = "Release Date")]
+    [DataType(DataType.Date)]
+    [DisplayFormat(DataFormatString= "{0:yyyy-MM-dd}", ApplyFormatInEditMode=true)]
+    public DateTime ReleaseDate { get; set; }
+
+    [RegularExpression(@"^[A-Z]+[a-zA-z''-'\s]*$")]
+    [Required]
+    [StringLength(30)]
+    public string Genre { get; set; }
+
+    [Range(1, 100)]
+    [DataType(DataType.Currency)]
+    public decimal Price { get; set; }
+
+    [RegularExpression(@"[A-Z]+[a-zA-Z''-'\s]*$")]
+    public string Rating { get; set; }
+}
+```
+
+The attributes used are:
+
+* `StringLength` - sets the maximum (and optionally, minimum) length of the string,
+and sets the limitation on the database.
+* `Required` and `MinumumLength` - ensure that a property must have a value; this
+can include whitespace characters meting the length criteria
+* `RegularExpression` -limit what characters are valid. Usually used with the
+previous two to ensure values are not just whitespace
+* `Range` - ensures values are within the specified range.
+* `DataType` - strictly speaking, this isn't a validation attribute. It provides
+hints to the view engine on how to display the data, and suggests a data type 
+that is more stringent than the database's intrinsinc value. It emits a `data-`
+attribute that HTML5 browsers can understand, and can use to format the data in 
+a type-specific manner. `RegularExpression` is better suited for validation.
+
+To have these annotations reflected in the database, use Code First migration.
+Run `add-migration DataAnnotations` to create a file in the *Migrations* folder
+with the code to set the change, then run `update-database` to push the changes
+to the database.
+
+Note that when the application is run, ASP automatically updated the UI to meet
+the validation requirements.
+
+#### 10.2. Validation in the Create View and Action Method
+
+To show how the UI update is done, take a look at the Create action methods:
+
+```c#
+// GET: Movies/Create
+public ActionResult Create()
+{
+    return View();
+}
+
+// POST: Movies/Create
+// To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+// more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+[HttpPost]
+[ValidateAntiForgeryToken]
+public ActionResult Create([Bind(Include = "ID,Title,ReleaseDate,Genre,Price,Rating")] Movie movie)
+{
+    if (ModelState.IsValid)
+    {
+        db.Movies.Add(movie);
+        db.SaveChanges();
+        return RedirectToAction("Index");
+    }
+
+    return View(movie);
+}
+```
+The first (`HttpGet`) action displays the initial Create form. The second 
+(`HttpPost`) method handles the form post. The `ModelState.IsValid` call in the
+second method checks whether any validation errors have occured, by evaluating 
+the validation attributes that have been applied to the object. If errors are
+found, it re-displays the Create form. If none are found, it saves the movie and
+persists it to the database. However, in the `Movie` example, client-side JS 
+validation makes the form not get posted if invalid values are found. If JS is 
+disabled, the `HttpPost` Create call would catch the validation errors at 
+`ModelState.IsValid` as described.
+
+The Create view contains the following code snippets for each field:
+
+```cshtml
+<div class="col-md-10">
+    @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control" } })
+    @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
+</div>
+```
+
+The `Html.EditorFor` and `Html.ValidationMEssageFor` helper methods work with 
+the model passed to the view to look for and display validation attributes and
+their approrpiate messages. 
+
+Note that neiher the controller nor the view(s) have any awareness of the validation
+rules being enforced. The rules are set and defined once, in the model, and can
+be changed there without making any changes to the controller and view(s).
+
+
+---
+
+
+## 11. Examining the Details and Delete Methods
 
 
