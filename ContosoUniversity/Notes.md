@@ -150,7 +150,6 @@ A view of all three models is as below:
 |                |         | Student Student(FK)|        |                        |
 
 
-
 #### 1.4. Creating the Database Context
 
 The database context class for this project will be *DataAccessLayer/SchoolContext*,
