@@ -134,20 +134,22 @@ public class Course
     public virtual ICollection<Enrollment> Enrollments { get; set; }
 }
 ```
-A view of all three models is as below:
+A view of all three models is as below: the value in parenthesis shows each
+column's relationship to the one on its right (hence `Course` - `Enrollment` is a 
+one-to-many relationship)
 
-| **Course**     |         | **Enrollment**     |        | **Student**            |
-|----------------|         |--------------------|        |------------------------|
-|:*Properties*   |         |:*Properties*       |        |:*Properties*           |
-|:.............: |         |:..................:|        |:......................:|
-| int ID (PK)    | 1----*  | int ID (PK)        | *----1 | int ID                 |
-| string Title   |         | int CourseID       |        | string LastName        |
-| int Credits    |         | int StudentID      |        | string FirstMidName    |
-|                |         | Grade Grade        |        | DateTime EnrollmentDate|
-|:*Nav Property* |         |:*Nav Properties*   |        |:*Nav Property*         |
-|:..............:|         |:..................:|        |:.......................|
-| <Enrollments>  |         | Course Course(FK)  |        |  <Enrollments>         |
-|                |         | Student Student(FK)|        |                        |
+| **Course (1)** |**(x)Enrollment(x)**| **(1)Student**            |
+|----------------|--------------------|------------------------|
+|:*Properties*   |:*Properties*       |:*Properties*           |
+|:.............: |:..................:|:......................:|
+| int ID (PK)    | int ID (PK)        | int ID                 |
+| string Title   | int CourseID       | string LastName        |
+| int Credits    | int StudentID      | string FirstMidName    |
+|                | Grade Grade        | DateTime EnrollmentDate|
+|:*Nav Property* |:*Nav Properties*   |:*Nav Property*         |
+|:..............:|:..................:|:.......................|
+| <Enrollments>  | Course Course(FK)  |  <Enrollments>         |
+|                | Student Student(FK)|                        |
 
 
 #### 1.4. Creating the Database Context
