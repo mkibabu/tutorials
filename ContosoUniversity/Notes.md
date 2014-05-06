@@ -50,6 +50,12 @@ The models used are as follows:
 
 **(a). The Student Entity**
 
+Each `Student` has a unique identifier, as well as properties to hold the name 
+and enrollment date. A `Student` can have several `Enrollments`, which is, here,
+a way to define the relationship between a `Student` and a `Course`. Having
+multiple `Enrollment` objects shows that a single student can enroll in multiple
+courses.
+
 ```c#
 public class Student
 {
@@ -69,6 +75,12 @@ can hold multiple entities (such as a many-to-many or one-to-many relationships)
 then its type must be a list allowing CRUD operations.
 
 **(b). The Enrollment Entity**
+
+As noted earlier, `Enrollment` defines the relationship between a `Student` and
+a `Course`. Each `Enrollment` object has a unique identifier and a `Grade`. It 
+also holds references to the `Student` and `Course` objects that together create
+this `Enrollment`; the `ID` fields of each are the foreign keys for each 
+`Enrollment` item into its respective `Student` and `Course` rows. 
 
 ```c#
 public enum Grade
@@ -104,6 +116,10 @@ primary key of the `Student` model was `StudentID`).
 
 **(c). The Course Entity**
 
+The `Course` entity contains a unique identifier, a title and credits. It has a
+reference to the collection of `Enrollment` objects that would include it, since
+multiple students are allowed to enrol in any one course.
+
 ```c#
 public class Course
 {
@@ -118,6 +134,22 @@ public class Course
     public virtual ICollection<Enrollment> Enrollments { get; set; }
 }
 ```
+A view of all three models is as below:
+
+| **Course**     |         | **Enrollment**     |        | **Student**            |
+|----------------|         |--------------------|        |------------------------|
+|:*Properties*   |         |:*Properties*       |        |:*Properties*           |
+|:.............: |         |:..................:|        |:......................:|
+| int ID (PK)    | 1----*  | int ID (PK)        | *----1 | int ID                 |
+| string Title   |         | int CourseID       |        | string LastName        |
+| int Credits    |         | int StudentID      |        | string FirstMidName    |
+|                |         | Grade Grade        |        | DateTime EnrollmentDate|
+|:*Nav Property* |         |:*Nav Properties*   |        |:*Nav Property*         |
+|:..............:|         |:..................:|        |:.......................|
+| <Enrollments>  |         | Course Course(FK)  |        |  <Enrollments>         |
+|                |         | Student Student(FK)|        |                        |
+
+
 
 #### 1.4. Creating the Database Context
 
@@ -312,14 +344,80 @@ few of those seen so far include:
 2. Entity/model property names become column names and form labels
 3. Entity properties named *ID* or *classNameID* are used as the primary key.
 4. Foreign keys are the properties whose names are formatted as follows:
-*[ navigation property name ]* *[ navigation property primary key name]* (for instance, the
-`StudentID` property in *Models/Course.cs*, since `Student` is the navigation
-property's name and `ID` is the name of the primary key of `Student`), or the
-format *[ navigation property primary key name ]* if the primary key uses the
-*classNameID* format for its primary key.
+*[ navigation property name ]* *[ navigation property primary key name]* (for 
+instance, the `StudentID` property in *Models/Course.cs*, since `Student` is the
+navigation property's name and `ID` is the name of the primary key of `Student`),
+or the format *[ navigation property primary key name ]* if the primary key uses
+the *classNameID* format for its primary key.
 
 
 ---
 
 
 ## 2. Implementing Basic CRUD Functionality
+
+
+This section creates the views and controller actions required to correctly edit
+and display the `Student` entities.
+
+#### 2.1. Create a Details Page
+
+The `Details()` action in StudentController is as shown below:
+
+```c#
+// GET: Students/Details/5
+public ActionResult Details(int? id)
+{
+    if (id == null)
+    {
+        return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+    }
+    Student student = db.Students.Find(id);
+    if (student == null)
+    {
+        return HttpNotFound();
+    }
+    return View(student);
+}
+```
+
+It finds a student matching the passed ID parameter and sends it to the Details
+view. Since the `Student.Enrollments` property is a collection, the view does
+not display it. In order to show the enrollments, the following code is added to
+the *Details* view:
+
+```cshtml
+<!-- snippet -->
+<dd>
+    @Html.DisplayFor(model => model.EnrollmentDate)
+</dd>
+
+<!-- Add this code to display a list of enrollments -->
+
+<dt>
+    @Html.DisplayNameFor(model => model.Enrollments)
+</dt>
+<dd>
+    <table class="table">
+        <tr>
+            <th>Course Title</th>
+            <th>Grade</th>
+        </tr>
+        @foreach (var item in Model.Enrollments)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Course.Title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Grade)
+                </td>
+            </tr>
+        }
+
+    </table>
+</dd>
+```
+
+The code loops though the `Enrollment` entity for each student, and displays the
+courtse title and grade for each.
