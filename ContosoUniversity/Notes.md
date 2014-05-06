@@ -138,18 +138,16 @@ A view of all three models is as below: the value in parenthesis shows each
 column's relationship to the one on its right (hence `Course` - `Enrollment` is a 
 one-to-many relationship)
 
-| **Course (1)** |**(x)Enrollment(x)**| **(1)Student**            |
-|----------------|--------------------|------------------------|
-|:*Properties*   |:*Properties*       |:*Properties*           |
-|:.............: |:..................:|:......................:|
-| int ID (PK)    | int ID (PK)        | int ID                 |
-| string Title   | int CourseID       | string LastName        |
-| int Credits    | int StudentID      | string FirstMidName    |
-|                | Grade Grade        | DateTime EnrollmentDate|
-|:*Nav Property* |:*Nav Properties*   |:*Nav Property*         |
-|:..............:|:..................:|:.......................|
-| <Enrollments>  | Course Course(FK)  |  <Enrollments>         |
-|                | Student Student(FK)|                        |
+| Course        |Enrollment         |Student                 |
+|---------------|-------------------|------------------------|
+|: *Properties* |: *Properties*     |: *Properties*          |
+| int ID (PK)   | int ID (PK)       | int ID                 |
+| string Title  | int CourseID (FK) | string LastName        |
+| int Credits   | int StudentID (FK)| string FirstMidName    |
+|               | Grade Grade       | DateTime EnrollmentDate|
+|: *Nav Prop*   |:*Nav Props*       |:*Nav Prop*             |
+| <Enrollments> | Course Course     | <Enrollments>          |
+|               | Student Student   |                        |
 
 
 #### 1.4. Creating the Database Context
