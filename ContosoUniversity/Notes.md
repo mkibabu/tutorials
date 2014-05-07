@@ -462,7 +462,7 @@ Change the `[HttpPost]` version of the `Edit` action to be:
 ```c#
 [HttpPost]
 [ValidateAntiForgeryToken]
-public ActionResult Edit([Bind(Include = "LastName,FirstMidName,EnrollmentDate")] Student student)
+public ActionResult Edit([Bind(Include = "ID,LastName,FirstMidName,EnrollmentDate")] Student student)
 {
     try
     {
