@@ -605,4 +605,98 @@ this call simply acts as an override.
 #### 2.5. Handling Transactions
 
 EF automatically makes all transactions atomic; either all operations in the
-transactions succeed, or all fail. 
+transactions succeed, or all fail.
+
+---
+
+
+## 3. Add Sorting, Filtering and Pagination
+
+This section adds the capability to sort and group students, as well as paginate
+throuh the application.
+
+#### 3.1. Add Sorting Functionality
+
+Replace `StudentController/Index()` wit the following code:
+
+```c#
+// GET: Students
+public ActionResult Index(string sortOrder)
+{
+    ViewBag.NameSortParm = string.IsNullOrEmpty(sortOrder) ?
+        "name_desc" : "";
+
+    ViewBag.DateSortParm = sortOrder == "Date" ?
+        "date_desc" : "Date";
+
+    var students = from s in db.Students
+                   select s;
+
+    switch(sortOrder)
+    {
+        case "name_desc":
+            students = students.OrderByDescending(s => s.LastName);
+            break;
+
+        case "Date":
+            students = students.OrderBy(s => s.EnrollmentDate);
+            break;
+
+        case "date_desc":
+            students = students.OrderByDescending(s => s.EnrollmentDate);
+            break;
+
+        default:
+            students = students.OrderBy(s => s.LastName);
+            break;
+    }
+
+    return View(db.Students.ToList());
+}
+```
+
+The method receives a parameter `sortOrder` as a query string; this parameter is
+a string containing either "*Name*" or "*Date*", optionally followed by "*_desc*"
+to specify descending order. The default sorting format is by last name, ascending.
+
+When the `Index` method is called the first time, the sort parameter is empty, 
+and the students are displayed in ascending order by `Lastname`. When a user
+clicks on the column heading hyperlink (we'll implement these later), then the
+appropriate `sortOrder` value is provided.
+
+The ViewBag variables are used to allow the view to configure the column heading
+hyperlinks.
+
+The code uses LINQ to create the `IQueryable` variable, then the switch to 
+determine the filter, and calls `ToList` to execute the query and pass the
+resultant list to the view.
+
+Change the *Index* view to be as follows:
+
+```cshtml
+<!-- snippet -->
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.ActionLink("Last Name", "Index", new object { sortOrder = ViewBag.NameSortParm })
+        </th>
+        <th>
+            First Name
+        </th>
+        <th>
+            @Html.ActionLink("Enrollment Date", "Index", new object { sortOrder = ViewBag.NameSortParm })
+        </th>
+        <th>
+            
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+
+<!-- snippet -->
+
+```
