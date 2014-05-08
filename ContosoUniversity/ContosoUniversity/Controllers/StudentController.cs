@@ -9,6 +9,8 @@ using System.Web.Mvc;
 using ContosoUniversity.DataAccessLayer;
 using ContosoUniversity.Models;
 
+using PagedList;
+
 namespace ContosoUniversity.Controllers
 {
     public class StudentController : Controller
@@ -16,14 +18,27 @@ namespace ContosoUniversity.Controllers
         private SchoolContext db = new SchoolContext();
 
         // GET: Students
-        public ActionResult Index(string sortOrder, string searchString)
+        public ActionResult Index(string sortOrder, string searchString, string currentFilter, int? page)
         {
+            ViewBag.CurrentFilter = sortOrder;
+
             // set the sorting link parameters
             ViewBag.NameSortParm = string.IsNullOrEmpty(sortOrder) ?
                 "name_desc" : "";
             ViewBag.DateSortParm = sortOrder == "Date" ?
                 "date_desc" : "Date";
 
+            if(searchString != null)
+            {
+                page = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+
+            ViewBag.CurrentFilter = searchString;
+            
             var students = from s in db.Students
                            select s;
 
@@ -54,7 +69,10 @@ namespace ContosoUniversity.Controllers
                     break;
             }
 
-            return View(students.ToList());
+            int pageSize = 3;
+            int pageNumber = (page ?? 1);
+
+            return View(students.ToPagedList(pageNumber, pageSize));
         }
 
         // GET: Students/Details/5

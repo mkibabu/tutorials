@@ -615,7 +615,7 @@ transactions succeed, or all fail.
 This section adds the capability to sort and group students, as well as paginate
 throuh the application.
 
-#### 3.1. Add Sorting Functionality
+#### 3.1. Add Sorting Functionality to the Students Index page
 
 Replace `StudentController/Index()` wit the following code:
 
@@ -783,7 +783,7 @@ Change the Index view to the following:
     @Html.ActionLink("Create New", "Create")
 </p>
 
-<!-- begin search form -->
+
 @using(Html.BeginForm())
 {
     <p>
@@ -791,10 +791,205 @@ Change the Index view to the following:
         <input type="submit" value="Search" />
     </p>
 }
-<!-- end search form -->
 
 <table class="table">
+    ...
+</table>
+
 <!-- snippet -->
+
 ```
+
+The code above calls `BeginForm` to create the form fields required for the search.
+Note that the url sent to the controller does not contain the search term within
+it; the search terms are sent as a POST request. This will be changed later.
+
+#### 3.3. Adding Paging to the Students Index Page
+
+Start by installing the *PagedList.Mvc*, one of the many paging and sorting
+packages for ASP.NET MVC, used here as an example rather than as a recommendation
+over other options.
+
+Click *Tools > Library > NuGet Package Manager > Package Manager Console*, and 
+type the command below:
+
+```
+Install-Package PagedList.Mvc
+```
+
+Add `using PagedList` to the *StudentController.cs* file, and replace the `Index`
+method with the following code:
+
+```c#
+// GET: Students
+        public ActionResult Index(string sortOrder, string searchString, string currentFilter, int? page)
+{
+    ViewBag.CurrentSort = sortOrder;
+
+    // set the sorting link parameters
+    ViewBag.NameSortParm = string.IsNullOrEmpty(sortOrder) ?
+        "name_desc" : "";
+    ViewBag.DateSortParm = sortOrder == "Date" ?
+        "date_desc" : "Date";
+
+    if(searchString != null)
+    {
+        page = 1;
+    }
+    else
+    {
+        searchString = currentFilter;
+    }
+
+    ViewBag.CurrentFilter = searchString;
+    
+    var students = from s in db.Students
+                   select s;
+
+    // filter by search term
+    if(!string.IsNullOrEmpty(searchString))
+    {
+        searchString = searchString.ToUpper();
+        students = students.Where(s => s.LastName.ToUpper().Contains(searchString)
+                                    || s.FirstMidName.ToUpper().Contains(searchString) );
+    }            
+    
+    switch(sortOrder)
+    {
+        case "name_desc":
+            students = students.OrderByDescending(s => s.LastName);
+            break;
+
+        case "Date":
+            students = students.OrderBy(s => s.EnrollmentDate);
+            break;
+
+        case "date_desc":
+            students = students.OrderByDescending(s => s.EnrollmentDate);
+            break;
+
+        default:
+            students = students.OrderBy(s => s.LastName);
+            break;
+    }
+
+    int pageSize = 3;
+    int pageNumber = (page ?? 1);
+
+    return View(students.ToPagedList(pageNumber, pageSize));
+}
+```
+
+We've added current filter and page parameters to the method signature. The first
+time the page is displayed, all 4 parameters will be empty.
+
+Each navigation to a new page will result in a call to the `Index` method. The 
+sort order will ahve to be maintained throughout these calls, so the first line
+(`Viewbag.CurrentSort = sortOrder`) caches the sort order between views/pages.
+
+The property `Viewbag.CurrentFilter` provides a way to do the same with the
+searchString filter. This allows it to be maintained throughout the paging, and 
+be restored to the textbox when the page is changed. If the search string is reset
+during paging, the page has to be reset to `1`, because the new filter can result
+in different data to display (and therefore a different number of pages). Once
+a saearch filter is entered and cached by `ViewBag.CurrentFilter`, subsequent
+paginations send a null value of searchString, and it is rewritten as the value
+of `string currentFilter`. If, however, some search string is entered, then
+`searchString` is no longer null, and the page is reset to `1` as shown below:
+
+```c#
+if(searchString != null)
+{
+    page = 1;
+}
+else
+{
+    searchString = currentFilter;
+}
+```
+
+Att he end of the method, the `ToPagedList` extension method on the `students`
+`IQueryable` object converts the string query into a single page of students in
+a collections that supports paging. This single page is then passed to the view:
+
+```c#
+int pageSize = 3;
+int pageNumber = (page ?? 1);
+return View(students.ToPagedList(pageNumber, pageSize));
+```
+
+The `ToPagedList` method takes two parameters; the first is the page number that
+the view should report, while the second is the number of items each page can 
+have.
+
+> **Note**
+> The `??` operator in the line `int pageNumber = (page ?? 1)` is known as the
+> *null-coalescing operator*. Basically, it returns the left vale if it's not
+> null, else the value on the right. Hence `pageNumber = page` if `page` is not
+> null; if it is, then `pageNumber = 1`.
+
+Change the Index view to reflect the changes, as follows:
+
+* Remove the `@Model IEnumerable<ContosoUniversity.Models.Student>` line at the
+top of the file.
+
+* Add the following lines to the top of the file.
+
+```cshtml
+@model PagedList.IPagedList<ContosoUniversity.Models.Student>
+@using PagedList.Mvc;
+
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
+```
+
+The `@model` statement at the top specifies that the view now gets a `PagedList`
+object instead of the `List` object it got before. The `using` statement adds a
+reference to the `PagedList.Mvc` helper for the paging buttons.
+
+* Use an overload of `BeginForm` to create a search url that can be bookmarked:
+
+```cshtml
+@using (Html.BeginForm("Index", "Student", "FormMethod.Get"))
+{
+    <p>
+        Find by name: @Html.TextBox("SearchString", Viewbag.CurrentFilter as string)
+        <input type="submit" value="Search" />
+    </p>
+}
+```
+
+The default `BeginForm` submits values as POSTed route data, rather than as query 
+strings. Operations not altering the database or application state, such as
+searching, are best called through GET operations.
+
+The text box is initialized with the current search string so that each page has
+the search filter value displayed within it when the page loads.
+
+* Add the sorting filters to the column header links, to allow sorting on 
+subsequent pages.
+
+```cshtml
+@Html.ActionLink("Last Name", "Index", new { sortOrder = Viewbag.NameSortParm, currentFilter = Viewbag.CurrentFilter})
+```
+
+* Show the current page and the total number of pages: add this to the bottom of
+the file:
+
+```cshtml
+Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+```
+
+This displays "Page 0 of 0" of there are no pages to display; `Model.PageNumber`
+will be 1 (this is the lowest it can be, even if no results matching the search
+filter are found), while `Model.PageCount` will be 0.
+
+* Display the paging buttons; add the following code after the line above;
+
+```cshtml
+@html.PagedListPager(Model, page => Url.Action("Index", new { page }))
+```
+
+We can optionally have the `new { page }` portion include other values, and be
+`new { page, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter }`.
 
 
