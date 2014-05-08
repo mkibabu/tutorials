@@ -651,7 +651,7 @@ public ActionResult Index(string sortOrder)
             break;
     }
 
-    return View(db.Students.ToList());
+    return View(students.ToList());
 }
 ```
 
@@ -661,7 +661,7 @@ to specify descending order. The default sorting format is by last name, ascendi
 
 When the `Index` method is called the first time, the sort parameter is empty, 
 and the students are displayed in ascending order by `Lastname`. When a user
-clicks on the column heading hyperlink (we'll implement these later), then the
+clicks on the column heading hyperlink (as implemented below), then the
 appropriate `sortOrder` value is provided.
 
 The ViewBag variables are used to allow the view to configure the column heading
@@ -669,7 +669,10 @@ hyperlinks.
 
 The code uses LINQ to create the `IQueryable` variable, then the switch to 
 determine the filter, and calls `ToList` to execute the query and pass the
-resultant list to the view.
+resultant list to the view. Note that, unlike the original `Index` method which
+returned `View(db.Students.ToList())` (i.e. a list of all the students, sans
+filtering), this one returns `View(students.ToList())`, the (possibly filtered)
+LINQ query. 
 
 Change the *Index* view to be as follows:
 
@@ -700,3 +703,74 @@ Change the *Index* view to be as follows:
 <!-- snippet -->
 
 ```
+
+The code uses the information in the `ViewBag` properties to set up hyperlinks 
+with the appropriate hyperlink values. This is because the value of the hyperlink
+depends on what the last sort order was; the first time `Index` is invoked, 
+`sortOrder` is null because no sorting has been asked for, and therefore `Index`
+starts off by having `ViewBag.NameSortParm` be set to the sorting option that 
+will be possible when the view is displayed (since the view sorts by last name 
+ascending - the default setting - the first time `Index` is invoked, the link 
+should allow sorting by last name descending, hence `NameSortParm` is set to 
+`name_desc`). Similarly, the first time `Index` is invoked, sorting by enrollment
+date is yet to be requested, so we set it to one of the available options. Hence
+when sorting is invoked by one format, the link is to be set to the opposite
+value when the view renders, hence the `ViewBag` property is reset.
+
+#### 3.2. Add a Search Box to the Students Index Page
+
+A search filter requires a textbox and a submit button on the view, and code in
+the `Index` to handle the search request. Change it to the code below:
+
+```c#
+// GET: Students
+public ActionResult Index(string sortOrder, string searchString)
+{
+    // set the sorting link parameters
+    ViewBag.NameSortParm = string.IsNullOrEmpty(sortOrder) ?
+        "name_desc" : "";
+    ViewBag.DateSortParm = sortOrder == "Date" ?
+        "date_desc" : "Date";
+
+    var students = from s in db.Students
+                   select s;
+
+    // filter by search term
+    if(!string.IsNullOrEmpty(searchString))
+    {
+        searchString = searchString.ToUpper();
+        students = students.Where(s => s.LastName.ToUpper().Contains(searchString)
+                                    || s.FirstMidName.ToUpper().Contains(searchString) );
+    }            
+    
+    switch(sortOrder)
+    {
+        case "name_desc":
+            students = students.OrderByDescending(s => s.LastName);
+            break;
+
+        case "Date":
+            students = students.OrderBy(s => s.EnrollmentDate);
+            break;
+
+        case "date_desc":
+            students = students.OrderByDescending(s => s.EnrollmentDate);
+            break;
+
+        default:
+            students = students.OrderBy(s => s.LastName);
+            break;
+    }
+
+    return View(students.ToList());
+}
+```
+
+The change adds a filter to the `students` query if a search term is provided.
+This filter is executed on the database itself (i.e. `Contains` is called as an
+SQL statement, and is not the .NET `string.Contains(string)` method). Calling it
+on the database rather than on an in-memory colection ensures the results are
+consistent; .NET's `Contains()` returns all rows if an empty search string is
+passed, while SQL's returns no row at all. Hence the search filter is called on
+the database for consistency, and called within the `if` to make sure the search
+string is not empty.

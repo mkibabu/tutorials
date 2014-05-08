@@ -16,8 +16,9 @@ namespace ContosoUniversity.Controllers
         private SchoolContext db = new SchoolContext();
 
         // GET: Students
-        public ActionResult Index(string sortOrder)
+        public ActionResult Index(string sortOrder, string searchString)
         {
+            // set the sorting link parameters
             ViewBag.NameSortParm = string.IsNullOrEmpty(sortOrder) ?
                 "name_desc" : "";
             ViewBag.DateSortParm = sortOrder == "Date" ?
@@ -26,6 +27,14 @@ namespace ContosoUniversity.Controllers
             var students = from s in db.Students
                            select s;
 
+            // filter by search term
+            if(!string.IsNullOrEmpty(searchString))
+            {
+                searchString = searchString.ToUpper();
+                students = students.Where(s => s.LastName.ToUpper().Contains(searchString)
+                                            || s.FirstMidName.ToUpper().Contains(searchString) );
+            }            
+            
             switch(sortOrder)
             {
                 case "name_desc":
