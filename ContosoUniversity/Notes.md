@@ -774,3 +774,27 @@ consistent; .NET's `Contains()` returns all rows if an empty search string is
 passed, while SQL's returns no row at all. Hence the search filter is called on
 the database for consistency, and called within the `if` to make sure the search
 string is not empty.
+
+Change the Index view to the following:
+
+```cshtml
+<!-- snippet -->
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+
+<!-- begin search form -->
+@using(Html.BeginForm())
+{
+    <p>
+        Find by name: @Html.TextBox("SearchString")
+        <input type="submit" value="Search" />
+    </p>
+}
+<!-- end search form -->
+
+<table class="table">
+<!-- snippet -->
+```
+
+
