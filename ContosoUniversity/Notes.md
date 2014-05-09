@@ -993,3 +993,113 @@ We can optionally have the `new { page }` portion include other values, and be
 `new { page, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter }`.
 
 
+#### 3.4. Create an About Page that shows Student Statistics
+
+Tis section shows how to add a sumamry on the About page. The page will show how
+many students have enrolled for each enrollment date. This will involve simple
+calculations and grouping, and will be done in 3 steps:
+
+* Create a view model class for the data you want to pass to the view
+* Modify the `About` method in the `Home` controller.
+* Modify the *About* view.
+
+First, create a *ViewModels* folder and add the following model class to it:
+
+```c#
+namespace ContosoUniversity.ViewModels
+{
+    public class EnrollmentDateGroup
+    {
+        [DataType(DataType.Date)]
+        public DateTime? EnrollmentDate { get; set; }
+
+        public int StudentCount { get; set; }
+    }
+}
+```
+
+Then, add the following `using` statements to *HomeController.cs*:
+
+```c#
+using ContosoUniversity.DataAccessLayer;
+using ContosoUniversity.ViewModels;
+```
+
+Add a class variable to hold the `SchoolContext` database context immediately
+after the opening brace of the class, i.e:
+
+```c#
+public class HomeController : Controller
+    {
+        private SchoolContext db = new SchoolContext();
+
+        // blah blah moar code
+    }
+```
+
+Replace the `About` method with the following code:
+
+```c#
+public ActionResult About()
+{
+    IQueryable<EnrollmentDateGroup> data = from student in db.Students
+                        group student by student.EnrollmentDate into dateGroup
+                        select new EnrollmentDateGroup()
+                        {
+                            EnrollmentDate = dateGroup.Key,
+                            StudentCount = dateGroup.Count()
+                        };
+
+    return View(data.ToList());
+}
+```
+
+The LINQ statement groups the student entities by enrollment date, calculates the
+number of entities in each group, and stores the results in a collection of
+`EnrollmentDateGroup` view model objects.
+
+Add a `Dispose` method
+
+```c#
+protected override void Dispose(bool disposing)
+{
+    db.Dispose();
+    base.Dispose(disposing);
+}
+```
+
+Modify the content of *Views/Home/About.cshtml* to the following:
+
+```cshtml
+@model IEnumerable<ContosoUniversity.ViewModels.EnrollmentDateGroup>
+
+@{
+    ViewBag.Title = "Student Body Statistics";
+}
+<h2>@ViewBag.Title.</h2>
+<table>
+    <tr>
+        <th>
+            Enrollment Date
+        </th>
+        <th>
+            Students
+        </th>
+    </tr>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.EnrollmentDate)
+            </td>
+            <td>
+                @item.StudentCount
+            </td>
+        </tr>
+    }
+</table>
+```
+
+
+
+
