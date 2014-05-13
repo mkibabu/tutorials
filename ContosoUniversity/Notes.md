@@ -489,7 +489,7 @@ on the entity indicating that the `Student` entity has been modified. When the
 code to update the row. All columns, including those not changed, will be updated,
 and *concurrency conflicts* are ignored.
 
-#### 2.3. Update the Delete Page
+#### 2.4. Update the Delete Page
 
 Much like the `Edit` and `Create` actions, delete operations require two action
 methods. The first one, in response to a `GET`, displays a view that allows the
@@ -582,7 +582,7 @@ To complete the `Delete` code, add the following to the *Delete* view:
 <!-- snippet -->
 ```
 
-#### 2.4. Closing/Disposing of Database Connections
+#### 2.5. Closing/Disposing of Database Connections
 
 To ensure all database connections are closed and resources freed, the context
 instance must be disposed of once we're done with it. This is done by the `Dispose`
@@ -602,7 +602,7 @@ protected override void Dispose(bool disposing)
 The base `Controller` class already implememnts the `IDisposable` interface, so
 this call simply acts as an override.
 
-#### 2.5. Handling Transactions
+#### 2.6. Handling Transactions
 
 EF automatically makes all transactions atomic; either all operations in the
 transactions succeed, or all fail.
@@ -1102,4 +1102,114 @@ Modify the content of *Views/Home/About.cshtml* to the following:
 
 
 
+## 4. Connection Resiliency and Command Interception
+
+
+To make an application avbailable to others, it has to be deployed to a web
+hosting service, and the database to a database server. This section covers two
+features of EF6 that come in extremely handy when deploying to the cloud:
+
+Connection Resiliency - automatic retries of commands in response to transient 
+errors, for instance, those caused by network load, throttling (i.e. having db
+access throw exceptions when one acesses it more frequently than is allowed by
+their Service Level Agreement), etc.
+
+Command Interception - catching all SQL queries before they get to the database,
+in order to log or change them. Used to implement logging of latency and success
+or failure of database calls, a best practice of cloud applications. 
+
+#### 4.1. Enable Connection Resiliency
+
+These attempt to make application usage easier on end users by intercepting 
+error messages from SQL queries that fail due to (possibly) transient errors, and
+automatically retrying them. In order to do this, EF is configured such that it:
+
+* knows which exceptions are likely to be transient
+* waits an approrpiate amout of time betwen retries
+* retries the failed command an appropriate amount of times
+
+One can set these manually, or use the default values configured for Azure.
+Connection resiliency is set by using a subclass of `DbConfiguration` that
+defines the *SQL execution strategy*, EF's term for connection resiliency. This
+is done as follows:
+
++ Create a file *DataAccessLayer/SchoolConfiguration.cs*.
++ Replace the template code with the following:
+
+```c#
+using System.Data.Entity;
+using System.Data.Entity.SqlServer;
+
+namespace ContosoUniversity.DataAccessLayer
+{
+    public class SchoolConfiguration : DbConfiguration
+    {
+        public SchoolConfiguration()
+        {
+            SetExecutionStrategy("System.Data.SqlClient", 
+                                    () => new SqlAzureExecutionStrategy());
+        }
+    }
+}
+``` 
+EF automatically runs any code it finds in a class that derives from `DbConfiguration`,
+so configuration tasks that are better written in code than in *Web.Config* can
+be added here.
+
++ In *StudentController.cs*, add `using System.Data.Entity.Infrastructure;`.
++ Change all the catch blocks so they catch `RetryLimitedExceedException` rather
+than `DataException`. We used `DataException` to catch transient errors and give
+a friendly "Try Again" message; with the sql execution policy we've set, transient
+errors will already have been retried and failed, and all others will be now be
+wrapped in a `RetryLimitExceededException`.
+
+#### 4.2. Enable Command Interception
+
+While EF6 incorporates a logging API, we'll use command interception to implement
+a simple logger, as well as test the command resiliency feature.
+
+> **Note**
+> Logger is as implemeted in *Logger/* directory; not added here for brevity.
+> Interceptor classes (one for logging, the other to simulate transient errors)
+> are in the *DataAccesslayer/* directory; again, left out for brevity.
+
+The interceptor is derived from the `DbCommandInterceptor` class, which gives us
+the ability tointercept database commands before they execute against the db, as
+well as being informed after the database command has been executed. There are
+two kinds of methods that allow this:
+
+1. **Executing methods** - these are intercepting methods that are called before
+an action is exeuted on the database, to either inspect the context of the action
+or suppress execution.
+
+2. **Executed methods** - these are intercepting methods that are called after a
+command has been executed, allowing one to inspect the result of a call before it
+goes back to the calling method.
+
+These methods are provided for each of the following method types:
+
+1. **NonQuery methods** - commands not intended to retrieve data from the database,
+i.e. upsert (insert &/or update) operations.
+
+2. **Reader Methods** - commands intended to retrieve sets of data for iteration
+and examination, e.g. `select * from users`
+
+3. **Scalar Methods** - commands intended to retrieve a single method from the
+database, e.g. `select count(*) from users`
+
+Each of these methods takes as parameters at least two objects:
+
+1. an object derived from the `DbInterceptionContext`, containing the contextual
+information about the action EF is taking; for instance, if the action is being
+performed on behalf of a `DbContext`, then the `DbContext` is passed as part of 
+the `DbInterceptionContext` object. 
+
+2. The command being executed.
+
+When a command is re-executed due to transient errors, EF has an exponential
+backoff duration between repeated calls.
+
+> **NOTE**
+> Current tutorla state is to fail upon entering "Throw" [sans quotes] in the
+> search box on the "Student" page.
 
