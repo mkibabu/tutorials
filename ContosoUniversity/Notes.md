@@ -296,7 +296,7 @@ recreates the database.
 
 > **Note**
 > Obviously, deleting data and reseting the database to the base snapshot is
-> discourageed in production environments. This tutorial will disable this
+> discouraged in production environments. This tutorial will disable this
 > initialization in later stages.
 
 #### 1.5. Set up EF to use a SQL Express LocalDB Database
@@ -1386,8 +1386,39 @@ changes back within the `Down` method.
 > Section 5.2 Deploying to Windows Azure left out.
 
 
+## 6. Creating a More Complex Data Model
 
+This sectio adds more entities and relationships, and specifies rules for data 
+formatting & validation and database mapping. The eventual model structure will
+be as follows:
 
+![Data models and relationships](resources/EntityDiagram_6.png)
 
+#### 6.1. Customizing the Data Model using Attributes
+
+(a). The DataType Attribute
+
+Edit the *Model/Student.cs* file as shown in the snippet below:
+
+```c#
+// snippet...
+public string FirstMidName { get; set; }
+
+[DataType(DataType.Date)]
+[DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+public DateTime EnrollmentDate { get; set; }
+//...
+```
+
+The `DataType` attribute is used to specify a data type more specific than a db's
+intrinsic type. Here, we specify that the `EnrollmentDate` property should discard
+the time portion of the date. Rather than provide validaton, it emits a HTML5-
+compliant `data-` attribute.
+
+Since `DataType.Date` uses the default format based on the server's *CultureInfo*,
+the `DisplayFormat` attribute is used to explicitly set the format. The
+`ApplyInEditMode` setting specifies that the same display format is to be used
+when editig the field, not just when displaying (this setting may not be wanted
+for, say, currency fields, as you may not want to display the currency symbol).
 
 
