@@ -1180,7 +1180,6 @@ two kinds of methods that allow this:
 
 1. **Executing methods** - these are intercepting methods that are called before
 an action is exeuted on the database, to either inspect the context of the action
-or suppress execution.
 
 2. **Executed methods** - these are intercepting methods that are called after a
 command has been executed, allowing one to inspect the result of a call before it
@@ -1212,4 +1211,183 @@ backoff duration between repeated calls.
 > **NOTE**
 > Current tutorial state is to fail upon entering "Throw" [sans quotes] in the
 > search box on the "Student" page.
+
+
+## 5. Code First Migrations and Deployment'
+
+
+This section enables Code First migrations (to allow changes to the data model 
+without having to drop and recreate the db) and, optionally, deploys the app to
+a Windows Azure website.
+
+#### 5.1. Enable Code First Migrations
+
+Currently, the app is configured to drop and reset/recreate the database with
+each model/data change. While this wrks in testing envronments, it won't suit
+production environments. *Code First Migrations* allows for the database schema
+to be updated without dropping and recreating the database, preserving production
+data.
+
+> **Note**
+> The notes skip the setup and pick up from the "*Set up the Seed Method*" portion.
+
+Once migrations are enabled, EF creates a *Migrations/Configuration.cs* file with
+the method `Seed(DbContext)`. This method is called each time the db is created
+or updated after a schema or data model change.
+
+Since the `Seed` method is called in production each time the database schema is
+updated, its best to have it add production data rather than test data to the
+database. This is done by changing the method as the snippet below shows:
+
+```c#
+protected override void Seed(ContosoUniversity.DataAccessLayer.SchoolContext context)
+{
+    // create list of students
+    var students = new List<Student>
+    {
+        new Student { FirstMidName = "Carson", LastName = "Alexander", 
+            EnrollmentDate = DateTime.Parse("2010-09-01")},
+
+        // snippet cut off
+
+        new Student { FirstMidName = "Brad", LastName = "Thornton", 
+            EnrollmentDate = DateTime.Parse("2000-09-01")}
+    };
+
+    // add each student to the db
+    students.ForEach(s => context.Students.AddOrUpdate(p => p.LastName, s));
+    // save changes
+    context.SaveChanges();
+
+    // repeat with courses
+    var courses = new List<Course>
+    {
+        new Course {ID = 1050, Title = "Chemistry", Credits = 3, },
+
+        //...
+
+        new Course {ID = 2042, Title = "Literature", Credits = 4, }
+    };
+
+    courses.ForEach(s => context.Courses.AddOrUpdate(p => p.Title, s));
+
+    context.SaveChanges();
+
+    // then enrollments
+    var enrollments = new List<Enrollment> 
+    {
+        new Enrollment 
+        {
+            StudentID = students.Single(s => s.LastName == "Alexander").ID,
+            CourseID = courses.Single(c => c.Title == "Chemistry").ID,
+            Grade = Grade.A
+        },
+
+        // ...
+
+        new Enrollment
+        { 
+            StudentID = students.Single(s => s.LastName == "Thornton").ID,
+            CourseID = courses.Single(c => c.Title == "Literature").ID,
+            Grade = Grade.C         
+        }
+    };
+
+    // add enrollments to db
+
+    foreach (Enrollment e in enrollments)
+    {
+    var enrollmentInDatabase = context.Enrollments.Where (s => 
+        s.Student.ID == e.StudentID && s.Course.ID == e.CourseID)
+        .SingleOrDefault();
+             
+        if(enrollmentInDatabase == null)
+        {
+            context.Enrollments.Add(e);
+        }
+    }
+
+}
+```
+
+The method takes a `DbContext` parameter, and uses it to add new entities to the
+database. For each model, it creates a list containing the entities, then adds
+them to the appropriate `DbSet` before finally pushing the changes to the db to 
+be persisted.
+
+The `Student` and `Course` entities are added via an *upsert* operation, to
+avoid errors that occur when one tries to add a row that already exists. The 
+first parameter to the `AddOrUpdate` upsert method specifies the property to use
+to check if a row already exists, while the second specifies the entity to actually
+add or update, e.g:
+
+```c#
+students.ForEach(s => context.Students.AddOrUpdate(p => p.LastName, s));
+```
+
+Essentially, for each `Student` `s`, update the record of `Student` object  `p` 
+where `p.LastName` matches `s.LastName`, or add it to the database is none is found. 
+If multiple `Student` objects are found matching `s.LastName`, an exception is 
+thrown with the message *Sequence contains more than one element*.
+
+After each entity set is added to the context, `SaveChanges()` is called to persist
+the changes to the database. This not only helps make it easier to track down errors
+that occur during the method (by seeing what's been written to the database), but
+also makes database-generated properties available for later portions of the same
+`Seed` method. For instance, the code that creates `Enrollment` objects is as 
+follows:
+
+```c#
+new Enrollment
+{
+    StudentID = students.Single(s => s.LastName == "Alonso").ID,
+    CourseID = courses.Single(c => c.Title == "Macroeconomics").ID,
+    Grade = Grade.A
+}
+```
+
+Here, the `StudentID` is set to the `ID` of some student, despite the fact that
+the `ID` is a database-generated property not defined by the application (hence
+no `ID` property in the list of students in `Seed`). EF automatically gets the
+ID value when the `Student` entity is added to the db, and updates the entity in
+memory.
+
+The code that adds each `Enrollment` property is as follows:
+
+```c#
+foreach(Enrollment e in enrollments)
+{
+    var enrollmentInDatabase = context.Enrollments.Where( s => 
+            s.Student.ID == e.Student.ID && s.Course.ID == e.Course.ID)
+            .SingleOrDefault();
+
+    if(enrollmentInDatabase == null)
+    {
+        context.Enrollments.Add(e);
+    }
+
+}
+```
+
+This code checks if an `Enrollment` entity already exists, and adds it if it
+doesn't. Unlike `AddOrUpdate`, it does not update any existing rows. This makes
+sure that data changed via the application remains updated, and is not overwritten
+by the `Seed` method. Note that this isn't used for the `Student` and `Course`
+entities; conceptually, a student's name and enrollment date, or a course's name,
+won't change, but grades are likely to. This means of adding data ensures the
+changes remain intact.
+
+Within the *Migrations* folder, EF creates a file whose name matches the pattern
+*Timestamp*_*MigrationName.cs*. This file contains the SQL code called to create
+the database during the migration, withn the `Up` method, and code to roll the
+changes back within the `Down` method.
+
+> **Note**
+> Section 5.2 Deploying to Windows Azure left out.
+
+
+
+
+
+
 
