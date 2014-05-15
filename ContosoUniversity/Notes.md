@@ -1210,6 +1210,6 @@ When a command is re-executed due to transient errors, EF has an exponential
 backoff duration between repeated calls.
 
 > **NOTE**
-> Current tutorla state is to fail upon entering "Throw" [sans quotes] in the
+> Current tutorial state is to fail upon entering "Throw" [sans quotes] in the
 > search box on the "Student" page.
 
