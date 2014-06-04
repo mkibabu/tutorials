@@ -1392,23 +1392,48 @@ This sectio adds more entities and relationships, and specifies rules for data
 formatting & validation and database mapping. The eventual model structure will
 be as follows:
 
-![Data models and relationships](resources/EntityDiagram_6.png)
+![Data models and relationships](resources/EntityDiagram_6_1.png)
 
-#### 6.1. Customizing the Data Model using Attributes
+(Image from [ASP.NET tutorial](http://www.asp.net/mvc/tutorials/getting-started-with-ef-using-mvc/creating-a-more-complex-data-model-for-an-asp-net-mvc-application))
 
-(a). The DataType Attribute
+#### 6.1. Customizing the Student Entity using Attributes
 
 Edit the *Model/Student.cs* file as shown in the snippet below:
 
 ```c#
-// snippet...
+[Required]
+[StringLength(25)]
+[Display(Name = "Last Name")]
+public string LastName { get; set; }
+
+[Required]
+[StringLength(25, ErrorMessage = "First name cannot be longer than 25 characters")]
+[Column("FirstName")]
+[Display(Name = "First Name")]
 public string FirstMidName { get; set; }
 
 [DataType(DataType.Date)]
 [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+[Display(Name = "Enrollment Date")]
 public DateTime EnrollmentDate { get; set; }
-//...
+
+[Display(Name = "Full Name")]
+public string FullName 
+{
+    get { return LastName + ", " + FirstMidName;  }
+}
 ```
+> **Note**
+> Some of these attributes change the database schema, so a migration will have 
+> to be done before the project is re-run. Run the following commands in the 
+> Package Manager, using an actual, meaningful name in place of MigrationName:
+
+```
+add-migration MigrationName
+update-database
+```
+
+(a). **The DataType Attribute**
 
 The `DataType` attribute is used to specify a data type more specific than a db's
 intrinsic type. Here, we specify that the `EnrollmentDate` property should discard
@@ -1420,5 +1445,280 @@ the `DisplayFormat` attribute is used to explicitly set the format. The
 `ApplyInEditMode` setting specifies that the same display format is to be used
 when editig the field, not just when displaying (this setting may not be wanted
 for, say, currency fields, as you may not want to display the currency symbol).
+`DisplayFormat` can be used on its own, but is generally recommended to use it
+together with `DataType` for the following reasons:
+
++ While `DisplayFormat` conveys how to display something on the screen, `DataType`
+describes the semantic characteristics of the data
+
++ `DataType` enables HTML5 features, such as calendar controls, local-appropriate
+currency symbols, and some client-side validation
+
+(b). **The StringLength Attribute**
+
+This attribute adds data validation rules and optional error messages to properties.
+One can also specify minimum string length, but his has no impact on database 
+schema in most cases. This attribute does not exclude whitespace characters; one
+can use a regular expresion to do that, such as the one below, which specifies
+that the first character be an upper case letter and the remaining be alphabetical:
+
+```c#
+[RegularExpression(@"^[A-Z]+[a-zA-Z''-'\s]*$")]
+```
+
+The `MaxLength` attribute provides similar functionality to `StringLength`, but
+without client-side validation.
 
 
+
+(c) **The Column Attribute**
+
+This attribute creates a rule to describe how the properties are mapped to the
+database, by specifying the name used in the database to rpresent that particular
+property. This allows the database to have names that may be more intuitive to
+other applications, yet have the property name be meaningful to our applicaton.
+
+Add the attribute to the `FirstMidName` property:
+
+```c#
+[Column("Firstname")]
+public string FirstMidName { get; set; }
+```
+
+Then migrste the database to update the schema:
+
+```
+add-migration ColumnFirstName
+update-database
+```
+
+(d). **The Required Attribute**
+
+This property makes the described properties required fields. It isn't used on
+value types such as `DateTime`, `int`, `double` and `float`, since these can't
+be assigned null values and are therefore required by default. The `Required`
+attribute can be replced by adding a `MinimumLength` property to the `StringLength`
+attribute, i.e. `[StringLength(24, MinimumLength=1)]`
+
+(e). **The Display Attribute**
+
+Specifies how the property names are displayed on the webpage.
+
+## 6.2. Create an Instructor Entity
+
+The `Instructor` data model is similar to the `Student` model, with the following
+navigation properties:
+
+```c#
+public virtual ICollection<Course> Courses { get; set; }
+public virtual OfficeAssignment OfficeAssignment { get; set; }
+```
+
+Navigation properties are typically declared as virtual to take advantage of
+`lazy loading`. Using this feature, if a query is made for a particular dataset
+*A* that has a 1-to-many relationship with model *B*, EF returns *A* and creates
+a query for the related data, such that merely referencing *B* has the query 
+executed and the data retrieved.
+
+If a navigational property is to have multiple values, thn it must be of a type
+that implements the `ICollection<T>` interface. An instructor can teach musltiple
+courses, so `Courses` is defined as a collection of `Course` entities. However, 
+the application's business rules specify an Instructor can only have one office
+or none at all.
+
+## 6.3. Create an OfficeAssignment Entity
+
+The `OfficeAssignment` data model has the following properties:
+
+```c#
+[Key]
+[ForeignKey("Instructor")]
+public int InstructorID { get; set; }
+
+[StringLength(50)]
+[Display(Name = "Office Location")]
+public string Location { get; set; }
+
+public virtual Instructor Instructor { get; set; }
+```
+
+(a). **The Key Attribute**
+
+There is a *one-to-zero-or-one* relationship between the `Instructor` and
+`OfficeAssignment` entities. An `OfficeAssignment` only exists in relation to
+the `Instructor` entity its assigned to, so its primary key is also its foreign
+key to the `Intstructor` entity. However, since EF cannot recognize `InstructorID`
+as a primary key to `OfficeAssignment` due to its primary key naming conventions,
+the `Key` attribute is used.
+
+The attribute is used whenever an entities primary key won't have a name matching
+the `ID` or `classNameID` pattern that EF expects.
+
+(b). **The ForeignKey Attribute**
+
+Whenever there exists a *one-to-zero-or-one* or a *one-to-one* relationship between
+two entities, EF cannot determine which entity is the primary and which is the 
+dependent. One-to-one relationships have a reference navigation property in each
+class to the other entity. The `ForeignKey` attribute is attached to the dependent
+to establish the relationship.
+
+## 6.4. Modify the Course Entity
+
+Add a `Display(Name = "Number")` attribute to the `ID`, and a `StringLength` 
+attribute to `Title` with a max of 10 and a min of 3. Add a `Range (0, 5)`
+attrubute to the `Credits` property as well.
+
+The `DatabaseGenerated(DatabaseGeneratedOption.None)` attribute specifies that 
+the course ID is to be entered by the user.
+
+### Foreign Key and Navigation Properties
+
+Add the following to the code:
+
+```c#
+public int DepartmentID { get; set; }
+
+public virtual Department Department { get; set; }
+public virtual ICollection<Instructor> Instructors { get; set; }
+```
+
+This creates a foreign key property `DepartmentID`, as well as a `Department`
+navigation property. While EF does not require that foreign keys be created if
+the navigation property exists (since it automatically creates the FK), having
+it explicitly created makes updating database records easier. The foreign key and
+navigation properties in the `Course` entity reflect the following relationships:
+
++ A course is assigned to one department, so there's a `DepartmentID` foreign key
+and a `Department` navigation property, as mentioned above:
+
+```c#
+public int DepartmentID { get; set; }
+public virtual Department Department { get; set; }
+```
+
++ A course can have any number of students enrolled in it, so the `Enrollments`
+navigation property is a collection:
+
+```c#
+public virtual ICollection<Enrollment> Enrollments { get; set; }
+```
+
++ A course may be taught by multiple instructors, so the `Instructors` navigation
+prpperty is a collection as well:
+
+```c#
+public virtual ICollection<Instructor> Instructors { get; set; }
+```
+
+## 6.5 Create the Department Entity
+
+Create a `Department` entity (see */Models/Department.cs* for the full code).
+
+The `Column[(TypeName = "money")]` attribute changes the SQL data type mapping
+so thatt he `Budget` column will be defined using the SQL Server `money` type in
+the database.
+
+```c#
+[Column(Type = "money")]
+public decimal Budget { get; set; }
+```
+
+Column mapping is generally not required; EF generally picks the appropriate 
+server type based on the CLR type defined in the model. Here, `decimal Budget`
+would be mapped to the SQL `decimal` type, but since the column will be holding
+currency amounts, the `money` type is more appropriate.
+
+### Foreign Key and Navigation Properties
+
+The foreign key and navigation properties reflect the following relationships:
+
++ A department may or may not have an administrator, and an adminnistrator will
+always be an instructor. Thus an `InstructorID` property is included as the foreign
+key to the `Instructor` model, and the `?` is added to the type to make it nullable.
+The navigation property is named `Administrator` but holds an `Instructor` entity:
+
+```c#
+public int? InstructorID { get; set; }
+public virtual Instructor Administrator { get; set; }
+```
+
++ A department may have several courses, so the `Courses` navigation property is
+a collection:
+
+```c#
+public virtual ICollection<Course> Courses { get; set; }
+```
+
+# 6.6. Modify the Enrollment Entity
+
+Add the following attribute to the `Grade? Grade` property:
+
+```c#
+// nullable; null grade != zero grade
+[DisplayFormat(NullDisplayText = "No grade")]
+public Grade? Grade { get; set; }
+```
+
+This sets the text displayed when a student has no `Grade` value.
+
+### Foreign Key and Navigation Properties
+
+The foreign key and navigation properties reflect the following relationships:
+
++ An enrollment record is for a single course, so there's a `CourseID` foreign
+key and `Course` navigation property:
+
+```c#
+public int CourseID { get; set; }
+public virtual Course Course { get; set; }
+```
+
++ An enrollment record is for a single student, so there's a `StudentID` foreign
+key and a `Student` navigation property:
+
+```c#
+public int StudentID { get; set; }
+public virtual Student Student { get; set; }
+```
+
+
+### Many-to-Many Relationships
+
+There's a many-to-many relationship between the `Student` and `Course` entities,
+and the `Enrollment` entity functions as a many-to-many join table *with payload*
+in the database. This means that the `Enrollment` table contains additional info 
+besides the foreign keys for the joined table (in this case, a primary key and 
+the `Grade` property are the extra info).
+
+The following illustration shows what these relationships look like:
+
+![Student/Course many-to-many relationship](resources/EntityDiagram_6_2.png)
+
+If the `Enrollment` entity did not include grade information, it would only
+contain the foreign keys `CourseID` and `StudentID`. It would then be a many-to-many
+join table *without payload*, or a *pure join table*, and one wouldn't need to
+create a model for it at all. This kind of relationship exists between the `Instructor`
+and `Course` entities, and as is shown beklow, they have no entity class between
+them:
+
+![Instructor/Course many-to-many relationship](resources/EntityDiagram_6_3.png)
+
+
+A join table is still required in the database, however, as shown below:
+
+![Instructor/Course many-to-many relationship database structure](resources/EntityDiagram_6_4.png)
+
+EF automatically creates the `CourseInstructor` table, and we indirectoy update
+it by updating the `Course.Instructors` and `Instructor.Courses` navigation
+properties.
+
+The extent of the relationships is shown by the full model diagram (reproduced
+below):
+
+![Data models and relationships](resources/EntityDiagram_6_1.png)
+
+
+Besides the many-to-many (* to *) and one-to-many (1 to *) relationships, there
+exists a one-to-zero-or-one (1 to 0..1) relationship between the `Instructor` and 
+`OfficeAssignment` entities, and a zero-or-one-to-many relationship between the
+`Instructor` and `Department` entities. 
