@@ -149,6 +149,18 @@
     <Compile Include="Migrations\201405161541366_ColumnFirstName.Designer.cs">
       <DependentUpon>201405161541366_ColumnFirstName.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201406101231390_ComplexDataModel.cs" />
+    <Compile Include="Migrations\201406101231390_ComplexDataModel.Designer.cs">
+      <DependentUpon>201406101231390_ComplexDataModel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201406171243318_FixMigrationErrors.cs" />
+    <Compile Include="Migrations\201406171243318_FixMigrationErrors.Designer.cs">
+      <DependentUpon>201406171243318_FixMigrationErrors.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201406171330205_FixLengthAttributes.cs" />
+    <Compile Include="Migrations\201406171330205_FixLengthAttributes.Designer.cs">
+      <DependentUpon>201406171330205_FixLengthAttributes.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Course.cs" />
     <Compile Include="Models\Department.cs" />
@@ -206,6 +218,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201405161541366_ColumnFirstName.resx">
       <DependentUpon>201405161541366_ColumnFirstName.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201406101231390_ComplexDataModel.resx">
+      <DependentUpon>201406101231390_ComplexDataModel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201406171243318_FixMigrationErrors.resx">
+      <DependentUpon>201406171243318_FixMigrationErrors.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201406171330205_FixLengthAttributes.resx">
+      <DependentUpon>201406171330205_FixLengthAttributes.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

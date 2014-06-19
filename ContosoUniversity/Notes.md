@@ -1693,6 +1693,7 @@ the `Grade` property are the extra info).
 The following illustration shows what these relationships look like:
 
 ![Student/Course many-to-many relationship](resources/EntityDiagram_6_2.png)
+(Image from [ASP.NET tutorial](http://www.asp.net/mvc/tutorials/getting-started-with-ef-using-mvc/creating-a-more-complex-data-model-for-an-asp-net-mvc-application))
 
 If the `Enrollment` entity did not include grade information, it would only
 contain the foreign keys `CourseID` and `StudentID`. It would then be a many-to-many
@@ -1702,11 +1703,13 @@ and `Course` entities, and as is shown beklow, they have no entity class between
 them:
 
 ![Instructor/Course many-to-many relationship](resources/EntityDiagram_6_3.png)
+(Image from [ASP.NET tutorial](http://www.asp.net/mvc/tutorials/getting-started-with-ef-using-mvc/creating-a-more-complex-data-model-for-an-asp-net-mvc-application))
 
 
 A join table is still required in the database, however, as shown below:
 
 ![Instructor/Course many-to-many relationship database structure](resources/EntityDiagram_6_4.png)
+(Image from [ASP.NET tutorial](http://www.asp.net/mvc/tutorials/getting-started-with-ef-using-mvc/creating-a-more-complex-data-model-for-an-asp-net-mvc-application))
 
 EF automatically creates the `CourseInstructor` table, and we indirectoy update
 it by updating the `Course.Instructors` and `Instructor.Courses` navigation
@@ -1716,9 +1719,183 @@ The extent of the relationships is shown by the full model diagram (reproduced
 below):
 
 ![Data models and relationships](resources/EntityDiagram_6_1.png)
+(Image from [ASP.NET tutorial](http://www.asp.net/mvc/tutorials/getting-started-with-ef-using-mvc/creating-a-more-complex-data-model-for-an-asp-net-mvc-application))
 
 
 Besides the many-to-many (* to *) and one-to-many (1 to *) relationships, there
 exists a one-to-zero-or-one (1 to 0..1) relationship between the `Instructor` and 
 `OfficeAssignment` entities, and a zero-or-one-to-many relationship between the
-`Instructor` and `Department` entities. 
+`Instructor` and `Department` entities.
+
+## 6.7. Edit the Database Context
+
+Add the new entities to the `SchoolContext` and customize some of the mapping 
+through *fluent API* calls. The API is described as "fluent" because it is used 
+by stringing a series of methods together into a single statement. Fluent API will
+be used on database mapping that can't be done through attributes.
+
+> **Note**
+> Both attributes and fluent API can be used to customize database mapping. While
+> mixing the two is allowed, and some customizations can only be done via fluent
+> API, the general recommendation is to choose one approach and be as consistent
+> as reasonable possible.
+
+Edit */DataAccessLayer/SchoolContext.cs* as follows:
+
++ Delete the constructor
+
++ Add `DbSet<Entity>` collections of the new entities, to represent their tables
+in the database. The entireity of the `DbSet`s is as follows:
+
+```c#
+public DbSet<Course> Courses { get; set; }
+public DbSet<Department> Departments { get; set; }
+public DbSet<Enrollment> Enrollments { get; set; }
+public DbSet<Instructor> Instructors { get; set; }
+public DbSet<Student> Students { get; set; }
+public DbSet<OfficeAssignment> OfficeAssignments { get; set; }
+```
+
++ Add the following to the `OnModelCreating` method:
+
+```c#
+modelBuilder.Entity<Course>()
+    .HasMany(c => c.Instructors).WithMany(i => i.Courses)
+    .Map(t => t.MapLeftKey("CourseID")
+        .MapRightKey("InstructorID")
+        .ToTable("CourseInstructor"));
+```
+
+The addition to the `OnModelCreating`  method configures the many-to-many join
+table for the (* to *) relationship between `Instructor` and `Course` entities.
+Code First can configure the relationship without this code, but would have default
+names like `InstructorInstructorID` for the `InstructorID` column.
+
+If the (1 to 0..1) relationship between `Instructor` and `OfficeAssignment` were
+to be defined through fulent API rather than attributes, it would appear as follows:
+
+```c#
+modelBuilder.Entity<Instructor>()
+    .HasOptional(p => p.OfficeAssignment).WithRequired(p => p.Instructor);
+```
+
+
+## 6.8. Seed the Database with Test Data
+
+See */Migrations/Configuration.cs* for the additions made to the file.
+
+Since the `Course` entity has a (* to *) relationship with the `Instructor`
+entity, each `Course` has its `ICollection<Instructor> Instructors` navigation
+property initialized as an empty list, as follows:
+
+```c#
+var courses = new List<Course>
+{
+    new Course {ID = 1050, Title = "Chemistry", Credits = 3,
+      DepartmentID = departments.Single( s => s.Name == "Engineering").DepartmentID,
+      Instructors = new List<Instructor>() 
+    },
+    // more courses follow...
+}
+
+courses.ForEach(s => context.Courses.AddOrUpdate(p => p.CourseID, s));
+context.SaveChanges();
+```
+
+This makes it possible to add `Instructor` entities that are related to this
+`Course` by using `Instructors.Add` calls, since `Instructors` is a list with the
+`Add` method as part of its API. Had it not been initialized and left as null,
+we wouldn't be able to add these relationships.
+
+## 6.9. Add Migrations and Update the Database
+
+First, add the migration by running the following command (remember that the 
+migration name is arbitrary; here, we use `ComplexDataModel` to be descriptive):
+
+```
+add-Migration ComplexDataModel
+```
+
+Oftentimes, when executing migrations with existing data, one has to insert stub
+data to satisfy foreign key restraints. At the moment, the generated code in the
+`ComplexDataModel` migration file's `Up` method adds a non-nullable `DepartmentID`
+foreign key to the `Course` table. Since there already is data in the `Course` 
+table when the code runs, the `AddColumn` operation will fail because SQl won't
+knoiw what value to put into a non-nullable field. We therefore have to give this
+column a default value; here, we'll create a stub department called `Unassigned`
+to act as the default apartment. Thus existing `Course` entries will be related
+to the `Unassigned` department after the `Up` method runs, then the department is
+set to the correct value in the `Seed` method.
+
+In *<timestamp>_ComplexDataModel.cs*, comment out the line of code that adds the
+`DepartmentID` column to the `Course` table, and edit the method to appear as 
+follows:
+
+```c#
+// create a department for the course to point to
+Sql("INSERT INTO dbo.Department (Name, Budget, StartDate) VALUES ('Unassigned', 0.00, GETDATE())");
+// default value for foreign key points to department created above
+AddColumn("dbo.Course", "DepartmentID", c => c.Int(nullable: false, defaultValue: 1));
+// comment out original line that adds DepartmentID
+//AddColumn("dbo.Course", "DepartmentID", c => c.Int(nullable: false));
+```
+
+Now, when `Seed` runs, it will insert rows into the `Department` table and relate
+existing `Courses` entries with the new `Department` data, overwriting the default
+`Unassigned` department data.
+
+Update the database in the Package Manager Console:
+
+```
+update-database
+```
+
+> **Note**
+> Should there be errors during the migration, possible solutions include:
+
++ Changing the database name in `Web.config`, so that no data needs to be migrated
+and a new database is created. The following line cnahges the db name to "CU_Test":
+
+```c#
+<add name="SchoolContext" connectionString="Data Source=(LocalDb)\v11.0;Initial Catalog=CU_Test;Integrated Security=SSPI;" providerName="System.Data.SqlClient" />
+```
+
++ Re-initialize the database by entering the following command:
+
+```c#
+update-database -TargetMigration:0
+```
+
++ Tracking down the source of the error through exception handling. This is the
+method used in this code. A snippet of the exception-handling code here is as shown
+below; the code traverses the exception's `EntityValidationErrors` property and
+re-theows the exception with a custom exception message outlining the errors.
+
+```c#
+try
+{
+    context.SaveChanges();
+}
+catch (DbEntityValidationException e)
+{
+    string message = string.Empty;
+
+    foreach (var eve in e.EntityValidationErrors)
+    {
+        message += String.Format("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:\n",
+            eve.Entry.Entity.GetType().Name, eve.Entry.State);
+        foreach (var ve in eve.ValidationErrors)
+        {
+            message += String.Format("- Property: \"{0}\", Error: \"{1}\"\n",
+                ve.PropertyName, ve.ErrorMessage);
+        }
+    }
+    throw new Exception(message);
+}
+```
+
+
+
+
+
+

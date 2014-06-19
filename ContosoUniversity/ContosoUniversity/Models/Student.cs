@@ -10,12 +10,12 @@ namespace ContosoUniversity.Models
         public int ID {  get; set; }    // primary key
 
         [Required]
-        [StringLength(25)]
+        [StringLength(50)]
         [Display(Name = "Last Name")]
         public string LastName { get; set; }
 
         [Required]
-        [StringLength(25, ErrorMessage = "First name cannot be longer than 25 characters")]
+        [StringLength(50, ErrorMessage = "First name cannot be longer than 50 characters")]
         [Column("FirstName")]
         [Display(Name = "First Name")]
         public string FirstMidName { get; set; }

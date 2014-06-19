@@ -13,12 +13,12 @@ namespace ContosoUniversity.Models
 
         [Required]
         [Display(Name = "Last Name")]
-        [StringLength(25)]
+        [StringLength(50)]
         public string LastName { get; set; }
 
         [Required]
         [Display(Name = "First Name")]
-        [StringLength(25)]
+        [StringLength(50)]
         [Column("FirstName")]
         public string FirstMidName { get; set; }
 

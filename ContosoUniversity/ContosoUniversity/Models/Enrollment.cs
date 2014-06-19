@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace ContosoUniversity.Models
 {
@@ -10,9 +11,10 @@ namespace ContosoUniversity.Models
     public class Enrollment
     {
         // primary key
-        public int ID { get; set; }
+        public int EnrollmentID { get; set; }
  
         // nullable; null grade != zero grade
+        [DisplayFormat(NullDisplayText = "No grade")]
         public Grade? Grade { get; set; }
 
         // foreign keys
