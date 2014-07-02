@@ -1693,6 +1693,7 @@ the `Grade` property are the extra info).
 The following illustration shows what these relationships look like:
 
 ![Student/Course many-to-many relationship](resources/EntityDiagram_6_2.png)
+
 (Image from [ASP.NET tutorial](http://www.asp.net/mvc/tutorials/getting-started-with-ef-using-mvc/creating-a-more-complex-data-model-for-an-asp-net-mvc-application))
 
 If the `Enrollment` entity did not include grade information, it would only
@@ -1703,12 +1704,14 @@ and `Course` entities, and as is shown beklow, they have no entity class between
 them:
 
 ![Instructor/Course many-to-many relationship](resources/EntityDiagram_6_3.png)
+
 (Image from [ASP.NET tutorial](http://www.asp.net/mvc/tutorials/getting-started-with-ef-using-mvc/creating-a-more-complex-data-model-for-an-asp-net-mvc-application))
 
 
 A join table is still required in the database, however, as shown below:
 
 ![Instructor/Course many-to-many relationship database structure](resources/EntityDiagram_6_4.png)
+
 (Image from [ASP.NET tutorial](http://www.asp.net/mvc/tutorials/getting-started-with-ef-using-mvc/creating-a-more-complex-data-model-for-an-asp-net-mvc-application))
 
 EF automatically creates the `CourseInstructor` table, and we indirectoy update
@@ -1719,6 +1722,7 @@ The extent of the relationships is shown by the full model diagram (reproduced
 below):
 
 ![Data models and relationships](resources/EntityDiagram_6_1.png)
+
 (Image from [ASP.NET tutorial](http://www.asp.net/mvc/tutorials/getting-started-with-ef-using-mvc/creating-a-more-complex-data-model-for-an-asp-net-mvc-application))
 
 
@@ -1895,7 +1899,510 @@ catch (DbEntityValidationException e)
 ```
 
 
+## 7. Reading Related Data
+
+This section looks into reading data from the navigation properties of the various
+entities, in addition to the data within the entities themselves.
+
+#### 7.1. Lazy, Eager and Explicit Loading of Related Data
+
+EF can load related data in the following ways:
+
+**(a) Lazy Loading**
+
+When an entity is first read, related data isn't retrieved. However, the first 
+time a navigation property is accessed, EF automatically retrieves the data for
+that property. This results in multiple db queries - one for the entity itself,
+and one for each time relared data has to be retrieved. The `DbContext` class uses
+lazy loading by default:
+
+```c#
+departments = context.Departments;
+foreach(Department d in departments)    // query: all department rows
+{
+    foreach(Course c in d.Courses)      // query: Course rows related to department d
+    {
+        // blah blah bleeb
+    }
+}
+```
+
+**(b) Eager Loading**
+
+When an entity is read, related data is retrieved along with it. This typically
+results in a single query that retrieves all data needed. Eager loading is
+specified by using the `Include` method:
+
+```c#
+departments = context.Departments.Include(x => x.Courses);
+foreach(Department d in departments)    // query: all Department rows, plus related Course rows
+{
+    foreach(Course c in d.Courses)      
+    {
+        // blah blah bleeb
+    }
+}
+```
+
+**(c) Explicit Loading**
+
+Similar to lazy loading, except that related data has to be explicitly retrieved;
+EF does not automaticlly retrieve it for you when you access the navigation property.
+To use explicit loading, call the `Collection.Load` method for collections or
+`Reference.Load` for properties that hold a single entity. Explicit loading is 
+typically used only where lazy loading is turned off.
+
+```c#
+departments = context.Departments.ToList();
+foreach(deparment d in departments)     // query: all Department rows
+{
+    context.Entry(d).Collection(x => x.Courses).Load(); // query: Course rows related to department d
+    foreach(Course c in d.Courses)
+    {
+        // blah blah bluub
+    }
+}
+```
+
+Since they don't immediately retrieve related values, lazy and explicit loading 
+are both known as *deferred loading*.
+
+**7.1.2 Performance Concerns**
+If you need all the related data retrieved, eager loading offers the best performance,
+as it avoids the overhead of extra SQL queries. Sometimes, however, lazy loading
+is faster, as eager loading may lead to complex SQL statements that the server 
+may not be able to handle quickly. If only specific repated data is needed, then
+lazy loading my be faster as it won't retrieve un-needed data. However, it would
+lead to a large number of queries being made if large datasets are being processed
+in iterations/loops, if each entity has a lot od related data. If the potential
+performance difference is crucial, both should be tested.
+
+> **Note**
+> Lazy loading can greatly slow down serialization, as serialization works by 
+> accessing each property on an instance of a model. This might lead to a run-away
+> chain reaction; avoid this by either turning off lazy loading, or serializing
+> only *data transfer objects* instead of entity objects.
+
+#### 7.2. Create a Course Page That Displays Department Name
+
+The `Course` entity includes a `Department` navigation property that contains the
+`Department` entity that the course is assigned to. To display the name of the
+assigned department in a list of courses, we need to get the `Name` property from
+the `Department` entity in the `Course.Department` navigation property.
+
+Create a `CourseController` class. Its `Index` method will appear as follows:
+
+```c#
+public ActionResult Index()
+{
+    var courses = db.Courses.Include(c => c.Department);
+    return View(courses.ToList());
+}
+```
+
+EF automatically specifies eager loading for the `Department` navigation property
+by using the `Include` method.
+
+Perform the following changes on *Views\Course\Index.shtml:
+
++ Change the title (`ViewBag.Title`) and `<h2></h2>` heading to *Courses*\
++ Move the `Department` column to the right side, and change its header to `Department`
+rather than `Name`.
++ Add a *Number* column that show the `CourseID` property of the course; to do 
+this:
++    - add the following header to the table's first row:
+
+```shtml
+<th>
+    @Html.DisplayNameFor(model => model.CourseID)
+</th>
+```
+
++    - add a cell in the loop that adds a `CourseID` value to each row:
+
+```shtml
+<td>
+    @Html.DisplayFor(modelItem => tem.CourseID)
+</td>
+```
+
+#### 7.3. Create an Instructors Page That Displays Courses and Enrollments
+
+This section will do the following:
+
++ Display a list of instructors and their related `OfficeAssignment` property.
+There's a 1-1 relationship between `Instructor` and `OfficeAssignment`, and since
+we want the `OfficeAssignment` value of all `Instructor` entities, we'll use
+eager loading.
+
++ Display `Course` data related to a particular `Instructor` when that instructor
+is clicked. `Instructor` and `Course` have a 1-* relationship. We'll use eager
+loading for each `Course` and its related `Department` entities. Lazy loading might
+be more efficient, sicne we only want the courses for the related (selected) 
+instructor, but this example shows how to use eager loading for navigation properties
+of navigation properties.
+
++ Display `Enrollment` data related to a `Course` entity when that course is clicked.
+`Course` and `Enrollment` have a 1-* relationship. We'll use explicit loading for
+`Enroillment` entities and their related `Student` entries, for demonstration purposes.
 
 
+**7.3.1. Create a View Model for the Instructor Index View**
+
+The Instructors page wil have 3 tables; create *ViewModels\InstructorIndexData.cs*
+as follows:
+
+```c#
+using System.Collections.Generic;
+using ContosoUniversity.Models;
+
+namespace ContosoUniversity.ViewModels
+{
+    public class InstructorIndexData
+    {
+        public IEnumerable<Instructor> Instructors { get; set; }
+        public IEnumerable<Course> Courses { get; set; }
+        public IEnumerable<Enrollment> Enrollments { get; set; }
+    }
+}
+```
+
+**7.3.2. Create the Instructor Controller and Views**
+
+Create an `InstructorController` controller with EF read/write actions. The 
+scaffolded code specifies eager loading only for the `OfficeAssignment` navigatiopn
+property, as follows:
+
+```c#
+public ActionResult Index()
+{
+    var instructors = db.Instructors.Include(i => i.OfficeAssignment);
+    return View(instructors.ToList());
+}
+```
+
+>**Note**
+> ViewModels allow one to create models that are customized to a specific view
+> and do not represent actual objects within the database.
+
+Change the index method's contents to include all the other data, as follows:
+
+```c#
+public ActionResult Index(int? id, int? courseID)
+{
+    var viewModel = new InstructorIndexData();
+    viewModel.Instructors = db.Instructors
+        .Include(i => i.OfficeAssignment)
+        .Include(i => i.Courses.Select(c => c.Department))
+        .OrderBy(i => i.LastName);
+
+    if(id != null)
+    {
+        ViewBag.InstructorID = id.Value;
+        viewModel.Courses = viewModel.Instructors
+            .Where(i => i.ID == id.Value).Single().Courses;
+    }
+
+    if(courseID != null)
+    {
+        ViewBag.CourseID = courseID.Value;
+        viewModel.Enrollments = viewModel.Courses
+            .Where(c => c.CourseID == courseID).Single().Enrollments;
+    }
+
+    return View(viewModel);
+
+}
+```
+
+The method accepts optional route data (`id`) and a query string parameter (`courseID`)
+that provide id valkues for the selected instructor and selected course, and passes
+all required data to the view. The parameters are passed via the `Select` hyperlink
+on the view.
+
+The code begins by creating an instance of the view model and adds a list of
+instructors to it. It specifies eager loading for the `Instructor.OfficeAssignment`
+and `Instructor.Courses` navigation properties, via the `Include()` method. The 
+second `Include` method loads Courses, and for each Course, eager-loads the
+`Course.Department`
+
+```c#
+var viewModel = new InstructorIndexData();
+viewModel.Instructors = db.Instructors
+    .Include(i => i.OfficeAssignment)
+    .Include(i => i.Courses.Select(c => c.Department))
+    .OrderBy(i => i.LastName);
+```
+
+Eager loading is used to improve performance. Since `OfficeAssignment` is always
+needed in this view, we might as well get it in the same query.
+
+If an instructor ID is selected, the selected instructor is retrieved from the
+list of instructors in the view model. The view model's `Courses` property is then
+loaded with the `Course` entities from that instructor's `Courses` navigation 
+property.
+
+```c#
+if(id != null)
+{
+    ViewBag.InstructorID = id.Value;
+    viewModel.Courses = viewModel.Instructors.Where(i => i.Id == id.Value).Single().Courses;
+
+}
+```
+
+The `Where` method returns a collection, but the criteria passed to it makes sure
+the collection only has one item (i.e. the instructor whose ID matches our `id` 
+parameter value). The `Single` method returns the only element of a sequence (here,
+the collection returned by `Where`), and throws an exception if more than 1
+elements are in the sequence. Thus, it converts the collection into a single
+`Instructor` entity, allowing ut to get its `Courses` navigation property.
+
+An alternative to using the `Single` method in this way it to pass the `Where`
+condition clause as an argument to it, i.e.
+
+```c#
+viewModel.Courses = viewModel.Instructors.Single(i => i.ID == id.Value).Courses;
+```
+
+The logic then repeats; if a Course is selected, the selected course is retrieved
+from the list of courses in the view model. Then the view model's `Enrollments`
+property is populated with all the `Enrollment` entities from that Course's
+`Enrollments` navigation property:
+
+```c#
+if(courseID != null)
+{
+    ViewBag.CourseID = courseID.Value;
+    viewModel.Enrollments = viewModel.Courses.Where(c => c.CourseID == courseID).Single.Enrollments;
+}
+
+**7.3.3. Modify the Instructor Index View**
+
+Make the following changes to *Views/Instructor/Index.cshtml*
+
++ Change the model declaration from a list of `Instructor` entities (which is what
+the original `Index` method returned) to an `InstructorIndexData` entity:
+
+```cshtml
+@model ContosoUniversity.ViewModels.InstructorIndexData
+```
+
++ Change `ViewBag.Title` to *Instructors*
+
++ Change the `<th>` headings to simple text descriptive of an Instructor's details,
+e.g:
+
+```cshtml
+<tr>
+    <th>Last Name</th>
+    <th>First Name</th>
+    <th>Hire Date</th>
+    <th>Office</th>
+    <th></th>
+</tr>
+```
+
++ Change the `foreach` loop to iterate over `InstructorIndexData`; add an *Office*
+column that displays an `OfficeAssignment` if one exists, and add css identifiers
+to the selected row. The entirity of the `foreach` loop will be as follows:
+
+```cshtml
+@foreach (var item in Model.Instructors) 
+{
+    string selectedRow = "";
+    if(item.ID == ViewBag.InstructorID)
+    {
+        selectedRow = "success";
+    }
+    
+    <tr class="@selectedRow"> 
+        <td>
+            @Html.DisplayFor(modelItem => item.LastName)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.FirstMidName)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.HireDate)
+        </td>@if (Model.Courses != null)
+{
+    <h3>Courses taught by Selected Instructor</h3>
+    <table class="table">
+        <tr>
+            <th></th>
+            <th>Number</th>
+            <th>Title</th>
+            <th>Department</th>
+        </tr>
+
+        @foreach (var item in Model.Courses)
+        {
+            string selectedRow = "";
+            if(item.CourseID == ViewBag.CourseID)
+            {
+                selectedRow = "success";
+            }
+            <tr class="@selectedRow">
+                <td>
+                    @Html.ActionLink("Select", "Index", new { courseID = item.CourseID})
+                </td>
+                <td>
+                    @item.CourseID
+                </td>
+                <td>
+                    @item.Title
+                </td>
+                <td>
+                    @item.Department.Name
+                </td>
+            </tr>
+        }
+    </table>
+}
+        <td>
+            @if(item.OfficeAssignment != null)
+            {
+                @item.OfficeAssignment.Location
+            }
+        </td>
+        <td>
+            @Html.ActionLink("Select", "Index", new { id = item.ID}) |
+            @Html.ActionLink("Edit", "Edit", new { id=item.ID }) |
+            @Html.ActionLink("Details", "Details", new { id=item.ID }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.ID })
+        </td>
+    </tr>
+}
+```
+
++ Add the code that displays the `Course` data for the selected instructor, after
+the closing `</table>` tag. It reads the `Courses` property of the view model to
+displayt hem as a list. It also adds a "Select" link that will be used to display
+the students enrolled in a particular course.
+
+```cshtml
+@if (Model.Courses != null)
+{
+    <h3>Courses taught by Selected Instructor</h3>
+    <table class="table">
+        <tr>
+            <th></th>
+            <th>Number</th>
+            <th>Title</th>
+            <th>Department</th>
+        </tr>
+
+        @foreach (var item in Model.Courses)
+        {
+            string selectedRow = "";
+            if(item.CourseID == ViewBag.CourseID)
+            {
+                selectedRow = "success";
+            }
+            <tr class="@selectedRow">
+                <td>
+                    @Html.ActionLink("Select", "Index", new { courseID = item.CourseID})
+                </td>
+                <td>
+                    @item.CourseID
+                </td>
+                <td>
+                    @item.Title
+                </td>
+                <td>
+                    @item.Department.Name
+                </td>
+            </tr>
+        }
+    </table>
+}
+```
+
++ Add the following code to display a list of students enrolled in a selected 
+course. The code reads the `Enrollments` property of the view model and displays
+a list of enrolled students and their grades for the course.
+
+```cshtml
+@if(Model.Enrollments != null)
+{
+    <h3>Students Enrolled in Course with ID @ViewBag.CourseID</h3>
+    <table class="table">
+        <tr>
+            <th>Name</th>
+            <th>Grade</th>
+        </tr>
+        @foreach(var item in Model.Enrollments)
+        {
+            <tr>
+                <td>@item.Student.FullName</td>
+                <td>@Html.DisplayFor(modelItem => item.Grade)</td>
+            </tr>
+        }
+    </table>
+}
+```
+
+**7.3.4. Add Explicit Loading**
+
+The `Index` method in *InstructorController.cs* gets a list of enrollments for a
+selected course as follows:
+
+```c#
+if(courseID != null)
+{
+    ViewBag.CourseID = courseID.Value;
+    viewModel.Enrollments = viewModel.Courses
+            .Where(x => x.CourseID == courseID).Single().Enrollments;
+}
+```
+
+When the list of instructors was retrieved, we specified eager loading, via the
+`Include()` method. We then added the `Courses` collection into the view model, 
+and by clicking on a course in the view, can access the `Enrollments` property 
+from a single `Course` entity in the model. Since we did not specify eager loading
+for the `Course.Enrollments` property, the data from that property is being loaded
+via lazy loading.
+
+If lazy loading was disabled, the `Enrollments` property of a selected course would
+be null. Since eager loading has already been demonstrated, change the loading of
+the `Enrollments` property to use explicit loading, for demonstration purposes; the
+code should appear as follows:
+
+```c#
+if(courseID != null)
+{
+    ViewBag.CourseID = courseID.Value;
+    // Lazy loading
+    // viewModel.Enrollments = viewModel.Courses
+    //    .Where(c => c.CourseID == courseID).Single().Enrollments;
+
+    // Explicit loading
+    var selectedCourse = viewModel.Courses
+        .Where(c => c.CourseID == courseID).Single();
+    db.Entry(selectedCourse).Collection(x => x.Enrollments).Load();
+    foreach (Enrollment enrollment in selectedCourse.Enrollments)
+    {
+        db.Entry(enrollment).Reference(e => e.Student).Load();
+    }
+
+    viewModel.Enrollments = selectedCourse.Enrollments;
+}
+```
+
+After getting the selected `Course` entity, the code explicitly loads that course's
+`Enrollments` navigation property collection. We use the `Collection()` method to
+load a collection property:
+
+```c#
+db.Entry(selectedCourse).Collection(c => c.Enrollments).Load();
+```
+
+Then it explicitly loads each `Enrollment` entity's related `Student` entity; we
+use the `Reference()` method to load a non-collection property:
+
+```c#
+db.Entry(enrollment).Reference(e => e.Student).Load();
+```
 
 
