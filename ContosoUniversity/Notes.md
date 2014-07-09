@@ -14,7 +14,7 @@ This section explains how the new project is set up.
 Unlike the *MvcMovie* project, where the ability for users to log in was assumed
 (but not implemented), this project explicitly removes the rewquirement that users
 should log in. Thus, while creating the project, when a template is being chosen
-in the New Project wizard, the authentication is removed by clicking the 
+in the New Project wizard, the authentication is removed by clicking the
 *Change Authentication* button and selecting the *No Authentication* option in the
 next window.
 
@@ -41,8 +41,8 @@ whichever mode is picked should be the one consistently used throughout.
 
 * Those used to show an association/ a relationship between two models/entities.
 Such properties are known as **_Navigation Properties_**. A navigation property
-holds other entities that are related to this entity. Each relationship 
-between models is defined by two ends, describing the entity type and the 
+holds other entities that are related to this entity. Each relationship
+between models is defined by two ends, describing the entity type and the
 multiplicity of the type (one, zero-or-one, or many). Common relationships include
 *one-to-many*, *one-to-one* and *many-to-many*.
 
@@ -50,7 +50,7 @@ The models used are as follows:
 
 **(a). The Student Entity**
 
-Each `Student` has a unique identifier, as well as properties to hold the name 
+Each `Student` has a unique identifier, as well as properties to hold the name
 and enrollment date. A `Student` can have several `Enrollments`, which is, here,
 a way to define the relationship between a `Student` and a `Course`. Having
 multiple `Enrollment` objects shows that a single student can enroll in multiple
@@ -77,10 +77,10 @@ then its type must be a list allowing CRUD operations.
 **(b). The Enrollment Entity**
 
 As noted earlier, `Enrollment` defines the relationship between a `Student` and
-a `Course`. Each `Enrollment` object has a unique identifier and a `Grade`. It 
+a `Course`. Each `Enrollment` object has a unique identifier and a `Grade`. It
 also holds references to the `Student` and `Course` objects that together create
-this `Enrollment`; the `ID` fields of each are the foreign keys for each 
-`Enrollment` item into its respective `Student` and `Course` rows. 
+this `Enrollment`; the `ID` fields of each are the foreign keys for each
+`Enrollment` item into its respective `Student` and `Course` rows.
 
 ```c#
 public enum Grade
@@ -91,17 +91,17 @@ public class Enrollment
 {
     // primary key
         public int ID { get; set; }
- 
+
         // nullable; null grade != zero grade
         public Grade? Grade { get; set; }
 
         // foreign keys
-        public int CourseID { get; set; }   
-        public int StudentID { get; set; } 
+        public int CourseID { get; set; }
+        public int StudentID { get; set; }
 
         // navigation properties
         // one-to-one relationship with both
-        public virtual Course Course { get; set; } 
+        public virtual Course Course { get; set; }
         public virtual Student Student { get; set; }
 }
 ```
@@ -135,7 +135,7 @@ public class Course
 }
 ```
 A view of all three models is as below: the second row in the table shows the
-relationship of each entity to the one on its right (i.e. one-to-many and 
+relationship of each entity to the one on its right (i.e. one-to-many and
 many-to-one)
 
 | Course (one)  |Enrollment (many)  |Student (one)           |
@@ -201,7 +201,7 @@ This is merely a coding preference.
 
 EF can automatically create (after an optional drop) a database. One can specify
 that this happen when the application is run, or only when the model is out of
-sync with the existing database, or only if no database exists (default). 
+sync with the existing database, or only if no database exists (default).
 
 Here, we specify that the db be dropped and recreated any time the model changes.
 This is ok in development, because the `Seed` method is called each time to
@@ -289,7 +289,7 @@ assembly it's in, while `databaseInitlizer type` does the same for the database
 initializer class that contains the `Seed()` method. For more information on the
 EF configuration settings, see [EF Config File Settings](http://msdn.microsoft.com/en-us/data/jj556606)
 
-The application is now set up such that when you access the database for the 
+The application is now set up such that when you access the database for the
 first time in a given run, EF compares the database to the model (i.e. to the
 `SchoolContext` schema and model classes) and if differences exist, it drops and
 recreates the database.
@@ -343,7 +343,7 @@ few of those seen so far include:
 2. Entity/model property names become column names and form labels
 3. Entity properties named *ID* or *classNameID* are used as the primary key.
 4. Foreign keys are the properties whose names are formatted as follows:
-*[ navigation property name ]* *[ navigation property primary key name]* (for 
+*[ navigation property name ]* *[ navigation property primary key name]* (for
 instance, the `StudentID` property in *Models/Course.cs*, since `Student` is the
 navigation property's name and `ID` is the name of the primary key of `Student`),
 or the format *[ navigation property primary key name ]* if the primary key uses
@@ -497,7 +497,7 @@ user to confirm or cancel the operation. If the operation is approved, the `POST
 request is created, and invokes the `HttpPost` version of the method.
 
 The changes here will wrap the deletion in a `try-catch`. If an error s found,
-the user is redirected to the `Get` version of the page and an error message 
+the user is redirected to the `Get` version of the page and an error message
 displayed.
 
 Repalce the `Get` version of `Delete` with the following:
@@ -551,15 +551,15 @@ public ActionResult Delete(int id)
         // log the error after uncommenting the dex variable name
         return RedirectToAction("Delete", new {id = id, saveChangesError = true });
     }
-    
+
     return RedirectToAction("Index");
 }
 ```
 
 Note that the name is now changed to `Delete`.
 
-The code retrieves the desired entity, calls `Remove` on the context using that 
-entity, then saves the changes (here, an SQL `DELETE` command is generated). If 
+The code retrieves the desired entity, calls `Remove` on the context using that
+entity, then saves the changes (here, an SQL `DELETE` command is generated). If
 this operaton fails due to a `DatException` error, the caller is redirected to
 the `Get` version of the `Delete` call with a new object holding the id and error
 message.
@@ -659,7 +659,7 @@ The method receives a parameter `sortOrder` as a query string; this parameter is
 a string containing either "*Name*" or "*Date*", optionally followed by "*_desc*"
 to specify descending order. The default sorting format is by last name, ascending.
 
-When the `Index` method is called the first time, the sort parameter is empty, 
+When the `Index` method is called the first time, the sort parameter is empty,
 and the students are displayed in ascending order by `Lastname`. When a user
 clicks on the column heading hyperlink (as implemented below), then the
 appropriate `sortOrder` value is provided.
@@ -667,12 +667,12 @@ appropriate `sortOrder` value is provided.
 The ViewBag variables are used to allow the view to configure the column heading
 hyperlinks.
 
-The code uses LINQ to create the `IQueryable` variable, then the switch to 
+The code uses LINQ to create the `IQueryable` variable, then the switch to
 determine the filter, and calls `ToList` to execute the query and pass the
 resultant list to the view. Note that, unlike the original `Index` method which
 returned `View(db.Students.ToList())` (i.e. a list of all the students, sans
 filtering), this one returns `View(students.ToList())`, the (possibly filtered)
-LINQ query. 
+LINQ query.
 
 Change the *Index* view to be as follows:
 
@@ -693,7 +693,7 @@ Change the *Index* view to be as follows:
             @Html.ActionLink("Enrollment Date", "Index", new object { sortOrder = ViewBag.NameSortParm })
         </th>
         <th>
-            
+
         </th>
         <th></th>
     </tr>
@@ -704,14 +704,14 @@ Change the *Index* view to be as follows:
 
 ```
 
-The code uses the information in the `ViewBag` properties to set up hyperlinks 
+The code uses the information in the `ViewBag` properties to set up hyperlinks
 with the appropriate hyperlink values. This is because the value of the hyperlink
-depends on what the last sort order was; the first time `Index` is invoked, 
+depends on what the last sort order was; the first time `Index` is invoked,
 `sortOrder` is null because no sorting has been asked for, and therefore `Index`
-starts off by having `ViewBag.NameSortParm` be set to the sorting option that 
-will be possible when the view is displayed (since the view sorts by last name 
-ascending - the default setting - the first time `Index` is invoked, the link 
-should allow sorting by last name descending, hence `NameSortParm` is set to 
+starts off by having `ViewBag.NameSortParm` be set to the sorting option that
+will be possible when the view is displayed (since the view sorts by last name
+ascending - the default setting - the first time `Index` is invoked, the link
+should allow sorting by last name descending, hence `NameSortParm` is set to
 `name_desc`). Similarly, the first time `Index` is invoked, sorting by enrollment
 date is yet to be requested, so we set it to one of the available options. Hence
 when sorting is invoked by one format, the link is to be set to the opposite
@@ -741,8 +741,8 @@ public ActionResult Index(string sortOrder, string searchString)
         searchString = searchString.ToUpper();
         students = students.Where(s => s.LastName.ToUpper().Contains(searchString)
                                     || s.FirstMidName.ToUpper().Contains(searchString) );
-    }            
-    
+    }
+
     switch(sortOrder)
     {
         case "name_desc":
@@ -810,7 +810,7 @@ Start by installing the *PagedList.Mvc*, one of the many paging and sorting
 packages for ASP.NET MVC, used here as an example rather than as a recommendation
 over other options.
 
-Click *Tools > Library > NuGet Package Manager > Package Manager Console*, and 
+Click *Tools > Library > NuGet Package Manager > Package Manager Console*, and
 type the command below:
 
 ```
@@ -842,7 +842,7 @@ method with the following code:
     }
 
     ViewBag.CurrentFilter = searchString;
-    
+
     var students = from s in db.Students
                    select s;
 
@@ -852,8 +852,8 @@ method with the following code:
         searchString = searchString.ToUpper();
         students = students.Where(s => s.LastName.ToUpper().Contains(searchString)
                                     || s.FirstMidName.ToUpper().Contains(searchString) );
-    }            
-    
+    }
+
     switch(sortOrder)
     {
         case "name_desc":
@@ -883,12 +883,12 @@ method with the following code:
 We've added current filter and page parameters to the method signature. The first
 time the page is displayed, all 4 parameters will be empty.
 
-Each navigation to a new page will result in a call to the `Index` method. The 
+Each navigation to a new page will result in a call to the `Index` method. The
 sort order will ahve to be maintained throughout these calls, so the first line
 (`Viewbag.CurrentSort = sortOrder`) caches the sort order between views/pages.
 
 The property `Viewbag.CurrentFilter` provides a way to do the same with the
-searchString filter. This allows it to be maintained throughout the paging, and 
+searchString filter. This allows it to be maintained throughout the paging, and
 be restored to the textbox when the page is changed. If the search string is reset
 during paging, the page has to be reset to `1`, because the new filter can result
 in different data to display (and therefore a different number of pages). Once
@@ -919,7 +919,7 @@ return View(students.ToPagedList(pageNumber, pageSize));
 ```
 
 The `ToPagedList` method takes two parameters; the first is the page number that
-the view should report, while the second is the number of items each page can 
+the view should report, while the second is the number of items each page can
 have.
 
 > **Note**
@@ -958,14 +958,14 @@ reference to the `PagedList.Mvc` helper for the paging buttons.
 }
 ```
 
-The default `BeginForm` submits values as POSTed route data, rather than as query 
+The default `BeginForm` submits values as POSTed route data, rather than as query
 strings. Operations not altering the database or application state, such as
 searching, are best called through GET operations.
 
 The text box is initialized with the current search string so that each page has
 the search filter value displayed within it when the page loads.
 
-* Add the sorting filters to the column header links, to allow sorting on 
+* Add the sorting filters to the column header links, to allow sorting on
 subsequent pages.
 
 ```cshtml
@@ -1100,6 +1100,7 @@ Modify the content of *Views/Home/About.cshtml* to the following:
 </table>
 ```
 
+---
 
 
 ## 4. Connection Resiliency and Command Interception
@@ -1109,18 +1110,18 @@ To make an application avbailable to others, it has to be deployed to a web
 hosting service, and the database to a database server. This section covers two
 features of EF6 that come in extremely handy when deploying to the cloud:
 
-Connection Resiliency - automatic retries of commands in response to transient 
+Connection Resiliency - automatic retries of commands in response to transient
 errors, for instance, those caused by network load, throttling (i.e. having db
 access throw exceptions when one acesses it more frequently than is allowed by
 their Service Level Agreement), etc.
 
 Command Interception - catching all SQL queries before they get to the database,
 in order to log or change them. Used to implement logging of latency and success
-or failure of database calls, a best practice of cloud applications. 
+or failure of database calls, a best practice of cloud applications.
 
 #### 4.1. Enable Connection Resiliency
 
-These attempt to make application usage easier on end users by intercepting 
+These attempt to make application usage easier on end users by intercepting
 error messages from SQL queries that fail due to (possibly) transient errors, and
 automatically retrying them. In order to do this, EF is configured such that it:
 
@@ -1146,12 +1147,12 @@ namespace ContosoUniversity.DataAccessLayer
     {
         public SchoolConfiguration()
         {
-            SetExecutionStrategy("System.Data.SqlClient", 
+            SetExecutionStrategy("System.Data.SqlClient",
                                     () => new SqlAzureExecutionStrategy());
         }
     }
 }
-``` 
+```
 EF automatically runs any code it finds in a class that derives from `DbConfiguration`,
 so configuration tasks that are better written in code than in *Web.Config* can
 be added here.
@@ -1200,8 +1201,8 @@ Each of these methods takes as parameters at least two objects:
 
 1. an object derived from the `DbInterceptionContext`, containing the contextual
 information about the action EF is taking; for instance, if the action is being
-performed on behalf of a `DbContext`, then the `DbContext` is passed as part of 
-the `DbInterceptionContext` object. 
+performed on behalf of a `DbContext`, then the `DbContext` is passed as part of
+the `DbInterceptionContext` object.
 
 2. The command being executed.
 
@@ -1213,10 +1214,13 @@ backoff duration between repeated calls.
 > search box on the "Student" page.
 
 
+---
+
+
 ## 5. Code First Migrations and Deployment'
 
 
-This section enables Code First migrations (to allow changes to the data model 
+This section enables Code First migrations (to allow changes to the data model
 without having to drop and recreate the db) and, optionally, deploys the app to
 a Windows Azure website.
 
@@ -1245,12 +1249,12 @@ protected override void Seed(ContosoUniversity.DataAccessLayer.SchoolContext con
     // create list of students
     var students = new List<Student>
     {
-        new Student { FirstMidName = "Carson", LastName = "Alexander", 
+        new Student { FirstMidName = "Carson", LastName = "Alexander",
             EnrollmentDate = DateTime.Parse("2010-09-01")},
 
         // snippet cut off
 
-        new Student { FirstMidName = "Brad", LastName = "Thornton", 
+        new Student { FirstMidName = "Brad", LastName = "Thornton",
             EnrollmentDate = DateTime.Parse("2000-09-01")}
     };
 
@@ -1274,9 +1278,9 @@ protected override void Seed(ContosoUniversity.DataAccessLayer.SchoolContext con
     context.SaveChanges();
 
     // then enrollments
-    var enrollments = new List<Enrollment> 
+    var enrollments = new List<Enrollment>
     {
-        new Enrollment 
+        new Enrollment
         {
             StudentID = students.Single(s => s.LastName == "Alexander").ID,
             CourseID = courses.Single(c => c.Title == "Chemistry").ID,
@@ -1286,10 +1290,10 @@ protected override void Seed(ContosoUniversity.DataAccessLayer.SchoolContext con
         // ...
 
         new Enrollment
-        { 
+        {
             StudentID = students.Single(s => s.LastName == "Thornton").ID,
             CourseID = courses.Single(c => c.Title == "Literature").ID,
-            Grade = Grade.C         
+            Grade = Grade.C
         }
     };
 
@@ -1297,10 +1301,10 @@ protected override void Seed(ContosoUniversity.DataAccessLayer.SchoolContext con
 
     foreach (Enrollment e in enrollments)
     {
-    var enrollmentInDatabase = context.Enrollments.Where (s => 
+    var enrollmentInDatabase = context.Enrollments.Where (s =>
         s.Student.ID == e.StudentID && s.Course.ID == e.CourseID)
         .SingleOrDefault();
-             
+
         if(enrollmentInDatabase == null)
         {
             context.Enrollments.Add(e);
@@ -1312,11 +1316,11 @@ protected override void Seed(ContosoUniversity.DataAccessLayer.SchoolContext con
 
 The method takes a `DbContext` parameter, and uses it to add new entities to the
 database. For each model, it creates a list containing the entities, then adds
-them to the appropriate `DbSet` before finally pushing the changes to the db to 
+them to the appropriate `DbSet` before finally pushing the changes to the db to
 be persisted.
 
 The `Student` and `Course` entities are added via an *upsert* operation, to
-avoid errors that occur when one tries to add a row that already exists. The 
+avoid errors that occur when one tries to add a row that already exists. The
 first parameter to the `AddOrUpdate` upsert method specifies the property to use
 to check if a row already exists, while the second specifies the entity to actually
 add or update, e.g:
@@ -1325,16 +1329,16 @@ add or update, e.g:
 students.ForEach(s => context.Students.AddOrUpdate(p => p.LastName, s));
 ```
 
-Essentially, for each `Student` `s`, update the record of `Student` object  `p` 
-where `p.LastName` matches `s.LastName`, or add it to the database is none is found. 
-If multiple `Student` objects are found matching `s.LastName`, an exception is 
+Essentially, for each `Student` `s`, update the record of `Student` object  `p`
+where `p.LastName` matches `s.LastName`, or add it to the database is none is found.
+If multiple `Student` objects are found matching `s.LastName`, an exception is
 thrown with the message *Sequence contains more than one element*.
 
 After each entity set is added to the context, `SaveChanges()` is called to persist
 the changes to the database. This not only helps make it easier to track down errors
 that occur during the method (by seeing what's been written to the database), but
 also makes database-generated properties available for later portions of the same
-`Seed` method. For instance, the code that creates `Enrollment` objects is as 
+`Seed` method. For instance, the code that creates `Enrollment` objects is as
 follows:
 
 ```c#
@@ -1357,7 +1361,7 @@ The code that adds each `Enrollment` property is as follows:
 ```c#
 foreach(Enrollment e in enrollments)
 {
-    var enrollmentInDatabase = context.Enrollments.Where( s => 
+    var enrollmentInDatabase = context.Enrollments.Where( s =>
             s.Student.ID == e.Student.ID && s.Course.ID == e.Course.ID)
             .SingleOrDefault();
 
@@ -1386,9 +1390,13 @@ changes back within the `Down` method.
 > Section 5.2 Deploying to Windows Azure left out.
 
 
+---
+
+
+
 ## 6. Creating a More Complex Data Model
 
-This sectio adds more entities and relationships, and specifies rules for data 
+This sectio adds more entities and relationships, and specifies rules for data
 formatting & validation and database mapping. The eventual model structure will
 be as follows:
 
@@ -1418,14 +1426,14 @@ public string FirstMidName { get; set; }
 public DateTime EnrollmentDate { get; set; }
 
 [Display(Name = "Full Name")]
-public string FullName 
+public string FullName
 {
     get { return LastName + ", " + FirstMidName;  }
 }
 ```
 > **Note**
-> Some of these attributes change the database schema, so a migration will have 
-> to be done before the project is re-run. Run the following commands in the 
+> Some of these attributes change the database schema, so a migration will have
+> to be done before the project is re-run. Run the following commands in the
 > Package Manager, using an actual, meaningful name in place of MigrationName:
 
 ```
@@ -1457,7 +1465,7 @@ currency symbols, and some client-side validation
 (b). **The StringLength Attribute**
 
 This attribute adds data validation rules and optional error messages to properties.
-One can also specify minimum string length, but his has no impact on database 
+One can also specify minimum string length, but his has no impact on database
 schema in most cases. This attribute does not exclude whitespace characters; one
 can use a regular expresion to do that, such as the one below, which specifies
 that the first character be an upper case letter and the remaining be alphabetical:
@@ -1517,12 +1525,12 @@ public virtual OfficeAssignment OfficeAssignment { get; set; }
 Navigation properties are typically declared as virtual to take advantage of
 `lazy loading`. Using this feature, if a query is made for a particular dataset
 *A* that has a 1-to-many relationship with model *B*, EF returns *A* and creates
-a query for the related data, such that merely referencing *B* has the query 
+a query for the related data, such that merely referencing *B* has the query
 executed and the data retrieved.
 
 If a navigational property is to have multiple values, thn it must be of a type
 that implements the `ICollection<T>` interface. An instructor can teach musltiple
-courses, so `Courses` is defined as a collection of `Course` entities. However, 
+courses, so `Courses` is defined as a collection of `Course` entities. However,
 the application's business rules specify an Instructor can only have one office
 or none at all.
 
@@ -1557,18 +1565,18 @@ the `ID` or `classNameID` pattern that EF expects.
 (b). **The ForeignKey Attribute**
 
 Whenever there exists a *one-to-zero-or-one* or a *one-to-one* relationship between
-two entities, EF cannot determine which entity is the primary and which is the 
+two entities, EF cannot determine which entity is the primary and which is the
 dependent. One-to-one relationships have a reference navigation property in each
 class to the other entity. The `ForeignKey` attribute is attached to the dependent
 to establish the relationship.
 
 ## 6.4. Modify the Course Entity
 
-Add a `Display(Name = "Number")` attribute to the `ID`, and a `StringLength` 
+Add a `Display(Name = "Number")` attribute to the `ID`, and a `StringLength`
 attribute to `Title` with a max of 10 and a min of 3. Add a `Range (0, 5)`
 attrubute to the `Credits` property as well.
 
-The `DatabaseGenerated(DatabaseGeneratedOption.None)` attribute specifies that 
+The `DatabaseGenerated(DatabaseGeneratedOption.None)` attribute specifies that
 the course ID is to be entered by the user.
 
 ### Foreign Key and Navigation Properties
@@ -1623,7 +1631,7 @@ the database.
 public decimal Budget { get; set; }
 ```
 
-Column mapping is generally not required; EF generally picks the appropriate 
+Column mapping is generally not required; EF generally picks the appropriate
 server type based on the CLR type defined in the model. Here, `decimal Budget`
 would be mapped to the SQL `decimal` type, but since the column will be holding
 currency amounts, the `money` type is more appropriate.
@@ -1686,8 +1694,8 @@ public virtual Student Student { get; set; }
 
 There's a many-to-many relationship between the `Student` and `Course` entities,
 and the `Enrollment` entity functions as a many-to-many join table *with payload*
-in the database. This means that the `Enrollment` table contains additional info 
-besides the foreign keys for the joined table (in this case, a primary key and 
+in the database. This means that the `Enrollment` table contains additional info
+besides the foreign keys for the joined table (in this case, a primary key and
 the `Grade` property are the extra info).
 
 The following illustration shows what these relationships look like:
@@ -1727,14 +1735,14 @@ below):
 
 
 Besides the many-to-many (* to *) and one-to-many (1 to *) relationships, there
-exists a one-to-zero-or-one (1 to 0..1) relationship between the `Instructor` and 
+exists a one-to-zero-or-one (1 to 0..1) relationship between the `Instructor` and
 `OfficeAssignment` entities, and a zero-or-one-to-many relationship between the
 `Instructor` and `Department` entities.
 
 ## 6.7. Edit the Database Context
 
-Add the new entities to the `SchoolContext` and customize some of the mapping 
-through *fluent API* calls. The API is described as "fluent" because it is used 
+Add the new entities to the `SchoolContext` and customize some of the mapping
+through *fluent API* calls. The API is described as "fluent" because it is used
 by stringing a series of methods together into a single statement. Fluent API will
 be used on database mapping that can't be done through attributes.
 
@@ -1797,7 +1805,7 @@ var courses = new List<Course>
 {
     new Course {ID = 1050, Title = "Chemistry", Credits = 3,
       DepartmentID = departments.Single( s => s.Name == "Engineering").DepartmentID,
-      Instructors = new List<Instructor>() 
+      Instructors = new List<Instructor>()
     },
     // more courses follow...
 }
@@ -1813,7 +1821,7 @@ we wouldn't be able to add these relationships.
 
 ## 6.9. Add Migrations and Update the Database
 
-First, add the migration by running the following command (remember that the 
+First, add the migration by running the following command (remember that the
 migration name is arbitrary; here, we use `ComplexDataModel` to be descriptive):
 
 ```
@@ -1823,7 +1831,7 @@ add-Migration ComplexDataModel
 Oftentimes, when executing migrations with existing data, one has to insert stub
 data to satisfy foreign key restraints. At the moment, the generated code in the
 `ComplexDataModel` migration file's `Up` method adds a non-nullable `DepartmentID`
-foreign key to the `Course` table. Since there already is data in the `Course` 
+foreign key to the `Course` table. Since there already is data in the `Course`
 table when the code runs, the `AddColumn` operation will fail because SQl won't
 knoiw what value to put into a non-nullable field. We therefore have to give this
 column a default value; here, we'll create a stub department called `Unassigned`
@@ -1832,7 +1840,7 @@ to the `Unassigned` department after the `Up` method runs, then the department i
 set to the correct value in the `Seed` method.
 
 In *<timestamp>_ComplexDataModel.cs*, comment out the line of code that adds the
-`DepartmentID` column to the `Course` table, and edit the method to appear as 
+`DepartmentID` column to the `Course` table, and edit the method to appear as
 follows:
 
 ```c#
@@ -1910,7 +1918,7 @@ EF can load related data in the following ways:
 
 **(a) Lazy Loading**
 
-When an entity is first read, related data isn't retrieved. However, the first 
+When an entity is first read, related data isn't retrieved. However, the first
 time a navigation property is accessed, EF automatically retrieves the data for
 that property. This results in multiple db queries - one for the entity itself,
 and one for each time relared data has to be retrieved. The `DbContext` class uses
@@ -1937,7 +1945,7 @@ specified by using the `Include` method:
 departments = context.Departments.Include(x => x.Courses);
 foreach(Department d in departments)    // query: all Department rows, plus related Course rows
 {
-    foreach(Course c in d.Courses)      
+    foreach(Course c in d.Courses)
     {
         // blah blah bleeb
     }
@@ -1949,7 +1957,7 @@ foreach(Department d in departments)    // query: all Department rows, plus rela
 Similar to lazy loading, except that related data has to be explicitly retrieved;
 EF does not automaticlly retrieve it for you when you access the navigation property.
 To use explicit loading, call the `Collection.Load` method for collections or
-`Reference.Load` for properties that hold a single entity. Explicit loading is 
+`Reference.Load` for properties that hold a single entity. Explicit loading is
 typically used only where lazy loading is turned off.
 
 ```c#
@@ -1964,13 +1972,13 @@ foreach(deparment d in departments)     // query: all Department rows
 }
 ```
 
-Since they don't immediately retrieve related values, lazy and explicit loading 
+Since they don't immediately retrieve related values, lazy and explicit loading
 are both known as *deferred loading*.
 
 **7.1.2 Performance Concerns**
 If you need all the related data retrieved, eager loading offers the best performance,
 as it avoids the overhead of extra SQL queries. Sometimes, however, lazy loading
-is faster, as eager loading may lead to complex SQL statements that the server 
+is faster, as eager loading may lead to complex SQL statements that the server
 may not be able to handle quickly. If only specific repated data is needed, then
 lazy loading my be faster as it won't retrieve un-needed data. However, it would
 lead to a large number of queries being made if large datasets are being processed
@@ -1978,7 +1986,7 @@ in iterations/loops, if each entity has a lot od related data. If the potential
 performance difference is crucial, both should be tested.
 
 > **Note**
-> Lazy loading can greatly slow down serialization, as serialization works by 
+> Lazy loading can greatly slow down serialization, as serialization works by
 > accessing each property on an instance of a model. This might lead to a run-away
 > chain reaction; avoid this by either turning off lazy loading, or serializing
 > only *data transfer objects* instead of entity objects.
@@ -2008,7 +2016,7 @@ Perform the following changes on *Views\Course\Index.shtml:
 + Change the title (`ViewBag.Title`) and `<h2></h2>` heading to *Courses*\
 + Move the `Department` column to the right side, and change its header to `Department`
 rather than `Name`.
-+ Add a *Number* column that show the `CourseID` property of the course; to do 
++ Add a *Number* column that show the `CourseID` property of the course; to do
 this:
 +    - add the following header to the table's first row:
 
@@ -2038,7 +2046,7 @@ eager loading.
 + Display `Course` data related to a particular `Instructor` when that instructor
 is clicked. `Instructor` and `Course` have a 1-* relationship. We'll use eager
 loading for each `Course` and its related `Department` entities. Lazy loading might
-be more efficient, sicne we only want the courses for the related (selected) 
+be more efficient, sicne we only want the courses for the related (selected)
 instructor, but this example shows how to use eager loading for navigation properties
 of navigation properties.
 
@@ -2069,7 +2077,7 @@ namespace ContosoUniversity.ViewModels
 
 **7.3.2. Create the Instructor Controller and Views**
 
-Create an `InstructorController` controller with EF read/write actions. The 
+Create an `InstructorController` controller with EF read/write actions. The
 scaffolded code specifies eager loading only for the `OfficeAssignment` navigatiopn
 property, as follows:
 
@@ -2122,7 +2130,7 @@ on the view.
 
 The code begins by creating an instance of the view model and adds a list of
 instructors to it. It specifies eager loading for the `Instructor.OfficeAssignment`
-and `Instructor.Courses` navigation properties, via the `Include()` method. The 
+and `Instructor.Courses` navigation properties, via the `Include()` method. The
 second `Include` method loads Courses, and for each Course, eager-loads the
 `Course.Department`
 
@@ -2139,7 +2147,7 @@ needed in this view, we might as well get it in the same query.
 
 If an instructor ID is selected, the selected instructor is retrieved from the
 list of instructors in the view model. The view model's `Courses` property is then
-loaded with the `Course` entities from that instructor's `Courses` navigation 
+loaded with the `Course` entities from that instructor's `Courses` navigation
 property.
 
 ```c#
@@ -2152,7 +2160,7 @@ if(id != null)
 ```
 
 The `Where` method returns a collection, but the criteria passed to it makes sure
-the collection only has one item (i.e. the instructor whose ID matches our `id` 
+the collection only has one item (i.e. the instructor whose ID matches our `id`
 parameter value). The `Single` method returns the only element of a sequence (here,
 the collection returned by `Where`), and throws an exception if more than 1
 elements are in the sequence. Thus, it converts the collection into a single
@@ -2208,15 +2216,15 @@ column that displays an `OfficeAssignment` if one exists, and add css identifier
 to the selected row. The entirity of the `foreach` loop will be as follows:
 
 ```cshtml
-@foreach (var item in Model.Instructors) 
+@foreach (var item in Model.Instructors)
 {
     string selectedRow = "";
     if(item.ID == ViewBag.InstructorID)
     {
         selectedRow = "success";
     }
-    
-    <tr class="@selectedRow"> 
+
+    <tr class="@selectedRow">
         <td>
             @Html.DisplayFor(modelItem => item.LastName)
         </td>
@@ -2319,7 +2327,7 @@ the students enrolled in a particular course.
 }
 ```
 
-+ Add the following code to display a list of students enrolled in a selected 
++ Add the following code to display a list of students enrolled in a selected
 course. The code reads the `Enrollments` property of the view model and displays
 a list of enrolled students and their grades for the course.
 
@@ -2358,8 +2366,8 @@ if(courseID != null)
 ```
 
 When the list of instructors was retrieved, we specified eager loading, via the
-`Include()` method. We then added the `Courses` collection into the view model, 
-and by clicking on a course in the view, can access the `Enrollments` property 
+`Include()` method. We then added the `Courses` collection into the view model,
+and by clicking on a course in the view, can access the `Enrollments` property
 from a single `Course` entity in the model. Since we did not specify eager loading
 for the `Course.Enrollments` property, the data from that property is being loaded
 via lazy loading.
@@ -2404,5 +2412,111 @@ use the `Reference()` method to load a non-collection property:
 ```c#
 db.Entry(enrollment).Reference(e => e.Student).Load();
 ```
+
+
+---
+
+
+## 8. Updating Related Data
+
+For most relationships, updating related data involves either changing the foreign
+key or updating the related navigation property. For many-to-many relationships,
+EF doesn't expose the join tables directly, so you can add/remove entities to and
+from the appropriate navigation properties.
+
+#### 8.1. Customize the Create and Edit Pages for Courses
+
+Each `Course` entity has a relationship to an existing `Department`. To facilitate
+this, the scaffolded code includes controller methods and Create and Edit views
+that include dropdowns for selecting the department. The dropdowns set the
+`Course.DepartmentID` foreign key property; that's all that EF needs in order to
+load the `Department` navigation property with the appropriate `Department` entity.
+
+Make the following changes to *CourseController.cs*:
+
++ Add the following `using` statement:
+
+```c#
+using System.Data.Entity.Infrastructure;
+```
+
++ Add a `PopulateDepartmentsDropdownList(object) method. It gets a list of all
+the departments sorted by name, creates a `SelectList` collection out of them,
+and passes the collection to the view in a `ViewBag` property. It accepts an
+optional `selectedDepartment` parameter that allows the calling code to specify
+the item that will be selected when the dropdown list is rendered; the `SelectList`
+constructor accepts `DepartmentID` as its *data value* string field, which is
+passed to the `DropDownList` helper. The helper then knows to look in the `ViewBag`
+for a `SelectList` named `DepartmentID`.
+
+```c#
+private void PopulateDepartmentsDropdownList(object selectedDepartment = null)
+{
+    var departmentsQuery = from d in db.Departments
+                           orderby d.Name
+                           select d;
+    ViewBag.DepartmentID = new SelectList(departmentsQuery, "DepartmentID", "Name", selectedDepartment);
+}
+```
+
++ Change the `HttpGet Create` method to use `PopulateDepartmentsDropdownList()`.
+No selected item parameter is given, since at course creation, the department is
+not established yet.
+
+```c#
+public ActionResult Create()
+{
+    PopulateDepartmentsDropdownList();
+    return View();
+}
+```
+
++ The `HttpGet Edit` method sets the selected item in the dropdown to the department
+of the course being edited, using the course's `DepartmentID` field.
+
+```c#
+public ActionResult Edit(int? id)
+{
+    if(id == null)
+    {
+        return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+    }
+
+    Course course = db.Courses.Find(id);
+    if(course == null)
+    {
+        return HttpNotFound();
+    }
+
+    PopulateDepartmentsDropdownList(course.DepartmentID);
+    return View(course);
+
+}
+```
+
++ Enclose the `if(ModelState.IsValid)` blocks in the `HttpPost` `Edit` and `Create`
+methods in `try { }` blocks. The catch block ensures that the page is redisplayed
+to show the error message, and the selected department stays selected.
+
+```c#
+catch(RetryLimitExceededException /* dex */)
+{
+    // Log the error
+    // uncomment dex variable and add a line here to write a log
+    ModelState.AddModelError("", "Unable to save changes. Try again, and if te problem persists, see your sysadmin");
+}
+PopulateDepartmentsDropdownList(course.DepartmentID);
+return View(course);
+```
+
++ In *Views/Course/*, change the caption for the department field in *Create.shtml*
+and *Edit.shtml* to
+
+
+
+
+
+
+
 
 
