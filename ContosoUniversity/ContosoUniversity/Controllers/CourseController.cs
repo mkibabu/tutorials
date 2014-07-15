@@ -65,7 +65,7 @@ namespace ContosoUniversity.Controllers
             {
                 // Log the error
                 // uncomment dex variable and add a line here to write a log
-                ModelState.AddModelError("", "Unable to save changes. Try again, and if te problem persists, see your sysadmin");
+                ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists, see your sysadmin");
             }
 
             PopulateDepartmentsDropdownList(course.DepartmentID);
@@ -108,7 +108,7 @@ namespace ContosoUniversity.Controllers
             {
                 // Log the error
                 // uncomment dex variable and add a line here to write a log
-                ModelState.AddModelError("", "Unable to save changes. Try again, and if te problem persists, see your sysadmin");
+                ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists, see your sysadmin");
             }
             PopulateDepartmentsDropdownList(course.DepartmentID);
             return View(course);

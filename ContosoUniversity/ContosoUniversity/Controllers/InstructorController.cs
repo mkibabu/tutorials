@@ -9,6 +9,7 @@ using System.Web.Mvc;
 using ContosoUniversity.DataAccessLayer;
 using ContosoUniversity.Models;
 using ContosoUniversity.ViewModels;
+using System.Data.Entity.Infrastructure;
 
 namespace ContosoUniversity.Controllers
 {
@@ -110,30 +111,69 @@ namespace ContosoUniversity.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Instructor instructor = db.Instructors.Find(id);
+            Instructor instructor = db.Instructors
+                .Include(i => i.OfficeAssignment)
+                .Where(i => i.ID == id)
+                .Single();
+
             if (instructor == null)
             {
                 return HttpNotFound();
             }
-            ViewBag.ID = new SelectList(db.OfficeAssignments, "InstructorID", "Location", instructor.ID);
             return View(instructor);
         }
 
         // POST: Instructor/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+
+        // set Actionnane attribute to retain the /Edit/ url
+        [HttpPost, ActionName("Edit")]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "ID,LastName,FirstMidName,HireDate")] Instructor instructor)
+        public ActionResult EditPost(int? id)
         {
-            if (ModelState.IsValid)
+            if(id == null)
             {
-                db.Entry(instructor).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            ViewBag.ID = new SelectList(db.OfficeAssignments, "InstructorID", "Location", instructor.ID);
-            return View(instructor);
+
+            // get instructor to update from db, and OfficeAssignment via eager loading
+            var instructorToUpdate = db.Instructors
+                .Include(i => i.OfficeAssignment)
+                .Where(i => i.ID == id)
+                .Single();
+
+            // update the retrieved instructor entity with values from the model binder.
+            // TryUpdateModel enables you to whitelist the values to update, to avoid
+            // over-posting
+            if(TryUpdateModel(instructorToUpdate, "",
+                new string[] { "LastName", "FirstName", "HireDate", "OfficeAssignment" }))
+            {
+                try
+                {
+                    // if office location is blank, set Instructor.OfficeAssignment to null so
+                    // that the related row is deleted in the OfficeAssignment table
+                    if(String.IsNullOrWhiteSpace(instructorToUpdate.OfficeAssignment.Location))
+                    {
+                        instructorToUpdate.OfficeAssignment = null;
+                    }
+
+                    // save changes to the database.
+                    db.Entry(instructorToUpdate).State = EntityState.Modified;
+                    db.SaveChanges();
+
+                    return RedirectToAction("Index");
+                }
+
+                catch(RetryLimitExceededException /* dex */)
+                {
+                    //Log the error (uncomment dex variable name and add a line here to write a log.
+                    ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists, see your sysadmin.");
+                }
+            }
+
+            return View(instructorToUpdate);
+
         }
 
         // GET: Instructor/Delete/5
