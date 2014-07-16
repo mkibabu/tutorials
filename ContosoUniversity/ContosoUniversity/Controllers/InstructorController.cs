@@ -113,8 +113,11 @@ namespace ContosoUniversity.Controllers
             }
             Instructor instructor = db.Instructors
                 .Include(i => i.OfficeAssignment)
+                .Include(i => i.Courses)
                 .Where(i => i.ID == id)
                 .Single();
+
+            PopulateAssignedCourseData(instructor);
 
             if (instructor == null)
             {
@@ -123,14 +126,32 @@ namespace ContosoUniversity.Controllers
             return View(instructor);
         }
 
+
+        private void PopulateAssignedCourseData(Instructor instructor)
+        {
+            var allCourses = db.Courses;
+            var instructorCourses = new HashSet<int>(instructor.Courses.Select(c => c.CourseID));
+            var viewModel = new List<AssignedCourseData>();
+            foreach(var course in allCourses)
+            {
+                viewModel.Add(new AssignedCourseData
+                {
+                    CourseID = course.CourseID,
+                    Title = course.Title,
+                    Assigned = instructorCourses.Contains(course.CourseID)
+                });
+            }
+
+            ViewBag.Courses = viewModel;
+            
+        }
+
         // POST: Instructor/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-
-        // set Actionnane attribute to retain the /Edit/ url
-        [HttpPost, ActionName("Edit")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult EditPost(int? id)
+        public ActionResult Edit(int? id, string[] selectedCourses)
         {
             if(id == null)
             {
@@ -140,6 +161,7 @@ namespace ContosoUniversity.Controllers
             // get instructor to update from db, and OfficeAssignment via eager loading
             var instructorToUpdate = db.Instructors
                 .Include(i => i.OfficeAssignment)
+                .Include(i => i.Courses)
                 .Where(i => i.ID == id)
                 .Single();
 
@@ -158,6 +180,8 @@ namespace ContosoUniversity.Controllers
                         instructorToUpdate.OfficeAssignment = null;
                     }
 
+                    UpdateInstructorCourses(selectedCourses, instructorToUpdate);
+
                     // save changes to the database.
                     db.Entry(instructorToUpdate).State = EntityState.Modified;
                     db.SaveChanges();
@@ -173,6 +197,40 @@ namespace ContosoUniversity.Controllers
             }
 
             return View(instructorToUpdate);
+
+        }
+
+        private void UpdateInstructorCourses(string[] selectedCourses, Instructor instructorToUpdate)
+        {
+            if (selectedCourses == null)
+            {
+                instructorToUpdate.Courses = new List<Course>();
+                return;
+            }
+
+            var selectedCoursesHS = new HashSet<string>(selectedCourses);
+            var instructorCourses = 
+                new HashSet<int>(instructorToUpdate.Courses.Select(c => c.CourseID));
+
+            foreach (var course in db.Courses)
+            {
+                if (selectedCoursesHS.Contains(course.CourseID.ToString().Trim()))
+                {
+                    if (!instructorCourses.Contains(course.CourseID))
+                    {
+                        instructorToUpdate.Courses.Add(course);
+                    }
+                }
+                else
+                {
+                    if (instructorCourses.Contains(course.CourseID))
+                    {
+                        instructorToUpdate.Courses.Remove(course);
+                    }
+                }
+            }
+
+
 
         }
 
@@ -196,9 +254,22 @@ namespace ContosoUniversity.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Instructor instructor = db.Instructors.Find(id);
+            Instructor instructor = db.Instructors
+                .Include(i => i.OfficeAssignment)
+                .Where(i => i.ID == id)
+                .Single();
+
+            instructor.OfficeAssignment = null;
             db.Instructors.Remove(instructor);
-            db.SaveChanges();
+
+            var department = db.Departments
+                .Where(d => d.InstructorID == id)
+                .SingleOrDefault();
+            if (department != null)
+            {
+                department.InstructorID = null;
+            }
+
             return RedirectToAction("Index");
         }
 
