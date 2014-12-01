@@ -1,8 +1,7 @@
-<<<<<<< HEAD
 # ASP.NET MVC Tutorials.
 
 Each tutorial contains within in a README, prividing a short summary, and a NOTES
-file with my notes from each toturial. The order and sources of the tutorials are
+file with my notes from each tutorial. The order and sources of the tutorials are
 as follows:
 
 1. MvcMovie - [Getting Started with ASP.NET MVC 5] (http://www.asp.net/mvc/tutorials/mvc-5/introduction/getting-started)
