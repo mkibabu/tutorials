@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ASP.NET MVC Tutorials.
 
 Each tutorial contains within in a README, prividing a short summary, and a NOTES
