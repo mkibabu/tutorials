@@ -1,0 +1,11 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<web-app >
+  <welcome-file-list>
+    <!-- The 'default' page for a request against this web
+	 app. For example, if 'temp.war' is the deployed WAR file,
+	 then the request that ends ...:8080/temp is understood as
+	 a request for 'index.html' inside the deployed 'temp.war' file.
+    -->
+    <welcome-file>input.html</welcome-file>
+  </welcome-file-list>
+</web-app>

@@ -1,0 +1,44 @@
+ -- Wrapup of recent JSP/servlet/JDBC examples
+
+ # How the labor should be divided among JSP/JSTL pages, explicit servlets, and backend POJOs
+   isn't always crystal clear. There are some guidelines:
+
+   ### For very simple 'read only' queries (e.g., "Select * from skisEtc"...), the JSTL 'sql'
+       package is very inviting, as the initial version of the 'ski equipment' app shows.
+
+   ### For more complicated queries (e.g., updates) that require data validation, the JSTL 
+       approach may be too cumbersome: a backend POJO or explicit servlet brings the advantage
+       of full, flexible Java.
+
+ # HttpServlets are appealing because their core methods match the HTTP verbs: 'doGet', 'doPost', 
+   and so on.
+
+   ### If we care about a verb, we override the 'do' method; otherwise, we can ignore the method
+       altogether, override it to throw an exception, override it and send back a friendly caution,...
+
+   ### The arguments to these methods gives us just what we need:
+
+       -- The HttpServletRequest is a map of the incoming request data, and the map API (e.g., the
+          'getParameter("userName")' method) is intuitive and straightforward.
+
+       -- The HttpServletResponse is a channel for communication with the client.
+
+          -- Redirects and forwards also are supported.
+
+   ### The HttpSession is a thread-safe, efficient way to share arbitrary data among the modules
+       (JSP pages, servlets, POJOs, etc.) in a given web app.
+
+       -- The HttpSession also has a map API, with 'getAttribute(...)' and 'setAttribute(...)' as the
+          principal methods.
+
+ # Backend POJOs are flexible--they're just 'plain old' Java-- and easy to access from JSP pages with
+   the <jsp:useBean id = '...' class = '...'/> construct.
+
+ # However meticulous the client-side data validation through HTML5 attributes and (eventually)
+   JavaScript, server-side validation remains a critical backup. 
+
+   ### We should work under the assumption that any user-input might be 'tainted'.
+
+   ### User-agents such as 'curl' scripts by-pass the HTML5/JavaScript constraints in any case,
+       and these user-agents can't be ruled out.
+

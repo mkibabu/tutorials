@@ -1,0 +1,55 @@
+
+ -- A JPA exercise
+
+  # In the current version of the JPA-based web app ('jpaTest2'), the doGet method in the
+    ProductsController servlet is the target of two different GET requests:
+
+    (a) localhost:8080/jpaTest2/test -- A URL without a query string creates
+        a new product, and saves this product to the DB.
+
+	## Note: violates REST principles in that a GET request creates (rather than reads)
+	   a new product.
+
+    (b) localhost:8080/jpaTest2/test?id=430 -- A URL with a query string does a
+        DB lookup to find the Product with id 430, where 'id' is the table's primary key.
+        The method that does the lookup is named 'findProduct'.
+
+  # The exercise is to add yet another method 'findAllProducts', which uses a JPA
+    @NamedQuery and the JPA QL ('query language'), which is a standardized and arguably
+    simplified version of SQL. A sample @NamedQuery is:
+
+    @NamedQuery(name = "findAllProducts", query = "...")  // The '...' represent the query in QL
+    @Entity
+    public class Widget {
+       ...
+
+    ## Once named using the annotation shown above, NamedQuery can be executed like any other.
+       There is also a longer, programmatic style for creating a NamedQuery.
+
+  # As noted above, the current implementation of 'doGet' decides between two cases on whether
+    there's a query string in the HTTP request:
+
+         if there's a query string
+             call findProduct
+         otherwise
+             call persist2DB
+
+    In the code revised for the exercise, there will be three choices:
+
+        if there's a query string
+            if the key/value pair looks like '?id=433', 
+                call findProduct as before
+            else if the key/value pair looks like '?all'           ### key only, no corresponding value
+                call findAllProducts and execute the named query
+        otherwise
+             call persist2DB
+
+    ### Although query strings typically are key/value pairs, it's possible to have only the key:
+
+          localhost:8080/ormExercise/test?all
+
+        #### Even if the URL were 'localhost:8080/ormExercise/test?all=foobar', this should be treated as
+             equivalent to 'localhost:8080/ormExercise/test?all'.
+
+
+

@@ -1,0 +1,64 @@
+ # A 1st look at servlets
+
+   ## javax.servlet.Servlet interface                                
+
+        void init(ServletConfig)                        ## invoked by web container on load
+        void destroy()                                  ## invoked by web container on unload
+
+        ServletConfig getServletConfig()                ## returns a config instance (see init)
+        String getServletInfo()                         ## returns a string representation of author, copyright, etc.
+
+        void service(ServletRequest, ServletResponse)   ## invoked by web container per client request
+
+   ## javax.servlet.ServletConfig interface
+
+        String getInitParameter(String)                 ## or null if there is none
+        Enumeration getInitParameterNames()
+
+        ServletContext getServletContext()              ## a map of core information about the web container
+     
+        String getServletName()                         
+
+   ## javax.servlet.GenericServlet implements the two interfaces above and the empty interface java.io.Serializable
+
+      ### Adds a convenience method init(), a pair of log methods--the other methods are implementations
+          of the interface methods
+
+      ### A 'generic servlet' is transport-neutral, in particular not oriented towards HTTP or any other
+          transport protocol.
+
+   ## How we'd write a GenericServlet:
+
+      public class MyGenericServlet extends javax.servlet.GenericServlet {
+         @Override
+         public void service(ServletRequest req, ServletResponse res) {   ### request arg is a map of request info, 
+            //*** app logic                                               ### response is a channel to the requester
+         }
+      }
+
+   ## javax.servlet.http.HttpServlet extends GenericServlet
+
+      ### A transport-specific (HTTP) extension of a GenericServlet
+
+      ### Encapsulates, as protected methods, implementations of the standard HTTP 'verbs', including the CRUD ones:
+
+          protected void doGet(HttpServletRequest req, HttpServletResponse res)          // no-op
+          protected void doPost(HttpServletRequest req, HttpServletResponse res)         // no-op
+          protected void doPut(HttpServletRequest req, HttpServletResponse res)          // no-op
+          protected void doDelete(HttpServletRequest req, HttpServletResponse res)       // no-op
+          ...
+
+   ## How we'd write an HttpServlet:
+
+      public class MyHttpServlet extends HttpServlet {
+         @Override
+         public void doGet(HttpSerlvetRequest req, HttpServletResponse res) {
+	    // app logic
+         }
+         ...
+      }
+
+      ### We'd override the 'do' methods we care about, and ignore the rest (the 'adapter' pattern at work)
+
+   ## The serlvet packages belong to Java EE. Tomcat provides them in TOMCAT_HOME/lib/servlet-api.jar.
+      Other Java-oriented web servers provide comparable support.

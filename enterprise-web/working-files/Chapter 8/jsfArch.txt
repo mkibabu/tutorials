@@ -1,0 +1,38 @@
+ 
+ -- Summary of JSF features/architecture as seen in the 1st JSF app
+
+    # Customized tag libraries: we've seen 'core', 'hmtl', and 'facelets' in the 1st example
+
+      'html':       counterparts and extensions of standard HTML tags designed to pack
+                    default behavior into the tag
+
+                       Examples: h:form, h:panelGrid, h:inputText                
+
+      'core':       designed for data conversion/validation and 'ajaxy' uses
+
+                       Examples: f:validateDoubleRange, f:ajax, f:facet, f:event 
+
+      'facelets':   declarative language for adding UI components (HTML 'fragments' or 'partials') 
+                    to a base page, thereby building a component-based HTML template
+
+                       Examples: ui:insert, ui:include
+
+    # HTTP requests are targeted at JSF pages (e.g., 'index.jsf'), which represent a
+      rendered HTML template (in this case, the template is 'index.xhtml').
+
+      ## Makes sense: requests are expected to come from browsers, which display HTML pages
+
+      ## Requests from JSF pages are configured to hit the JSF 'interceptor', in our case an
+         instance of javax.faces.webapp.FacesServlet.
+
+         ### The JSF servlet provides the JSF 'context' that a JSF web app requires.
+         
+         ### This servlet acts as the generic controller for HTTP requests targeted at JSF pages.
+                                         
+                                         JSF engine             JSF template
+                            index.jsf       /                       /
+              HTTP request------------->FacesServlet----------->index.xhtml
+
+
+
+

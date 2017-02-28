@@ -1,0 +1,62 @@
+ 
+ -- JSF naming conventions: the semi-mysterious '.jsf' extension
+
+    # Sample reference in a JSP script to a file with '.jsf' extension;
+
+       <% response.sendRedirect("index.jsf"); %>  /* refers to a non-existent file 'index.jsf' */
+
+    # There's method in the maddness.
+
+      --Example: The file 'test.war' encapsulates the file 'index.xhtml', but my code refers to
+                 'index.jsf' instead--and there is no 'index.jsf' file in 'test.war':
+
+                                 test.war       ## deployable WAR file
+		             +-------------+
+                             | index.xhtml |    ## This file contains JSF scripting, not just HTML 
+                             |  home.jsp   |    ## Standard JSP script
+                             |    ...      |
+                             +-------------+
+
+                 Given the URL 
+
+                   http://localhost:8080/test/index.jsf
+
+                 as a redirect request, the file 'index.xhtml' is rendered and returned as the HTTP response.
+                 
+      ## Think of 'index.xhtml' as a static template in XML-compliant HTML, and 'index.jsf' as the
+         rendered document generated from 'index.xhtml':
+
+         ### Here's a sketch of the flow of control:
+
+                        request test/index.jsf
+              browser---------------------------->server  ## the FacesServlet does the mapping
+                
+         ### index.xhtml, identified here as 'index.jsf' in the request, is rendered and 
+             returned as the HTTP response document:
+
+                        rendered index.xhtml
+             browser<----------------------------server   ## index.jsf represents the rendered XHTML page
+                          response page          
+
+      ## JSF does not require XHTML files in the strict sense, but it does require HTML files that
+         pass an XML parse:
+
+           XML-compliant HTML page with embedded JSF-------->XML parser-------->rendered response page
+
+ ----------------------------------------------------------------------------------------------------------------------
+
+ # Can we intermix JSP and JSF?
+
+   ## Short answer: 'yes'
+
+   ## Better answer: if you go the JSF route, then go it without JSP except for very trivial uses, e.g., you
+      might have a 'welcome page' named 'home.jsp' that contains but one line:
+
+         <% response.sendRedirect("index.jsf"); %>  /* the actual file is 'index.xhtml' */
+
+   ## JSP and JSF are too different at the implemenation level: JSP pages become servlets, JSF pages don't.
+     
+      ### JSP directives aren't standard practice in JSF; instead, namespace declarations are used (more on this later).
+
+   ## JSF is not a JSP extension, but a framework in its own right.
+   

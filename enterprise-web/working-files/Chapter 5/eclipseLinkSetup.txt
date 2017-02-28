@@ -1,0 +1,59 @@
+ 
+ -- Setting up EclipseLink for a 1st ORM web app
+
+  ## Download the current version (2.x) from: http://www.eclipse.org/eclipselink/#download.
+
+  ## The required JAR files (there may be version numbers in your JAR names) are:
+
+     -- eclipselink.jar                            ### general JAR 
+     -- javax.persistence.jar                      ### EclipseLink JPA
+     -- org.eclipse.persistence.jpa.modelgen.jar   ### EclispeLink JPA
+
+     As before, we still need the PostgreSQL (or comparable) driver code:
+
+     -- postgresql-jdbc.jar                      
+
+     ### All of these go into the 'src' directory if you're using the Ant script to deploy;
+         in any case, they wind up in WEB-INF/lib within the deployable WAR file.
+
+  ## A special 'mapping file', called persistence.xml, is also required. Here's the version I'm using:
+
+     <?xml version="1.0" encoding="UTF-8"?>  
+     <persistence version="2.0" 
+     	          xmlns="http://java.sun.com/xml/ns/persistence" 
+	          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	          xsi:schemaLocation="http://java.sun.com/xml/ns/persistence
+		  http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">  
+
+       <persistence-unit name="ProductPU" transaction-type="RESOURCE_LOCAL">  
+         <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>  
+         <class>test.Product</class>  
+         <exclude-unlisted-classes>true</exclude-unlisted-classes>  
+         <properties>  
+           <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver"/>  
+           <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/skistuff"/>  
+           <property name="javax.persistence.jdbc.user" value="fred"/>  
+           <property name="javax.persistence.jdbc.password" value="secret"/>  
+        
+           <!-- EclipseLink should create the database schema automatically -->  
+           <property name="eclipselink.ddl-generation" value="create-tables" />  
+           <property name="eclipselink.ddl-generation.output-mode" value="database" />    
+         </properties>  
+       </persistence-unit>  
+     </persistence>  
+
+     ### This file has to wind up in WEB-INF/classes/META-INF in the deployable WAR file.
+
+         #### The Ant compiler also needs access, so the file should start out in the cwd/META-INF.
+              The revised Ant script handles the rest.
+            
+ 
+
+ 
+
+
+ 
+
+     
+
+    

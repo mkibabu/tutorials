@@ -1,0 +1,33 @@
+ # Wrapup
+
+ ## Lots of technologies in play so far--not surprising, as we're putting a web-server environment in place.
+
+ ## For programming web apps:
+
+    ### So far, just HTML/CSS and JSP, but there's much more to come (and soon):
+    
+        #### Backend POJOs (JavaBeans)
+	
+	#### Explicit servlets (recall that JSP scripts get translated into servlet instances)
+	 
+	#### JSF and JavaScript 
+
+ ## For deploying web apps:
+
+    ### A lightweight but production-grade, Java-centric web server: Tomcat
+
+        #### Jetty would do just as well.
+
+        #### The key piece is the 'servlet container', them middleware that mananages a deployed Java web app.
+
+ ## For persisting data used in the web apps:
+
+    ### A production-grade RDBMS, PostgreSQL by default.
+
+        #### Various other choices would work just fine: MySQL, SQLite3, TopLink, and so on.
+
+        #### The core requirement is a 'driver', code that mediates between our (web) app and the DB system.
+
+
+
+    

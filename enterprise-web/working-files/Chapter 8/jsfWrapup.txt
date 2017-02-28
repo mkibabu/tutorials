@@ -1,0 +1,66 @@
+
+ -- JSF wrapup
+
+    # JSF is a higher-level framework than JSP
+
+      ## JSF offers higher-level controls for data validation and presentation.
+
+      ## JSF encourages a clean separation of concerns: 
+
+         -- JSF pages for UI
+
+         -- @ManagedBeans for app logic, including DB access
+
+      ## JSF has a clean, straightforward implementation: the FacesServlet acts
+         as an interceptor for HTTP requests targeted at JSF pages.
+
+         ### This servlet provides the 'JSF context' that supports the interaction
+             of JSF pages (UI) and @ManagedBeans (app logic).
+
+    # JSF can be intermixed with JSP/explicit servlets, but this should be done at 
+      the page level -- not within a page.
+
+      ## A web app might intermix JSF pages/@ManagedBeans, on the one side, and the
+         JSP pages/explicit servlets/regular POJOs, on the other side.
+
+         ### Within a page, it's a bad idea to intermix JSP and JSF constructs. 
+
+             -- The expression languages differ.
+
+             -- The processing of the page differs (JSP pages become servlet instances,
+                JSF pages don't).
+
+             -- Each approach to page templating is sufficiently distinct to discourage intermixing
+                within the same page.
+
+          ### The 1st JSF example (temp conversion) illustrates the point: there's a JSP page that
+              redirects to a JSF page; there's a JSF page that provides the app's UI.
+
+    # Other features of interest in JSF:
+
+      ## HTML wrappers and other web controls are available; 'facelets' are HTML 'partials', 
+         easily reusable chunks that can be inserted into a larger template.
+
+      ## The integration of JSF pages and back-end @ManagedBeans is best done through 
+         JSF expressions on UI pages, expressions that reference properties and even arbitrary methods
+         in the back-end code.
+         
+         ### App logic (including 'models' in the MVC sense) are 'code behind' classes.
+
+             #### If a back-end bean supports expressions used in the UI, the bean should be a @ManagedBean
+
+      ## JSF (unlike JSP) has explicit support for the 'partial page updates' of 'ajax' requests. 
+
+    # Downsides of the JSF (or any other) framework:
+
+      ## Every web framework comes with its own API, and is opinionated about how the API should be used.
+     
+      ## Committing to a framework limits flexibility -- there's no getting around it.
+
+         ### That said, JSF is sufficiently lightweight and flexible that it doesn't feel like a 
+             straight-jacket.
+
+
+
+
+             

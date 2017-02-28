@@ -1,0 +1,27 @@
+# How the introductory web app works
+
+0. Start the Tomcat web server, and deploy the web app (packaged as the JAR file 'temp.war') to Tomcat.
+   ## WAR for 'web archive'--the standard extension for a web app deployed to a Java-centric web server.
+
+                       request for temp.war      
+1. client (browser) ---------------------------> Tomcat web server
+                                                 ## The deployed WAR file includes several items, including
+                                                    input.html (an input form) and convert.jsp (code + HTML),
+                                                    which does the converting and displays the result.
+
+   ## requestURL:  http://localhost:8080/temp
+
+                            input.html
+2. client (browser) <-------------------------- Tomcat web server  ## input.html is deployed as the 'welcome page'
+
+3. User fills in a text box with a numeric value, e.g., -37.6, and pushes a 'submit' button.
+
+                       request with -37.6
+4. client (browser) ---------------------------> Tomcat web server
+
+5. The 'temp' web application converts this value, understood as a Fahrenheit temperature, into Centigrade (Celsius).
+       
+                       response of -125.3
+6. client (browser) <-------------------------- Tomcat web server
+
+7. Browser displays a message about the original and the converted value.

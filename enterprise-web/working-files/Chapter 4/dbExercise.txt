@@ -1,0 +1,45 @@
+ # Two code/DB exercises:
+
+   ## The first is to add persistence to the Rock-Paper-Scissors exercise.
+
+      ### A table should persist the result of each game (who picked what, who won) unless and until
+          the human player decides to 'clear' the table. A 'clear' operation deletes all of the records
+          from the table. (In standard SQL, the command 'DELETE FROM skisEtc' would delete all of the
+          records in the 'skisEtc' table.)
+
+      ### Hint: For efficiency, the new game results might be kept only in memory until the user
+          picks the 'End play' button. Clicking this button would end play, but not until the
+          current contents of the session map (or some other structure) were saved to the DB.
+
+      ### When play begins, the user enters a 'username' that identifies within the DB the
+          games associated with that player. The game history then can be fetched from the DB into memory.
+
+---------------------------------------------------------------------------------------------------------
+
+   ## The second exercise is to fix the code
+
+    private boolean productNameInUse(Connection conn, String name) {
+	boolean flag = false;
+	try {
+	    //*** There's a better way--an exercise waiting to happen.
+	    Statement stmt = conn.createStatement();
+	    String sql =  "SELECT product FROM skisEtc";
+	    ResultSet rs = stmt.executeQuery(sql);
+	    while (rs.next()) {
+		String product = rs.getString("product");
+		if (product.equalsIgnoreCase(name)) {
+		    flag = true;
+		    break;
+		}
+	    }
+	    rs.close();
+	    stmt.close();
+	}
+	catch(SQLException e) { }
+	return flag;
+    }
+
+    ## The command 'CREATE INDEX product ON skisEtc' would create an index on the 'product' column
+       in the 'skisEtc' table.
+
+

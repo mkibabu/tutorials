@@ -1,0 +1,35 @@
+ 
+ -- Using jQuery to perform 'ajax polls' of a web app
+
+    # The major pieces:
+
+      index.html: 'welcome page' embeds jQuery code that repeatedly polls a servlet that maintains a 
+                  'shared web resource', in this demonstration case a simple counter. The counter's
+                  value is display in a text area.
+
+                  -- In a production environment, the shared web resource might be a company's product list.
+
+                  -- There is exactly one counter, initialized to zero and shared among all clients.
+
+                  -- To ensure thread-safety, a java.util.concurrent.atom.AtomicInteger implements the counter.
+
+      PolledServlet: the jQuery in the index.html page targets this servlet repeatedly with GET requests, which
+                     should have one of the following URI formats:
+
+                  -- /pollService/updateCounter         ## get the counter's current value
+                  -- /pollService/updateCounter?inc     ## increment the counter and then get its new value
+                  -- /pollService/updatecounter?dec     ## decrement the counter and then get its new value
+                  -- /pollServide/updatecounter?reset   ## reset the counter to zero and get this value
+
+    # Summary of other features:
+
+      ## The deployed WAR has, as usual, a 'web.xml' deployment file, which specifies only the 'welcome page'.
+
+      ## The 'servlet mapping' is now handled with the @WebServlet annotation on the servlet, instead of with
+         the usual 'web.xml' entries.
+
+      ## Servlets are serializable and, as such, should have a 'serialVersionUID' field of type long. This has
+         been added to illustrate best practices.
+
+
+                 

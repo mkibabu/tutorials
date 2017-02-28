@@ -1,0 +1,50 @@
+ # An exercise to combine HTML, a servlet, and JSP
+
+   ## Points of emphasis:
+
+      ### Tracking state information across pages in a straightfoward way.
+
+      ### Having servlets and JSP scripts interact seamlessly.
+
+      ### The HttpSession map is well suited for the task.
+
+   ## Rock-Paper-Scissors is a simple, 2-person game:
+
+      -- The players simultaneously signal their choice: Rock, Paper, or Scissors
+         ### In the 'live' version, hand signals are used.
+
+      -- The outcome is determined as follows:
+
+          Both players pick the same: A tie 
+          Rock breaks Scissors:       Rock wins
+          Scissors cuts Paper:        Scissors wins
+          Paper covers Rock:          Paper wins
+
+          ### AI-based implmentation: http://www.nytimes.com/interactive/science/rock-paper-scissors.html?_r=0
+
+   ## Implementation hints:
+
+      -- An HTML 'radio button' is a nice choice for user input, as only one choice
+         can be made and the 'checked' attribute can be used to indicate the default:
+
+          <input type = "radio" name = "pick" value = "rock" checked>Rock
+          ...
+
+      -- A servlet, as an HTTP endpoint, is well suited as the target for a submitted form
+         that contains the choice, in this case via a parameter named 'pick'.
+         Using the java.util.Random class, the servlet could 'flip a coin'--pick a random 
+         number with a value of 0 (rock), 1 (paper), or 2 (scissors)--and then determine
+         who won.
+
+      -- A JSP page can display the results of this game, and a history of results so far.
+
+      -- The HttpSession map is well suited to save the game results, perhaps a java.util.List of Result instances,
+         where the Result class has properties 'winner', 'winnerChoice', and 'loserChoice'.
+
+   ## Functionality:
+
+      -- The user should be able to make a choice, submit it, and see the outcome of this game.
+
+      -- The user should be able to play as many times as desired, and see the current history if desired.
+
+      -- The user should be able to 'clear' the history and start anew.

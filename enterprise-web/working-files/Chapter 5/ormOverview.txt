@@ -1,0 +1,60 @@
+ 
+ -- ORM (Object-Relational Mapping) overview
+
+  # The examples so far haved used JDBC only for DB access: reliable, fast, expressive, portable.
+
+     ## JDBC is 'close to the metal', with a relatively low-level API: mostly a thin wrapper around SQL.
+
+     ## Java offers choices, including ORM implementations.
+
+  # There are various definitions that differ in detail, but the underlying idea is clear:
+
+      ORM is a programming technique ('pattern'), implemented as middleware libraries, that converts
+      between (a) class instances in an OO language such as Java and (b) records in a relational DB system.
+                            
+                               ORM
+          Class instance <-------------> database record(s)  ## 'records' indicates that DB relations are possible
+
+      -- Example: An instance of the Product class could be persisted as a row in the 'products' table,
+                  and a given row from this table could be retrieved as an in-memory Product instance.
+         
+           ## pseudo-code illustrations:
+ 
+                  Product prod = pm.find(Product.class, 27);   // 'pm' is the 'persistence manager'
+
+                  prod = new Product();
+                  prod.setProp1(...);
+                  prod.setProp2(...);
+                  ...
+                  pm.persist(prod);   // add to a list to be persisted to the DB
+                  pm.flush();         // write the list to the DB
+
+      -- Some claim that ORM is an 'anti-pattern'.
+
+      -- Tradeoffs: 
+
+         ## To the good: Higher-level API than JDBC, although JDBC is there under the hood.
+                         JDBC in the form of 'native queries' remains available.
+
+         ##  To the bad: Performance may take a hit, and logic may be shifted from the DB query to
+                         method bodies.
+
+                         Setup and configuration can be tricky.
+
+   # Java's JPA (Java Persistence API) is the official API for an ORM, although Java-based ORMs tend to
+     have both a 'native' API and a JPA implementation.
+
+   # Java JPA provider choices:
+
+     ## EclipseLink (RI): http://www.eclipse.org/eclipselink
+
+     ## Hibernate: http://hibernate.org
+
+     ## OpenJPA: http://openjpa.apache.org
+
+     ...
+
+
+
+
+              

@@ -1,0 +1,83 @@
+ -- Concurrency issues in Tomcat and PostgreSQL
+
+ # Tomcat implements the 'one thread per request' model to handle client requests.
+
+   ## At startup, Tomcat creates a 'thread pool' of client-handling threads.
+
+   ## An incoming request is delegated to a thread from the pool. Once the thread handles
+      the request through the response, the thread returns to the pool to await another 
+      request-handling task.
+
+   ## Implication for the programmer: the programmer, not Tomcat, is responsible for
+      thread-safefty within an app.
+
+      Example:
+
+      public class MyServlet extends HttpServlet {
+          private int requestCount = 0;   //*** CAUTION
+
+          public void doPost(HttpServletRequest req, HttpServletResponse res) {
+	      requestCount++;  //*** potential race condition
+              ...
+          }
+          ...
+      } 
+
+      // partial fix, but problems remain....
+      import java.util.concurrent.atomic.AtomicInteger;
+      public class MyServlet extends HttpServlet { 
+          AtomicInteger requestCount = new AtomicInteger();   // thread safe
+
+          public void doPost(HttpServletRequest req, HttpServletResponse res) {
+	      requestCount.incrementAndGet();                 // thread safe
+              ...
+          }
+          ...
+      } 
+
+      ### Remaining challenges:
+
+          In the above fix, the requestCount is an 'instance field'--one per MyServlet instance.
+          The Tomcat 'web container' is free to create and destroy instances as it sees fit.
+
+          Even if the requestCount is changed to a 'static' field, there's no guarantee that
+          the 'web container' won't unload the MyServlet class itself because there are no
+          incoming requests for MyServlet instances.
+
+      ### Parameters and local variables are thereby thread-safe--no concurrency issues there.
+ --------------------------------------------------------------------------------------------------------
+    
+ # Why haven't the PostgreSQL examples shown so far addressed concurrency?
+
+   ## For single SQL statements such as
+ 
+         UPDATE skisEtc SET ...;
+
+      PostgreSQL automatically wraps the statement within a concurrency-safe transaction:
+
+         BEGIN;
+           UPDATE skisEtc SET ...;
+         COMMIT;
+
+   ## For multiple-statement operations, explicit 'BEGIN' and 'COMMIT' statements should enclose
+      the SQL statements so that the multiple statements are treated as if they were one:
+
+         BEGIN;
+           UPDATE table1 SET ...;
+           UPDATE table2 SET ...;	 
+         COMMIT;
+
+   ## In the JDBC API, a Connection is created--by default--in 'autoCommit' mode, which means that each
+      individual statement is treated as a transaction.
+
+      ### The JDBC API does allow for explicit transactions, shown in a later example.
+
+   ## PostgreSQL uses MVCC (MultiVersion Concurrency Control) under the hood, the same
+      concurrency mechanism used in IBM DB2, MS's SequelServer, ObjectStore, etc.
+
+      ### Supports the ACID (atomicity-consistency-isolation-durability) properties, using timestamps to 
+          sequence updates to the DB.
+
+      ### The JDBC API is sufficiently flexible to work with an MVCC implementation of concurrency control.
+
+   

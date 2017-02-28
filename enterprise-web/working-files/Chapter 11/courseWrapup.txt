@@ -1,0 +1,39 @@
+
+  -- Course wrapup
+
+     #  The big programming pieces:
+
+       -- HTML (information structure) and CSS (visual design)
+
+       -- JavaScript and jQuery (browser-side processing)
+
+       -- explicit servlets and JSP pages with back-end POJOs (base-level APIs)
+
+       -- JSF pages and @ManagedBeans (high-level API)
+
+       -- JDBC and JPA (talking to the database)
+
+     # The main support pieces:
+
+        -- PostgreSQL (the DB)
+
+        -- Tomcat (the web server)
+
+     # The good news:
+
+        -- Major challenges of web programming, and ways to address these challenges,
+           are similar across languages and frameworks.
+
+           ## After all, it's HTTP under the hood.
+
+           ## Moving from one framework to another, even across languages, is not as hard
+              as it might appear.
+
+     # The really good news:
+
+        -- Flash! The web is here to stay.
+
+        -- Java remains the dominant language and runtime for enterprise apps, including web apps.
+
+
+          

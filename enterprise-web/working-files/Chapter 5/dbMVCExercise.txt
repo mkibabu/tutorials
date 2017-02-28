@@ -1,0 +1,41 @@
+
+ -- Exercise to add an order to the DB in 'MVC' style
+
+    # In the 'skiEmail' app, the 2nd version of the shopping cart,
+      the method
+
+      // OrderPlacer.java
+      private void saveToDB(List<LineItem> lineItems) {
+
+   	   /* The 'saveToDB' part is going to be an exercise:
+	      what follows is the confirmation email. 
+	   */
+	   String msg = "Order summary:\n";
+	   for (LineItem item : lineItems)
+	       msg += item.toString();
+	   msg += "Total: $" + this.total + "\n";
+	   sendConfirmingEmail("customer@somewhere.org", msg);
+      }
+
+      doesn't save anything to the DB.
+
+    # Make saveToDB effective by taking the following steps, in the
+      spirit of "MVC':
+
+      1. Create an 'orders' table. In addition to the obvious LineItem properties,
+         add a column named 'email', which contains the email of whoever ordered.
+
+         -- For now, we'll assume that emails are unique customer identifiers.
+
+      2. Create a Java class named Order.java, which represents an order of specified
+         line items.
+
+         -- Use JDBC to save each line item in an Order instance to the 'orders' table.
+
+      3. The 'saveToDB' method above would (a) create an Order instance, which encapsulates
+         the LineItems that make up the order together with the customer's email address;
+	 and (b) persists the Order instance to the database.
+
+         -- For now, the customer's email can be hard-coded, as in my code; later, we'll
+	    prompt for an email, and even provide a way for a customer to register an
+	    email as a customer identifier.

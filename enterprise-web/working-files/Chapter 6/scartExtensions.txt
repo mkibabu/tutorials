@@ -1,0 +1,48 @@
+ 
+ -- What does the 'shopping cart' web app still need?
+
+  # A shopper needs to log in during the process of placing an order: 
+
+       -- identifier (email)
+
+       -- backing credential (password)
+
+    ## Before a customer can log in, however, customer needs to register:
+
+       -- Enter identifier (email)
+
+       -- Enter credential (password)
+
+       -- Confirm password
+
+  # 'Strong' password requirement
+
+     ## Organizations differ, of course, on password requirements, but nowadays it's common
+        to require 'strong' passwords (where, of course, the definition of 'strong' varies considerably)
+
+     ## For our purposes, 'strong' will mean:
+
+        -- At least 6 characters in length
+        -- At least 1 uppercase letter
+        -- At least 2 lowercase letters
+        -- At least 1 decimal digit
+        -- At least 1 special character
+
+     ## A regex ('regular expression') will be used on both the client side (HTML5) and the server
+        side (Java servlet using the Pattern type) will validate the password during registration.
+
+ ----------------------------------------------------------------------------------------------------
+
+  # Registration and log in
+
+    ## For log in, Java offers the option of 'container managed' user authentication--the preferred way to go
+
+       ### We'll do this during coverage of security.
+
+    ## For log in and registration, similar HTML forms are needed.
+
+       ### Rather than duplicate an entire HTML page, or even fragment in HTML, we'll build a
+           'customatized JSP tag' that generates the appropriate HTML fragment.
+
+           #### This gets us into the general topic of 'customized tags'.
+

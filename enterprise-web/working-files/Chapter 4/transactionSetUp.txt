@@ -1,0 +1,66 @@
+ -- Setting up the DB for the transaction example
+
+ # Big picture: one JSP editing form with data from two tables (a 'join' view).
+
+   ## Either both of the underlying tables get updated, or neither does: transaction ensures this.
+
+ # Two tables: 'emps' (employees) and 'sals' (employee salaries)
+
+   ## The DB admin wants to keep salaries in a separate table to limit access; also,
+      the data therein might be encrypted, whereas the data in the 'emps' table need not be encrypted.
+
+   ## The web-based edit page lists all of the editable fields in 'emps' and 'sals' (e.g., the 'id' fields
+      are not editable).
+
+   ## We can work directly with the PostgreSQL client ('psql') or comparable tool for other DBs.
+
+      Example:
+
+      % psql skistuff    ## from the command line or through the GUI
+   
+        skistuff=# CREATE TABLE emps (id         SERIAL PRIMARY KEY NOT NULL,
+		                      name       VARCHAR(50)        NOT NULL,
+                                      department VARCHAR(50)        NOT NULL);
+
+	skistuff=# CREATE TABLE sals (id  SERIAL PRIMARY KEY NOT NULL,
+		                      salary DECIMAL(10,2),
+		                      emp_id INT REFERENCES emps(id));
+
+        skistuff=# \dt
+
+                  List of relations
+           Schema |  Name   | Type  | Owner 
+          --------+---------+-------+-------
+           public | emps    | table | fred
+           public | sals    | table | fred
+           public | skisetc | table | fred
+
+         skistuff=# INSERT INTO emps(name, department) VALUES ('Moe Stooge', 'Accounting');
+         skistuff=# INSERT INTO sals(salary, emp_id) VALUES (123456.78, 1);
+         ...
+
+         skistuff=# select * from emps;
+
+           id |     name     | department  
+          ----+--------------+-------------
+            1 | Moe Stooge   | Accounting
+            2 | Curly Stooge | Finance
+            3 | Larry Stooge | Recruitment
+
+
+         skistuff=# select * from sals;
+
+           id |  salary   | emp_id 
+          ----+-----------+--------
+            1 | 123456.78 |      1
+            2 | 132435.67 |      2
+            3 | 324154.45 |      3
+
+         skistuff=# select * from emps, sals where emps.id = sals.emp_id;
+
+           id |     name     | department  | id |  salary   | emp_id 
+          ----+--------------+-------------+----+-----------+--------
+            1 | Moe Stooge   | Accounting  |  1 | 123456.78 |      1
+            2 | Curly Stooge | Finance     |  2 | 132435.67 |      2
+            3 | Larry Stooge | Recruitment |  3 | 324154.45 |      3
+

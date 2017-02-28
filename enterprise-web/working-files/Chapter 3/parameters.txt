@@ -1,0 +1,81 @@
+ # How the Java web container handles parameters in HTTP requests
+
+   ## Recall that modern browsers generated only two types of HTTP request, GET and POST.
+
+      ## A GET request has no body: any information passed with the request must occur in the HTTP header,
+         a collection of key/value pairs.
+
+      ## A 'query string' is a common way to set ad hoc info in a GET request, with 'QueryString' as the
+         key in the HTTP header and key/value pairs as the values. 
+         The format is: 
+                           ...?k1=v1&k2=v2&k3=v3&...&kn=vn
+
+         where the k's are 'keys' and v's are the corresonding values. The key/value pairs can occur in
+         arbitrary order.
+
+      ## A POST request always has a body, which may be (but typically is not) empty. The body of a POST
+         request is a collection of key/value pairs.
+
+   ## Query string example from 'delete.jsp' in the 'jspCRUD' web app:
+
+       <!-- The 'Delete' link in the table of the welcome page, 'skiStuffCRUD.jsp' -->
+       <td><a href = "${pageContext.request.contextPath}/delete.jsp?id=${item.id}">Delete</a></td>
+
+      <!-- The main part of the 'delete.jsp' page -->
+      <fieldset><legend class = "legend">Delete user</legend>
+        <div style = "font-weight:bold;font-size:101%;">
+          <c:out value="Are you sure you want to delete user with Id ${param.id}?"/>
+       </div>
+       <p><a href="${pageContext.request.contextPath}/skiStuffCRUD.jsp">Cancel</a>&nbsp;&nbsp;|&nbsp;&nbsp;
+
+          <a href="${pageContext.request.contextPath}/deleteForSure.jsp?id=${param.id}">Delete the product</a></p>
+      </fieldset>										       
+
+   ## POST body example from 'create.jsp':
+
+      <form action = "${pageContext.request.contextPath}/save.jsp" method = "post">
+           <table>
+              <tbody>
+                <tr style = "background: white;}">
+                   <td><label for = "product">Product:</label></td><td>
+		   <input id = "product" name = "product" type = "text"/></td>
+                </tr>
+                <tr style = "background: white;}">
+                   <td><label for = "category">Category:</label></td><td>
+		   <input id = "category" name = "category" type = "text"/></td>
+                </tr>
+   	        <tr style = "background: white;}">
+                   <td><label for = "price">Price:</label></td><td>
+		   <input id = "price" name = "price" type = "number" step = "0.01" min = "0"/></td>
+                </tr>
+              </tbody>
+           </table>
+           <p><input type = "submit" value=" Create product "/></p>
+      </form>
+                                                   Key                 Value
+      ### The critical key/value pairs will be:  product  = <user-provided value of 'product'>
+                                                 category = <user-provided value of 'category'>
+                                                 price    = <user-provided value of 'price'>
+
+   ## Regardless of whether the incoming request is a GET or a POST, the 'servlet container' packages the relevant
+      key/value pairs as a Java map. In JSP 2.x, this map is 'param'. Here are slices of 'save.jsp' and
+      'saveEdits.jsp' to illustrate the 'old-style' JSP from the 'new-style':
+
+      <!-- old style -->
+      <sql:update dataSource = "${myDS}" var = "result">
+         INSERT INTO skisEtc(product, category, price) VALUES 
+           ('<%= request.getParameter("product") %>', 
+            '<%= request.getParameter("category")%>',
+             <%= Float.parseFloat(request.getParameter("price").trim()) %>);
+      </sql:update>
+
+      <!-- new style -->
+      <sql:update dataSource = "${myDS}" var = "result">
+      UPDATE skisEtc SET product = ?, 
+                         category = ?, 
+                         price = <%= Float.parseFloat(request.getParameter("price").trim()) %>
+                         where id = ${param.id};
+        <sql:param value = "${param.product}"/>
+        <sql:param value = "${param.category}"/>
+      </sql:update>
+   

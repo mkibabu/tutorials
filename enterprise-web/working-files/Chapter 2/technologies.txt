@@ -1,0 +1,50 @@
+ # Review of the languages/technologies at play in the introductory web app
+
+ -- HTML: to structure information (fieldsets, lists, tables, etc.), and to provide I/O controls
+          (e.g., text boxes, buttons, check boxes)
+
+   <fieldset>
+      <legend class = 'legend'>F2C temperature conversion</legend>
+      <p>
+	<form action = 'convert.jsp' method = 'post'>
+	  Fahrenheit temperature: <input type = 'text' name = 'tempF' id = 'tempF'/>
+	  <p>
+	    <input type = 'submit' style = 'font-weigth: bold;' value = 'Convert to centrigrade'/>
+	  </p>
+	</form>
+      </p>
+    </fieldset> 
+    
+ -- CSS: to support visual layout and design (my weak spot...)
+
+    <style type = "text/css">
+      .legend {color: #990000;}
+      input {color: darkblue; font-weight: bold;}
+      fieldset {width: 400px;}
+    </style>
+
+ -- JavaScript: not yet, but we'll get there
+
+ -- Web server: to host web apps such as the introductory F2C conversion example
+
+    Tomcat, with web apps deployed as WAR files that contain any mix of HTML/CSS, 
+            multimedia artifacts (graphic images, audio, videos), 
+            code in the form of scripts (e.g., JSP), backend POJOs (JavaBeans), programmer-written servlets,
+            etc.
+
+            ** Web apps are undeployed by removing a WAR, redeployed by overwriting a WAR.
+
+    <%!
+       float fahr, cent;
+    %>
+    <% 
+       String fahrAsString = request.getParameter("tempF").trim();  //*** could be empty string
+       fahr = Float.valueOf(fahrAsString);                          //*** could be non-convertible 
+       cent = (fahr - 32.0f) * (5.0f / 9.0f);
+    %>
+    <%= fahr + " in Fahrenheit is " + cent + " in Centigrade." %>
+            
+ -- Web client: typically a browser, but a utility such as curl (http://curl.haxx.se/) or any other application is
+                a possibility
+
+    The 'curl' utility is highly recommended for quick testing.

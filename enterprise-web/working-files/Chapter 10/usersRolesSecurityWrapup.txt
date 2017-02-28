@@ -1,0 +1,53 @@
+
+ -- Wrapup of users/roles security
+
+    # In a web context, users/roles security should be implemented atop wire-level security
+      because sensitive info (e.g., IDs and especially passwords) are traveling over the wire:
+
+              +----------------------+
+              | users/roles security |   ## various approaches are possible
+              +----------------------+
+              |  wire-level security |   ## HTTPS
+              +----------------------+
+
+
+
+    # In a production environment, we'd use regexes to implement policies on acceptable
+      usernames and, in particular, passwords. 
+
+    # Setting up users/roles security should be confined, for the most part, to configuration
+      files and back-end datastores such as databases or even TOMCAT_HOME/conf/tomcat-users.xml.
+
+      ## There is an API, with corresponding methods in the 'request' object, to gather 
+         users/roles security information about a user. The programmatic approach to security
+         should be used for fine-tuning the configuration approach.
+
+    # For capturing a client's ID (e.g., username) and supporting credential (e.g., password), 
+      the preferred approach for the browser as the user-agent is the FORM method:
+
+      ## The web app itself provides a login form, with some naming conventions understood (e.g.,
+         the form's action is 'j_security_check', and the username and password are captured in
+         input components with the names 'j_username' and 'j_password', respectively.
+
+         ### Storing a message digest of the password, rather than the password itself, requires
+             a customized approach, as the 'j_security_check' is the web container's
+             code, and not ours. A JAAS approach would make sense here.
+
+      ## The web app also provides, through the standard config file 'web.xml', information about
+         the security constraints in play within the app:
+
+         -- Which resources within the deployed WAR file are to be secured? All or only some?
+
+         -- Which wire-level constraints are to apply? 'Confidentiality', 'message integrity', both?
+
+         -- Which role authorizations, if any, are required to access a particular secured resource?
+
+         -- Which HTTP method is to be used for providing the login info? 
+            (BASIC, DIGEST, FORM, and CLIENT_CERT are the options.)
+
+      ## A web server, such as Tomcat, allows us to pick the auth/auth scheme ('realm') to be used in
+         'container-managed security'.
+
+         -- The default is straightforward: put the auth/auth info in TOMCAT_HOME/conf/tomcat-users.xml.
+
+         -- The built-in realms cover the standard needs, and customization is always possible.

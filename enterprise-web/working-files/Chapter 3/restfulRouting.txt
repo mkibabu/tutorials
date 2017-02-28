@@ -1,0 +1,50 @@
+ # Restful routing in a web interface to a DB
+
+ ## REST stands for Representation STate Transfer, but we can ignore this for now.
+
+    ### 'Restful' has come to stand for a simple, CRUD-based approach to web sites and services
+
+        #### CRUD (Create Read Update Delete) is an acronym that covers the standard operations
+             against a data store such as a relational database.
+
+ ## Goal: to make the jspDB web app into a 'web interface' for the 'skisEtc' table in the 'skistuff' DB
+
+ ## Rails popularized a particular style for such a 'web interface', with distinct routing patterns.
+
+ ## CRUD operations and HTTP 'verbs' (methods):
+
+    CRUD opeation      HTTP verb
+    -------------      ---------
+       Create            POST      ## POST requests have a body, which may be empty.
+       Read              GET       ## GET  requests have no body, but a 'query string' can be used to send data
+       Update            PUT       ## Like POST
+       Delete            DELETE    ## Like GET
+
+    ### The catch: modern browsers generate only POST and GET requests.
+
+    ### Nonetheless, the Restful routing in support of CRUD operations can be simulated
+        with POST and GET alone:
+
+        Create/Update via POST
+        Read/Delete   via GET
+
+ ## Restful CRUD idioms:
+
+    -- A 'Create' request presents a form to filled out. Upon submission, a new item (order, person, product,...)
+       is generated and then 'shown' for confirmation.
+
+    -- An 'Edit' ('Update') request presents a form for editing. Upon submission, the edited item
+       is 'shown' for confirmation.
+
+    -- A 'Read' request takes two forms: 'read all' (show all items), and 'read one' (show one at a time).
+       Such a request presents the item(s), with an option to 'Edit' the read item(s).
+
+    -- A 'Delete' request shows the item to be deleted, and asks for confirmation. If the item is deleted,
+       all of the items--with the exception of the now deleted item--are shown for confirmation.
+
+
+    
+
+
+
+    

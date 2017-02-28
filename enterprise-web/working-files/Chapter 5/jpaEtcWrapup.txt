@@ -1,0 +1,45 @@
+ 
+ -- Wrapup of JPA and miscellaneous topics
+
+  # JPA (Java Persistence API) is a high-level API for accessing databases, mainly (but not exclusively)
+    relational (table-based) databases.
+
+    ## A JPA 'provider' furnishes an implementation. Three popular JPA providers are:
+
+       -- EclipseLink (http://eclipse.org/eclipselink)
+
+       -- Hibernate (http://hibernate.org
+
+       -- OpenJPA (http://openjpa.apache.org)
+
+  # JPA is a higher-level API than JDBC, but implementations are built upon JDBC.
+
+    ### JPA is sufficiently flexible to support 'no-sql' databases.
+
+    ### JPA, through the 'native query', supports straightforward SQL.
+
+  # JDBC amd JPA are options -- no need to use one to the exclusion of the other.
+
+-----------------------------------------------------------------------
+
+ -- Getting close to the HTTP metal with the HttpServletRequest type,
+
+  # An HttpServletRequest reference is the 1st arg to the 'do'methods: doGet, doPost,...
+
+    ## So far we've used 'getParameter', 'getQueryString', and a few more -- but there's
+       many more.
+   
+   Enumeration   getHeaders()
+   
+   Enumeration   getHeaderNames()
+   
+   String        getMethod()        ## GET, POST
+   
+   String        getRequestUri()    ## localhost:8080/myApp/doIt.jsp -- /myApp/doIt.jsp
+   
+   StringBuffer  getRequestUrl()    ## the entire URL
+   
+   String        getServletPath()   ## localhost:8080/jpaTest2/test -- /test is the servlet path
+
+   Cookie[ ]     getCookies()
+   

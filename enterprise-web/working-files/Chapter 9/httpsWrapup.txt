@@ -1,0 +1,48 @@
+
+ -- Wire-level security wrapup
+                                 +------+
+    # The architecture:          |  S   |   ## transport security layer--the 'S' layer
+                                 +------+
+                                 | HTTP |   ## base layer for HTTPS
+                                 +------+
+
+    # HTTPS isn't the only 'secure channel' extension to HTTP, but HTTPS remains the dominant one.
+
+      ## HTTPS provides the 'wire-level' or 'transport-level' security needed in general, and in particular
+         for users/roles security.
+
+    # HTTPS provides three core services:
+
+      ## peer authentication (mutual challenge): for web sites, typically one-way--client challenges server
+
+      ## confidentiality: message encryption/decryption
+
+      ## message integrity: the received message is the same as the sent message
+
+    # Setting up HTTPS communications for web apps requires configuration of the web server, and
+      configuration of the web app itself.
+
+      ## Web servers in general aren't in the DC business, and so don't come with HTTPS enabled out of the box.
+
+         ### We need to provide a DC, and then point the web server to it.
+         
+         ### The Java 'keytool' or a generic tool (e.g., 'openssl') can be used to create a 'self-signed' DC.
+             
+             #### The 'keytool' can import DCs created through other utilities.
+
+         ### For Tomcat, the main config file (TOMCAT_HOME/conf/server.xml) needs to be edited to uncomment
+             the HTTPS connector, and to point the connector to the keystore file with the DC.
+
+     # On the web app side, the configuration is straightforward: 
+ 
+       ## Add a 'security-constraint' element to the web.xml file.
+          This constraint has two parts:
+     
+          ### A 'url-pattern', which determines which web resources in the deployed WAR file fall under
+              the security constraint. For example, the pattern /* would cover all resources in the WAR,
+              whereas the pattern /secured/* would cover only resources in the 'secured' subdirectory.
+              (The name 'secured' is arbitrary--any subdirectory name would do.)
+
+          ### The type of constraint, in our case (and the typical case) a 'user-data-constraint' with a 
+              value of CONFIDENTIAL, which mandates a secure channel that carries encrypted data.
+        

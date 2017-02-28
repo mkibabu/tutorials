@@ -1,0 +1,29 @@
+
+ -- Exercise for accessing the 'registration tag' from the 'shopping cart' welcome page
+
+    # Embed the tag in the page, or have a link to it?
+
+      ## Depends on size -- the current form is too big for most displays.
+
+      ## With downsizing, putting the registration tag on the welcome page might work.
+
+      ## Otherwise, a link a separate page that embeds the tag would be fine.
+
+         ### Flow of control issue if a link to a separate page is used:
+
+           -- If the registration succeeds, the welcome page (the 'shopping' page) should
+              be displayed again.
+
+           -- If the registration fails, the registration page should be displayed again,
+              but with a link to the welcome page in case the user gets tired of unsuccessful 
+              registration attempts.
+
+    # The core pieces of the 'registration app' can be integrated straightforwardly into
+      the 'shopping cart' app because the registration tag targets its own servlet
+      (the 'RegistrationChecker') independently of the larger 'shopping cart' app.
+
+      ## Keep things as modular as possible.
+
+
+
+

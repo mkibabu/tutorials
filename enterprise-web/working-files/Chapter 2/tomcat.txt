@@ -1,0 +1,45 @@
+ # Installing and running Tomcat
+
+ ## Tomcat is available for free at http://tomcat.apache.org. (Various options, including ZIP file.)
+ 
+    ### Tomcat uses the locally installed JVM. (The JDK, of course, includes the JVM.)
+    
+    ### A good idea to have the environment variable JAVA_HOME point to your install directory for Java.
+
+ ## Tomcat is a Java-based, production-grade web server. Jetty is a functionally equivalent alternative, 
+    and there are other options as well.
+
+ ## Of interest right now is a key component of a Java-based web server: the 'servlet container', the
+    software that manages deployed servlets (including translted JSP scripts).
+	  
+    ### In Tomcat, the servlet container is Catalina. (In Jetty, this containter also is named Jetty.)
+
+    ### The servlet container is so integral to a Java-centric server that it's common to conflate the
+        server and its container, e.g., by referring to both as 'Tomcat'.
+
+  ## Here's the layout for Tomcat, with some key subdirectories listed. The install directory is TOMCAT_HOME.
+
+                     TOMCAT_HOME  ## the install directory 
+                           |
+	   +-------+-------+-------+-------+
+           |       |       |       |       |
+	  bin    conf     lib     logs   webapps
+
+      ### bin: four scripts of immediate interest
+
+               startup.sh, shutdown.sh     ### start and stop Tomcat from the command-line on Unix-type systems
+               startup.bat, shutdown.bat   ### same but for Windows
+
+          #### To check that a 'startup' worked, open a browser to 'localhost:8080'.
+
+      ### conf: XML files for configuration, the main one of which is 'server.xml' 
+
+      ### lib: software libraries deployed as JAR files (25 or so, depending on your version)
+               Additional libraries can be added, but this should be done with caution.
+
+      ### logs: extensive logging results--we'll get to these in due time
+
+      ### webapps: web apps are deployed to this directory (and any subdirectories) as WAR files
+                   Web sites and web services would be deployed in essentially the same way.
+
+		  

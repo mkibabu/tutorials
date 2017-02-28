@@ -1,0 +1,46 @@
+ -- Options in the servlet API for getting user-inputs from an HTTP request
+
+  # The 'getParameter(String key)' method is about as simple as it gets.
+
+                                                        getParamter(...)
+                                         submit             /
+       JSP or HTML page for user inputs---------->servlet that extracts the user inputs
+                                                           /
+						       ${param} in the EL	   
+
+    ## This method's been used in all of the examples so far.
+ 
+    ## This method once was deprecated--and then undeprecated.
+
+    ## In the 'shopping cart' web, use of this method requires us to pass
+       the size of record set used for shopping to the 'OrderHandler' servlet.
+
+       ### A hidden HTML input is used for this purpose.
+
+  # The choices:
+
+    -- String getParameter(String name)           ## returns null or the corresponding value
+
+    -- Map<String, String[ ]> getParameterMap()   ## returns a Map (which has a size() method) of key/value pairs
+
+    -- Enumeration<String> getParameterNames()    ## returns an enumeration of the parameter names, from which
+                                                     the values can be obtained with, e.g., 'getParameter(...)'
+
+    -- String[ ] getParameterValues()             ## returns an array of the user-input values
+
+  # The 'shopping cart' app has, as its main components, two JSP/servlet pairings:
+
+                           submit
+               shop.jsp------------>OrderHandler servlet
+
+                           submit
+       confirmOrder.jsp------------>OrderPlacer servlet
+
+     ## Pick one of them, and replace use something besides just 'getParmater(String name)' to extract the
+        values in the servlet.
+
+        ### The JSP page could be simplified as well, but you can leave it as is.
+
+     ## The goal is to get better acquainted with the servlet API for getting submitted user inputs.
+
+

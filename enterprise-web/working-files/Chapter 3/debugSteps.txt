@@ -1,0 +1,32 @@
+ # A 1st look at debugging
+
+   ## Testing is, of course, a must--but more on this later.
+
+   ## Debugging a web app adds an extra element of complexity.
+
+      ### For example, JSP scripts with embedded Java code usually are translated 
+          only 'after' deployment: missing variables, bad syntax, etc. show up 
+          after the web app has been deployed.
+
+      ### IDEs such as Eclipse, NetBeans, and IntelliJ IDEA have debugging support.
+
+      ### We'll do debugging by hand to get a better sense of what the problems are,
+          and how these can be fixed.
+   
+   ## To flesh out this 1st look at debugging, we'll go through some steps:
+
+      1. Start with a simple app (the introductory 'tempConvert' app) with no problems.
+
+      2. Create some problems, deploy again.
+
+      3. Go back to 2, repeat as appropriate.
+
+
+   ## Problems introduced into the code:
+
+      -- a variable declaration is missing, in this case the 'float' variabled named 'cent'
+
+      -- bad input: entering arbitrary text (e.g., 'foo') instead of a number
+                    no input -- blank string
+
+      -- syntax error, null object reference, and the like

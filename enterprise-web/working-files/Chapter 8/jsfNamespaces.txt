@@ -1,0 +1,58 @@
+
+ -- JSF namespaces (old and new)
+
+ # Here's the start of 'index.xhtml' in the 1st JSF web app:
+
+    <html xmlns    = "http://www.w3.org/1999/xhtml"
+          xmlns:h  = "http://xmlns.jcp.org/jsf/html"
+          xmlns:f  = "http://xmlns.jcp.org/jsf/core"
+          xmlns:ui = "http://xmlns.jcp.org/jsf/facelets">
+
+   ## The namespace declarations in JSF are the counterparts of various page directives in JSP.
+
+   ## Interpretation: 
+                          namespace  localname
+                                 \   /
+       -- Recall that, in XML, 'foo:bar' is a 'qualified name', with a colon separating a
+          namespace URI (or a 'proxy' for it) on the left and a local name on the right.
+
+       -- A namespace proxy must be declared before it is used. 
+
+          Example: the 1st entry (xmlns = ...) at the top declares 'xmlns' as shorthand for 
+                   'http://www.w3.org/1999/xhtml'. This makes 'xmlns' a namespace proxy.
+
+       -- The 2nd, 3rd, and 4th entries above declare 'h', 'f', and 'ui' as proxies for
+          the 'absolute URIs' to their right. (An 'absolute URI' is a URL.)
+   
+   ## The standard JSF proxies in HTML templates.
+
+      Example: In the C2F web app, there's this HTML element in the 'index.xhtml' template:
+
+        <h:panelGroup rendered = "#{c2F.show == true}">  <!-- Example of a qualified name using a namespace 'proxy' -->
+
+      Of interest is the 'h:panelGroup' tag:
+
+      -- 'h:panelGroup' is the 'qualified name' (qname for short)
+
+      -- 'panelGroup' is the 'localname'.
+          (Sometimes there's only the local name in HTML, e.g., in the tages '<p>' and '<html>'.)
+
+      -- 'h' is the namespace identifier, in this case a declared proxy for 'http://xmlns.jcp.org/jsf/html'.
+
+=========================================================================================================================
+
+ # JSF namespaces by versions:
+
+   ## The short lists:
+
+             Old                                         New (>= JSF 2.2)
+
+    http://java.sun.com/jsf/core	           http://xmlns.jcp.org/jsf/core
+    http://java.sun.com/jsf/html	           http://xmlns.jcp.org/jsf/html
+    http://java.sun.com/jsf/facelets	           http://xmlns.jcp.org/jsf/facelets
+    http://java.sun.com/jsf/composite	           http://xmlns.jcp.org/jsf/composite
+    http://java.sun.com/jsp/jstl/core	           http://xmlns.jcp.org/jsp/jstl/core
+    http://java.sun.com/jsp/jstl/functions	   http://xmlns.jcp.org/jsp/jstl/functions
+
+
+    

@@ -1,0 +1,25 @@
+ # JSP exercise: provide 'pagination' for the jspCRUD web app
+ 
+   ## The issue: a table such as 'skisETC' may have too many rows to display at once.
+
+   ## The fix: provide 'pagination' so that a specified number of rows (e.g., 10) are displayed at a time,
+      with easy-to-use options for getting the 'next' and the 'last' group of rows.
+
+   ## Approaches:
+
+      ### Roll-your-own: the upside is that you can keep it simple by providing only the functionality
+          required--no bells and whistles
+
+          The downside is that you have to build it.
+
+      ### Get a prebuilt, customized tag library such as one available at http://www.displaytag.org/1.2/.
+          
+          The upside is that it's prebuilt.
+          The downside is that you have to learn the API.
+
+   ## Higher-level Java frameworks provide built-in support for pagination, but the exercise teaches a 
+      lot if you've time to do it.
+
+
+
+

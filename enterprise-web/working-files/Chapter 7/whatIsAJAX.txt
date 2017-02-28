@@ -1,0 +1,94 @@
+
+ -- What is AJAX? 
+
+   # The acronym stands for 'Asynchronous JavaScript and XML', a technique used in web apps to do
+     'partial page updates'. (Microsoft pioneered this technique.)
+
+     ## Some problems with the acronym:
+
+        -- What does 'asynchronous' mean in this context?
+
+           ### 'Asynchronous' behavior gets too easily conflated with concurrency techniques, in
+	       particular with multithreading:
+
+               #### In the past, JavaScript engines were single-threaded. Mutlithreading is now a trend in such
+                    engines, but it may occur only under the hood--not at the API level.
+
+        -- XML is not the only game in town for document interchange: JSON is increasingly popular.
+
+     ## These concerns aside, the term 'ajax' is still useful to signal the following:
+
+        -- An 'ajax call' from JS in web page provides a callback function that the runtime
+	   invokes if and when the call returns:
+
+             Example:  $.getJSON(url, function(response) {...})  // 2nd arg is a callback
+       
+           ### The 'event-driven programming' model, with callbacks, is common throughout JS dialects.
+
+           ### Below is a depiction of the $.getJSON(...) call:
+
+                            GET request
+      .getJSON(...) call------------------->getCDs.jsp   ## GET request may result in a response, but not necessarily.
+
+                            HTTP response 
+      function(response)<------------------getCDs.jsp    ## body of HTTP resonse passed as arg to unnamed callback
+
+
+        -- An 'ajax call' fetches data that JavaScript code then uses to alter the DOM, not to get
+	   an altogether new page and then a brand new DOM: 'partial page update'.
+          
+              Example: The callback in the $.getJSON case populates an unordered list with list items.
+
+   # JavaScript 'async' calls are unpredictable in that associated callback may never be invoked.
+
+     ## Debugging can be challenging: In the 'cds' example, suppose that the back-end bean on the
+        server side is malfunctioning--or even missing altogether. From the perspective of the
+        'async' call, this looks no different than, say, a network delay.
+
+        ### A web app that depends on 'async' calls needs a Plan B in case the call fails.
+
+================================================================================================================
+
+   # Straight JavaScript versus a framework (or dialect) such as jQuery:
+
+     -- Here's the original code in fetch.html from the 'cds' web app:
+
+  <script type = "text/javascript">
+      $.getJSON('http://localhost:8080/cds/getCDs.jsp', function(response) {
+         var cds = response.catalog.cd; 
+         alert(JSON.stringify(cds));
+         $.each(cds, function(ind, val) { 
+             $('#container').append('<li>' + cds[ind].title + ': ' + 
+	                                     cds[ind].artist + '</li>'); } );
+      });
+  </script>  
+
+     -- Here's functionally equivalent code in straight JavaScript:
+
+  <script type = 'text/javascript'>
+      function ajax_call() {
+         var req = new XMLHttpRequest();
+
+         // Specify a callback.
+         req.onreadystatechange = function() {
+            if (req.readyState == 4) {
+              var json = req.responseText;
+              var obj = JSON.parse(json);
+	      var list = document.getElementById("container");
+
+	      for (var i = 0; i < obj.length; i++) {
+                var newItem = document.createElement("li");      // a node in the DOM
+                var itemValue = document.createTextNode(i);      // a subnode to hold the text value
+		newItem.appendChild(itemValue);                  // append the subnode
+                list.appendChild(newItem);                       // append to the node to the unordered list
+              }
+            }
+         }
+ 
+         // Generate and send an 'asynchronous' request.
+         req.open("GET", "http://localhost:8080/cds/getCDs.jsp", true);
+         req.send();
+      }
+    </script>
+
+

@@ -1,0 +1,46 @@
+
+  -- JPA as a natural way to build models in an MVC-based web app
+
+   # Here's a sketch of how the 'testJPA' web app works. It's main goal
+     to introduce a JPA-based web app, but it happens to do so in an MVC pattern.
+
+     ## Model(s): There's only one, the Product class. The class is annotated as an
+        '@Entity':
+
+           @Entity  
+           @Table(name = "products")  
+           public class Product {
+
+         ### The '@Table' annotation is optional, but included to show that there's full control
+	     in JPA over a table's name
+
+     ## Controller(s): Again there's only one, an HttpServlet named 'ProductsController'.
+
+        ### Overrides only the 'doGet' method, although it does create new products. We're
+	    going against CRUD principles for the sake of simplicity.
+
+     ## View(s): There's only one, 'confirm.jsp', which confirms for now a new Product
+                 generated and saved to the DB.
+
+        ### This view needs only the EL, not full JSTL.
+
+   # General approach to an MVC web app in Java with JPA as the persistence technology:
+
+     -- Each model, a public class annotated as an @Entity, would manage persistence.
+     
+        ## Models also would do data validation, formatting, and other tasks suited to the
+	   management as app-data-as-app-state.
+
+     -- Each controller would be an HTTP endpoint, with the usual CRUD implementations through the
+        'do' methods available in an HttpServlet. For instance, 'doGet' would get either all or
+	 a specified one of the Products, 'doPost' would oversee the creation of a new Product, and so forth.
+
+        ## Controllers would interact, as appropriate, with models.
+
+        ## When the controller's work is done, it would transer control (e.g., via an HTTP redirect)
+	   to the appropriate view.
+
+     -- Each view would be associated with a particular controller action. For instance, the
+        'doGet' method in the ProductsController might redirect to the 'displayAllProducts.jsp' page
+	after getting the data from the Product model.
+         

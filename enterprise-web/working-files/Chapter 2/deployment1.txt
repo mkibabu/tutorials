@@ -1,0 +1,51 @@
+ # Deployment -- a 1st look
+
+ ## IDEs such as Eclipse, NetBeans, and IntelliJ IDEA are great for production--they hide the grimy details.
+
+    ### In a learning environment, however, it's best to see these details.
+ 
+ ## IDEs typically use scripts of one sort or another to automate routine tasks: Maven and Ant are popular
+    'build' languages for such tasks.
+
+    ### Maven is higher-level and arguably more powerful than Ant. If you're already using Maven, stick with it.
+    ### Ant is simpler. If you're new to these 'build' languages, I'll provide a simple Ant 'build' script.
+
+ ## WAR file layout, with emphasis on the constraints: what must go where
+
+      % jar tvf temp.war            ## temp.war houses the introductory web app
+
+     META-INF/                      ## subdirectory
+     META-INF/MANIFEST.MF           ## file in META-INF subdirectory
+     WEB-INF/                       ## subdirectory
+     WEB-INF/web.xml                ## file in WEB-INF subdirectory
+     convert.jsp                    ## file in top-level directory
+     input.html                     ## file in top-level directory
+
+ ## The layout constraints illulstrated:
+
+                          acme.war
+
+                             .  index.html, bye.jsp    ## top level (might hold HTML, JSP, etc.--basically text files)
+                             |
+                   +---------+---------+
+                   |                   |
+                WEB-INF               lib              ## subdirectories
+                   |  web.xml           jstl.jar       ## XML files in WEB-INF, JAR files in 'lib' 
+                classes                                ## .class files go either in or below the 'classes' subdirectory
+                   |                                     
+                 acme
+                   |
+                  org
+                    ProductList.class
+
+    package acme.org;
+    public class ProductList {
+      ...
+    }
+
+ ## Many other subdirectories are optional.
+
+    ### For example, assets such as images might go into an 'images' subdirectory,
+        JavaScript files into a 'scripts' subdirectory, and so on.
+
+    ### We'll pick up other constraints as needed.

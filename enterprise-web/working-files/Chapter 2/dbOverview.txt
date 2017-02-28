@@ -1,0 +1,61 @@
+ # Quick overview of Java and database technology
+
+ ## Web sites deal with data, which mostly comes from one of two sources:
+   
+    1. Web services
+    2. A 'persistent data store' such as the file system, a 'relational database', or a 'no-sql database'.
+
+    ### Data for web services, of course, may persist in a DB.
+
+ ## Java apps talk to DBs through 'drivers', software packages that act as middleware between the
+    app and the DB:
+
+            middleware for communicating with a given DB system
+                          /
+      Java app<------->DB driver<------->DB system  ## driver probably in JAR file(s)
+
+    ## If there's the appropriate 'driver', Java can talk to any DB system.
+ 
+ ## Java has two distinct APIs or 'access patterns' for communicating with a database:
+
+    ### JDBC: relatively low-level database access, i.e., access via SQL statements.
+
+    ### JPA: relatively high-level database access through ORM (object-relation mapping) technology.
+
+        #### An app talks to the DB in a 'natural Java' way, e.g., by setting and getting properties.
+             The SQL is (mostly) hidden.
+
+        #### Although JPA is targeted at relational DBs, it's a sufficiently rich API
+             to support access to no-sql DB(s).
+             
+             Example: TopLink/EclipseLink provides a 'driver' for Java to talk to MongoDB
+
+        #### Hibernate and OpenJPA are two well-known JPA 'providers' (implementers).
+
+    ### In JDBC, a Java app loads the 'driver' explicitly. In JPA, an XML config file typically
+        handles this task.
+
+----------------------------------------------------------------------------------------------
+
+ ## Why PostgreSQL?
+
+    ### Open-source, follow-up project to the Ingres RDBMS from the 1980s.
+        #### Has all of the expected, modern features including, of course, support for transactions.
+
+    ### Includes the HStore data type, a key-value type that's central to no-sql DBs.
+
+        #### There's also a JSONB type for storing JSON documents, in binary form, within tables.
+
+    ### http://www.postgresql.org/download/
+
+    ### JDBC driver: https://jdbc.postgresql.org/
+    
+ ## Wrapup
+
+    ### A DB is standard infrastructure for web apps.
+
+    ### For our purposes, a RDBMS is a good choice, with PostgreSQL as the default.
+
+        ### SQLite3, MySQL, TopLink--and many others--would do as well.
+
+            #### The critical question is: Does the DB have a Java 'driver'?

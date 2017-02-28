@@ -1,0 +1,46 @@
+ # Flow of control in the 1st servlet example
+
+ ## The 'welcome page' is again 'input.html', which contains a form with an 'action':
+
+        ...
+	<form action = 'converter' method = 'post'>
+	  Temperature: <input type = 'number' step = '0.01' name = 'tempIn' id = 'tempIn' required/>
+	  <p>
+	    <input type = 'submit' style = 'font-weigth: bold;' value = ' Show conversions '/>
+	  </p>
+	</form>
+        ...
+
+ ## The name 'converter' occurs in the 'web.xml' config file:
+
+       <web-app>
+           ...
+           <servlet>
+             <servlet-name>tempCservlet</servlet-name>
+             <servlet-class>tempS.TempConverterServlet</servlet-class>
+          </servlet>
+
+          <servlet-mapping>
+             <servlet-name>tempCservlet</servlet-name>
+             <url-pattern>/converter</url-pattern>
+           </servlet-mapping>
+           ...
+       </web-app>     
+
+  ## The submitted input form thus goes to the 'TempConverterServlet', which does its job and then
+     'forwards' the results to the 'convert.jsp' page:
+
+          client request---->TempConverterServlet---->convert.jsp
+
+     ## The 'convert.jsp' page is an HTML template with a single EL expression:
+
+           ${result}
+
+        ### This 'result' is an attribute of the ServletRequest passed from the 'TempConverterServlet' to the JSP page:
+
+                         includes an attribute named 'result'
+                                       /
+                                 ServletRequest
+            TempConverterServlet---------------->convert.jsp
+                                                     \
+                                                displays the attribute named 'result'

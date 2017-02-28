@@ -1,0 +1,28 @@
+
+ -- Wrapup of the JavaScript/jQuery examples
+
+  # JavaScript, including JS-based frameworks and extensions such as jQuery, provide
+    browser-side processing that can:
+
+    -- Modify the browser-constructed DOM in rich, powerful ways
+
+    -- Respond to the user-events (e.g., button clicks) and under-the-hood browser
+       events (e.g., an HTTP response to an earlier HTTP request)
+
+    -- Initiate 'ajaxy' ('async') calls from data to populate existing pages instead
+       of entirely new pages or total page refreshes
+
+  # Browser-side JS requires, of course, that the browser have a JavaScript engine that can
+    translate JS source into executable code, and then execute the latter.
+
+    ## JS remains the dominant browser-side language precisely because JS engines are
+       so prevalent.
+
+  # In general, JS-based frameworks such as jQuery have higher-level APIs, and so are easier
+    to use, than 'raw' JS.
+       
+  # Browser-side data verification and rich input components such as calendars once required
+    JS, but now HTML5 has such capabilities--assuming the browser implements the
+    appropriate features in HTML5.
+    
+ 

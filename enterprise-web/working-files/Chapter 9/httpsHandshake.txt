@@ -1,0 +1,62 @@
+
+ -- More on 'peer authentication'
+
+    # Consider this scenario:
+
+      -- We open an HTTPS connection to a site S1 never before visited;
+         hence, our truststore does not have a DC from S.
+
+      -- S1's DC does have a digital signature from a CA, which serves as a 'voucher'.
+
+      -- How do we verify this DS? Through the CA's own DC.
+
+                                      +--------+
+         CA's digital signature------>| verify |----> yes or no
+         CA's public key------------->| engine |
+                /                     +--------+
+               /
+       We get this from one of the CA's own DCs, which in turn is digitally signed by a CA.
+
+       ## A potentially infinite regress can result in trying to verify one DC through another.
+
+          ### At some point, we trust--or don't. In general, the more DCs from the peer, the better.
+===========================================================================================================            
+
+ -- The HTTPS handshake: peer authentication and setting up confidentiality
+
+ # Underlying algorithm is ECDHE from the cipher suite listing, shortened in general to Diffie-Hellman.
+
+ 1. Client (e.g., the Java GoogleClient app, a browser, 'curl') challenges the server (e.g., Google), which
+    responds with one or more DCs.
+
+    1a. The server may challenge the client, but for web sites this is unusual; for web services, the
+        challenge is typically 'mutual', however.
+
+ 2. The client checks the DCs against its truststore. If ok, continue. (The check may be indirect:
+    check the vouching CA signature.)
+
+ 3. The client generates a "pre-master secret", for example, a 48-bit value with certain properties.
+
+ 4. The client uses the public key from a server DC to encrypt the "pre-master secret" before sending to the server.
+    The server decrypts the secret with its private key.
+
+ 5. The client and the server then use this "secret" to generate the same "session key," which is used
+    to encrypt and decrypt messages. (About 1K times faster than public-key encryption, private-key decryption.)
+
+ 6. Either side can call from a new handshake at any time.
+
+===================================================================================================================
+
+-- Message integrity
+
+ # The algorithm is straightforward:
+
+   -- The sender attaches a message digest (hash) to each sent message.
+
+   -- The receiver recomputes the message digest, and compares it against the one sent.
+
+      ## If the two agree, assume integrity.
+
+      ## If not, request a resend. (Under TCP, the default is to resend up to 10 times.)
+
+ 

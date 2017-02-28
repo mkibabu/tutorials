@@ -1,0 +1,51 @@
+ -- Overview of the 'skiTransaction' web app: the ski inventory app with a JDBC transaction
+
+ # Design in the flow of control
+
+   ## Basic pattern: user edits an HTML5 or JSP page, and then submits the page, which generates a POST request.
+
+      ### The web app uses only POST requests for data submission, but does redirect to informational pages
+          with GET requests.
+
+   ## Big picture question: Should we go with JSP or explicit servlets as targets for our POST requests, given that
+                            the target code needs to access the DB?
+
+      ### The JSTL 'sql' library does simplify the writing of queries, but the app logic can get clumsy with
+          JSTL 'core' statements.
+
+      ### Explicit servlets may require more lines of code, but we get the advantage of full, flexible Java.
+
+      ### This version of the app uses JSP, in particular the EL, but no JSTL.
+
+ # Flow of control in the 'skiTransaction' app:
+ 
+
+    prompts for Emp ID              checks if there's such an Emp in the DB
+          \             POST              /
+      findEmp.html----------------->FindEmp servlet         ## 'findEmp.html' is the welcome page
+
+
+       if no such Emp 
+             /          redirect
+      FindEmp servlet--------------->badResult.jsp
+
+
+                        redirect
+      FindEmp servlet--------------->editEmp.jsp   ## data shared via the HttpSession map
+           /                         
+       if Emp found 
+
+
+      edited data        
+          \            POST
+      editEmp.jsp------------------->DataVerifierT servlet
+                                           /
+                                  verifies the edited data; if everyting's ok, uses an explicit
+                                  transaction to update the 'emps' and the 'sals' tables
+
+                       redirect
+      DataVerifierT----------------->goodResult.jsp, if everything's ok; otherwise, badResult.jsp
+
+
+       
+      

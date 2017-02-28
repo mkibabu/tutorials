@@ -1,0 +1,40 @@
+ # Wrapup of basic JSP -- and a look ahead
+
+   ## JSP is designed for HTML templating, but we've used it for everything: templating, app logic, talking to the DB.
+
+      ### The 'tempPOJO' web app does a 'separation of concerns': HTML for input, JSP for templating,
+          and a backend POJO (a 'TempConverter' instance) for server-side data validation and app logic.
+
+   ## JSP 1.x ('old-style') and JSP 2.x ('new-style') can be intermixed, but new-style is cleaner.
+
+      ### JSP 2.0 introduces the EL and the JSTL libraries.
+
+      ### There are times, however, when old-style JSP may turn out to be more convenient.
+
+   ## The goal going forward is to follow the 'separation of concerns' principle in dividing the labor,
+      in particular by moving app logic ('business logic') into backend POJOs and other Java classes.
+
+--------------------------------------------------------------------------------------------------------------------------
+
+ # The MVC (Model-View-Controller) architecture in lightweight Java web apps
+
+       +--------+                      +-------------+                      +-------+
+       | models |----------------------| controllers |----------------------| views |
+       +--------+                      +-------------+                      +-------+
+           /                                  \                                 /
+    Maintain the app's state        HTTP 'endpoints': a client hits a      Display the models (state).
+    and persist this state in       controller when the client hits the
+    a backend database.             the web app. Controllers serve as 
+                                    intermediaries between models and views.
+
+    ## MVC is a way to build 'separation of concerns' into web apps.
+
+    ## How do these relate to Java-based web apps?
+
+       ### Models: code (classes, scripts) that talk to the DB via JDBC or JPA
+
+       ### Controllers: HttpServlet instances are the natural way.
+
+       ### Views: JSP pages, JSF pages, Tapestry pages,...
+
+    ## In Java there are MVC-specific frameworks for web apps such as Spring MVC.

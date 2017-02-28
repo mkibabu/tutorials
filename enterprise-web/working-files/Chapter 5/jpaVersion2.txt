@@ -1,0 +1,51 @@
+ 
+  -- An overview of the 'jpaTest' web app, version 2
+
+  # Version 1 focused on using JPA to do DB 'writes', persisting Product instances as DB records
+
+  # Version 2 focuses on using JPA to do simple 'reads' against the DB
+
+    ## The 'reads' used the EntityManger find method, not SQL.
+
+    ## JPA has a 'query language' (QL), which is SQL-like in syntax, but standard across 
+       the underlying DB system.
+
+       ### It's the job of JPA provider to translate QL into SQL.
+
+  # Because of the added functionality, version 2 refactors the code for clarity and 
+    better separation-of-concerns.
+
+  ------------------------------------------------------------------------------------------
+
+  # Query-strings and their parameters
+
+    ## Recall that the web container packages the HTTP request parameters into a 'request map',
+       with API methods such as 'getParameter(key)' as accessors.
+ 
+       GET or POST from a browser                   key/value pairs from  HTTP request
+               /                                           /
+           HTTP request-------->web container-------->request map-------->servlet
+
+       ### The request map API is the same regardless of whether the HTTP parameters were
+           in a query string (e.g., from a GET request) or the HTTP 'form' (e.g., from a POST request)
+
+    ## In a CRUD world, a GET request could take one of two forms: 'read all', 'read the specified one'
+
+       -- Examples:
+
+            http://...:8080/products         ## GET request as 'read all'
+            http://...:8080/products?id=34   ## GET request as 'read the specified one' (the one with id = 34)
+
+       ### The HttpServletRequest API has a 'getQueryString()' method that returns the query string or null.
+
+           #### This can be used to distinguish the two CRUD senses of GET.
+
+           #### For the query-string case, the 'getParameter(...)' can be used to extract the key's value
+                (in this example, 34).
+
+
+
+   
+  
+
+  

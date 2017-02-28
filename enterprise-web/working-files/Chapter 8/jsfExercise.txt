@@ -1,0 +1,46 @@
+
+ -- JSF exercise (in 2 parts)
+
+    # Part 1
+      In the current version, the product categories are hard-coded in the Controller class:
+
+      private String[] equipmentTypes = {  
+	"Alpine Boot",
+	"Cross Country Boot",
+	"Telemark Boot",
+	"Alpine Skis",
+	"Alpine Touring Skis",
+	"Cross Country Skis",
+	"Telemark Skis",
+      };
+
+      This wouldn't work in a production environment, as new categories might be added
+      and existing ones renamed or even dropped. What's needed is a 'master table',
+      which has an ID column and a string column with the category name. The 
+      'equipmentTypes' array should be populated with entries from this table. 
+
+      Let's assume that changes to this table are rare, and that the web server admin restarts
+      the app whenever the table does change. (This can be done from the Tomcat console, for example.)
+      Further, the data are read-only in the web app, which means the equipment types could be put in
+      their own @ManagedBean, which in turn could be @ApplicationScoped because only a single instance
+      ever would be needed.
+
+      The exercise is to create the underlying table, with a @ManagedBean (@ApplicationScoped) that reads
+      the table into memory and makes the data available, through an 'equipmentTypes' property, to other
+      components in the web app.
+
+   # Part 2
+
+     The 'jsfSkis' web app displays the products by category, but doesn't support purchasing anything.
+     Add a buying interface to the existing app. (If time permits, do the backend as well, but the emphasis
+     now is on the UI.) The customer should be able to pick (e.g., via a checkbox) a product of interest, and
+     then specify the qty desired.
+
+     JSF has various UI components that may helpful in implementing this change. In particular, these should
+     considered:
+
+        h:dataTable                   ## already used in the current version
+        h:selectBooleanCheckbox 
+        h:selectManyCheckbox
+        f:convertNumber               ## already used in the current version
+

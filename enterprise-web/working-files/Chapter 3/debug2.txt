@@ -1,0 +1,18 @@
+ # More on debugging
+
+   ## So far we've used (a) HTML5 input controls together with (b) backend code
+      to ensure that the user input is good.
+
+      ### Yet a non-browser client (e.g., a 'curl' client) can hit a web app, thereby avoiding HTML5 or
+          other input restrictions.
+
+      ### Bottom-line: always assume that data from user-input might be 'tainted'.
+          Take code-based precautions (e.g., regexes) to ensure that the input
+	  data is what it should be.
+
+   ## Tomcat log files as an aid to debugging
+
+      ### The web container redirects System.out and System.err outputs to the
+          appropriate log file, typically TOMCAT_HOME/logs/catalina.out (or the
+	  equivalent).
+

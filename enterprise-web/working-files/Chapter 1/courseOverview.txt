@@ -1,0 +1,38 @@
+ 
+ -- Course overview: lightweight Java web development, deployment, and security
+
+    # Guiding principle: the more working code examples, the better
+
+      ## Code-oriented introduction to web-app programming in Java
+
+    # Requirements: programming familiarity with core Java 5 or greater--the more recent, the better
+    
+    # The programming APIs:
+
+      -- HTML5/CSS3: information structure and visual design
+
+      -- Java servlets and JSP (Java Server Pages) pages: the basic APIs
+         ## Includes EL (expression language) old and new, and JSTL (Java Standard Template Library)
+
+      -- JSF (Java Server Faces) pages and @ManagedBeans: a higher-level web framework 
+        
+      -- JavaScript and the jQuery framework (including some jQueryUI)
+
+    # Supporting tools:
+
+      -- Tomcat: a Java-centric, production-grade web server
+
+      -- PostgreSQL: a free, high-powered RDBMS with some modern 'no-sql' features
+         ## JDBC and JPA to communicate with the DB
+
+      -- Utilities such as 'curl' for quick testing, standard browsers--your choice
+         ## An Ant script to compile and deploy all of the examples used in the course
+
+      -- Regular expressions for data validation
+
+      -- Wire-level security (HTTPS) and users/roles security (authentication/authorization)
+            
+
+
+
+      

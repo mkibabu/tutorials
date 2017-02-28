@@ -1,0 +1,20 @@
+
+ -- The mercifully short story:
+
+    # An academic by profession, but with lots of consulting experience as a programmer
+
+      ## Full-time faculty member for 30-plus years in DePaul's College of Computing and Digital Media
+
+      ## Long-term experience in programming production planning-scheduling systems (steel industry mostly) and
+         product configuration systems (truck manufacturing mostly)
+
+    # Show me the code! It's what really counts in our profession.
+
+    # Feel free to contact me at: kalin@cs.depaul.edu
+                                  condor.depaul.edu/mkalin
+
+    Best of luck in your web app programming!
+
+    Marty Kalin
+
+

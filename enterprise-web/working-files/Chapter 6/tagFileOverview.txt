@@ -1,0 +1,44 @@
+
+ Customized tags -- overview
+
+ ## Customized tags are good for simplifying code, in particular for handling recurrent needs.
+
+    ### Example: some web sites have, on every page, a small component for customer registration. This could be
+        built as a 'customized tag' and then inserted, as is, into any page that requires it.
+
+    ### Modular and reusable--that's win/win.
+
+ ## A 'tag library' such as JSTL is a collection of functionally related customized tags.
+
+ ## Customized tags are similiar in function to 'macros' in programming languages such
+    as assembly, C/C++, and the Lisp family.
+
+    ## These tags 'expand' into their implementation code.
+
+ ## Customized tags can be thought of as DSLs (domain-specific languages) for the UI layer
+
+ ## Java has various mechanisms for creating tag libraries, some more challenging than others. In some
+    cases, the programmer may define a spec (in effect, an interface) in XML, and then an provide
+    an implementation.
+
+    ### XML (TLD file) or no XML?
+
+    ### A very straightforward mechanism is the 'tag file', which requires no XML whatsoever--but does assume
+        a basic understanding as to how XML tags work.
+
+ ## XML naming conventions used in customized tags:
+
+    ### A 'qualified name' (akin to a Java 'fully qualified name') consists of a namespace identifier and a localname.
+       
+           <foo:bar>
+               ...
+           </foo:bar>
+
+        The 'foo' (left of the colon) is the namespace identifier, the 'bar' (right of the colon) is the localname.
+
+    ### Tags may have 'attributes', which are key/value pairs with the '=' as the separator and the value as a string:
+
+           <foo:bar version = '1.0' caution = 'Use at your own risk' cost = '0' />  ### 3 attributes
+
+        ### For tag attributes, order is arbitrary.
+

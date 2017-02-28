@@ -1,0 +1,101 @@
+
+ -- Design/programming exercise involving JSON
+
+    # It's somewhere between an exercise and a full-blown project, with some critical pieces already in place.
+
+      ## Design decisions will be as important as the coding.
+
+    # The execise in sort: Change the 'skisEtc ecommerce page' so that it polls the web app periodically, and
+      does a 'partial page update' per poll if required.
+
+      ### The 'partial' update involves the data only--the number of table rows, the values in each column--and
+          not other parts of the page (e.g., the user registration tag or link thereto,
+	  the "Kelly's Ski Equipment" header, the table's header (column names), etc.
+  
+    # The pieces alredy in place:
+
+      -- A 'skistuff' DB with the 'skisetc' table: product ID, name, category, price
+
+      -- An admin front-end to the DB, with web support for the CRUD operations--in particular the three DB-altering
+         operations of Create, Update, and Delete.
+
+      -- An 'ecommerce' front-end that allows customers to purchase items from the 'skisetc' DB.
+
+   # The challenge: transforming DB records into a JSON document.
+
+      -- Modern DBs, such as PostgreSQL, support data transformations to both XML and JSON; and we've seen
+         already that XML can be transformated straightforwardly into JSON.
+
+      -- PostgreSQL examples:
+ 
+             ## true means represent NULLs as booleans; 
+             ## false means don't add a row element; 
+             ## '' is the empty namespace identifier
+#skistuff=#  select table_to_xml('skisEtc', true, false, '');  
+
+<skisetc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">+
+                                                                +
+ <row>                                                          +
+   <id>3</id>                                                   +
+   <product>Scarpa Gia</product>                                +
+   <category>Telemark boot</category>                           +
+   <price>479.89</price>                                        +
+ </row>                                                         +
+                                                                +
+ <row>                                                          +
+   <id>5</id>                                                   +
+   <product>Salamon XPro 120</product>                          +
+   <category>Alpine boot</category>                             +
+   <price>360.99</price>                                        +
+ </row>                                                         +
+                                                                +
+ <row>                                                          +
+   <id>6</id>                                                   +
+   <product>Lange RX 100</product>                              +
+   <category>Alpine boot</category>                             +
+   <price>455.99</price>                                        +
+ </row>                     
+...
+
+skistuff=# select row_to_json(skisEtc) from skisEtc;    ## PostgreSQL >= 9.2
+
+                                           row_to_json                                           
+-------------------------------------------------------------------------------------------------
+ {"id":103,"product":"Scarpa Gia","category":"Telemark boot","price":479.89}
+ {"id":105,"product":"Salamon XPro 120","category":"Alpine boot","price":360.99}
+ {"id":106,"product":"Lange RX 100","category":"Alpine boot","price":455.99}
+ {"id":108,"product":"Scarpa T4 Backcountry","category":"Cross country boot","price":224.59}
+ {"id":109,"product":"Fischer RC3 Skate","category":"Cross country boot","price":145.55}
+ {"id":110,"product":"Dynafit 7 Summits","category":"Telemark skis","price":546.77}
+ {"id":111,"product":"DPS SKIS Nina","category":"Telemark skis","price":677.88}
+ {"id":112,"product":"LaSportiva 99E","category":"Alpine touring skis","price":689.49}
+ {"id":113,"product":"Black Diamond Verdict","category":"Alpine touring skis","price":499.99}
+ {"id":114,"product":"K2 Iconic","category":"Alpine skis","price":699.49}
+ {"id":115,"product":"Volkl RTM 81","category":"Alpine skis","price":726.99}
+ {"id":116,"product":"Atomic Theory","category":"Alpine skis","price":598.95}
+ {"id":117,"product":"Fischer CRS Classic Vasa","category":"Cross country skis","price":189.95}
+ {"id":118,"product":"Salomon Snowscape Classic","category":"Cross country skis","price":228.95}
+ {"id":119,"product":"Fischer CRS Skate","category":"Cross country skis","price":194.59}
+ {"id":104,"product":"Scarpa TRace","category":"Telemark boot","price":579.59}
+ {"id":120,"product":"Atomic Redstar Skate","category":"Cross Country Skis","price":191.99}
+ {"id":107,"product":"Rossignol X6 Combi","category":"Cross Country Boot","price":149.95}
+ {"id":101,"product":"Scott Synergy","category":"Telemark Boot","price":499.01}
+ {"id":102,"product":"Black Diamond Factor 110","category":"Telemark Boot","price":244.65}
+(20 rows)
+
+   # Other approaches:
+
+     ## With a JPA provider, DB records can be translated into instances of Java classes; and these
+        instances can be serialized into XML (e.g., with JAX-B technologies) and JSON documents (e.g., with 
+        easy-to-use 3rd party technologies such as those from XStream: http://x-stream.github.io/json-tutorial.html).
+
+     ## Even a handcrafted approach with JDBC can transform a ResultSet of DB records into a list of
+        class instances.
+
+   # On the client side:
+
+     ## Various 'ajaxy' table implementations are available (e.g., jQueryUI has one).
+
+     ## Focus on leaving the table (or list) structure alone (e.g., the table headers) and
+        changing only the data rows.
+

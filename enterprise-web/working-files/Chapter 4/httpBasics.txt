@@ -1,0 +1,56 @@
+
+ # HTTP -- a closer look
+
+HTTP request:
+
+   start line   ## HTTP_method URI [HTTP version]        Example-- POST /skiServ/dataVerifier HTTP/1.1
+   headers      ## Key/value pairs, with : as separator  Example-- Content-Type: application/x-www-form-urlencoded
+   newline
+   newline
+   [body]       ## GET and DELETE have no body; POST and PUT have a body
+
+HTTP response:      
+
+   start line   ## [HTTP version] Status code (numeric and English)     Example-- 200 OK
+   headers      ## Key/value pairs, with : as separator  Example-- Server: Apache-Coyote/1.1
+   newline
+   newline
+   body
+
+% curl --request POST --verbose --data "product=foo bar baz&category=one two three four&price=1234.56" \
+       -L  http://localhost:8080/skiServ/dataVerifier
+
+> POST /skiServ/dataVerifier HTTP/1.1
+> User-Agent: curl/7.22.0 (x86_64-pc-linux-gnu) libcurl/7.22.0 OpenSSL/1.0.1 zlib/1.2.3.4 libidn/1.23 librtmp/2.3
+> Host: localhost:8080
+> Accept: */*
+> Content-Length: 61
+> Content-Type: application/x-www-form-urlencoded
+> 
+
+* upload completely sent off: 61 out of 61 bytes
+
+< HTTP/1.1 302 Found
+< Server: Apache-Coyote/1.1
+< Set-Cookie: JSESSIONID=E9533CE7667BED64A2E4E0D5AD05CC2A; Path=/skiServ/; HttpOnly
+< Location: http://localhost:8080/skiServ/badResult.jsp
+< Content-Length: 0
+< 
+
+* Connection #0 to host localhost left intact
+* Issue another request to this URL: 'http://localhost:8080/skiServ/badResult.jsp'
+* Violate RFC 2616/10.3.3 and switch from POST to GET
+* Re-using existing connection! (#0) with host localhost
+* Connected to localhost (127.0.0.1) port 8080 (#0)
+
+> POST /skiServ/badResult.jsp HTTP/1.1
+> User-Agent: curl/7.22.0 (x86_64-pc-linux-gnu) libcurl/7.22.0 OpenSSL/1.0.1 zlib/1.2.3.4 libidn/1.23 librtmp/2.3
+> Host: localhost:8080
+> Accept: */*
+>
+ 
+< HTTP/1.1 200 OK
+< Server: Apache-Coyote/1.1
+< Set-Cookie: JSESSIONID=DE51C48DD5895E805B0747E2D8AFB2F9; Path=/skiServ/; HttpOnly
+< Content-Type: text/html;charset=ISO-8859-1
+< Content-Length: 303

@@ -1,0 +1,47 @@
+ # A deployment exercise
+
+ # Here are the relevant contents of the 'hello.war' web app:
+
+   WEB-INF/web.xml
+   WEB-INF/classes/exercise1/Hi.class
+   WEB-INF/classes/exercise1/Hi.java
+   hi.jsp
+
+ # The JSP script 'hi.jsp' uses two 'backend' POJOs:
+
+   ## A java.util.Date instance     ### standard library class
+   ## An exercise1.Hi instance      ### programmer-defined class
+
+<!doctype html>
+<html>
+  <head>
+    <title>Exercise 1</title>
+  </head>
+<body>
+  <jsp:useBean id = "now" class = "java.util.Date" />    <!-- one POJO -->
+  <jsp:useBean id = "hi"  class = "exercise1.Hi" />      <!-- another POJO -->
+  <h3>
+    <%= hi.getGreeting() + " at " + now %>
+  </h3>
+</body>
+</html>
+
+  # Here's the programmer-defined class:
+
+package exercise1; 
+
+public class Hi {
+    public Hi() { }
+    public String getGreeting() {
+	return "Hello, world!";
+    }
+}
+
+ # The exercise is to deploy the app:
+
+   ### If you've time, you try might a completely manual deployment:
+       put the right stuff in the right places in the WAR file.
+
+   ### In any case, use my Ant script or your own Maven script to deploy.
+
+   ### Test the deployment to ensure that it worked.

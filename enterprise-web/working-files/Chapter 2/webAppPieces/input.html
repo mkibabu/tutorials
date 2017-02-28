@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Introductory example</title>
+    <style type = "text/css">
+      .legend {color: #990000;}
+      input {color: darkblue; font-weight: bold;}
+      fieldset {width: 400px;}
+    </style>
+  </head>
+  <body>
+    <fieldset>
+      <legend class = 'legend'>F2C temperature conversion</legend>
+      <p>
+	<form action = 'convert.jsp' method = 'post'>
+	  Fahrenheit temperature: <input type = 'text'
+					 name = 'tempF'  <!-- the 'name' is important -->
+					 id = 'tempF'/>
+	  <p>
+	    <input type = 'submit' style = 'font-weigth: bold;' value = 'Convert to centrigrade'/>
+	  </p>
+	</form>
+      </p>
+    </fieldset> 
+  </body>
+</html>

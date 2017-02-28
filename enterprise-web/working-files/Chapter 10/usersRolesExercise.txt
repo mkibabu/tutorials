@@ -1,0 +1,57 @@
+
+  -- Exercise for users/roles security
+
+     # In the 'urSecure' web app, the default Tomcat security realm is in play: the UserDatabaseRealm, with
+       auth/auth info persisted in the file TOMCAT_HOME/conf/tomcat-users.xml.
+
+       ## This is ok for development, but not suitable for production.
+
+       ## In general, managing auth/auth information is challenging, and DB tools are a great
+          help in addressing this challenge.
+
+     # The exercise is to switch the 'urSecure' app over to a different realm, the JDBC realm by
+       default. 
+
+       ## If you've experience in this sort of thing, you might a take a crack at JNDI or even
+          JAAS realms.
+
+     # Assuming the JDBC realm, here's an overview of the set-up on both the DB side and
+       the Tomcat side.
+
+       -- Create a pair of tables, one to hold usernames and passwords, and another to hold
+          the roles for given users. The database schema might look like this, given that we're
+          designing with Tomcat's expecatations in mind:
+
+             ### One entry per registered user.
+             users(username as varchar, password as varchar)       ## username is primary key
+             
+             ### One entry per role for a user
+             user_roles(username as varchar, rolename as varchar)  ## username-rolename pair is primary key
+
+         ## Other table designs are possible, of course: Tomcat can handle such designs so long as the
+            columns it needs are present.
+
+      # Back up and then edit TOMCAT_HOME/conf/server.xml.
+
+        ## Tomcat must be restarted after any change to this file for the change to take effect.
+            
+        ## Here's a sketch of the change to this file:
+
+           <Realm className     = "org.apache.catalina.realm.JDBCRealm"
+                  driverName    = "org.postgresqlDriver"
+                  connectionURL = "jdbc:postgresql://localhost/:5432/skistuff?user='fred'&amp;password='secret'"
+                  userTable     = "users" 
+                  userNameCol   = "username" 
+                  userCredCol   = "password"
+                  userRoleTable = "user_roles" 
+                  roleNameCol   = "rolename" />
+
+           ### At most one Realm entry should occur uncommented in TOMCAT_HOME/conf/server.xml. For this
+               exercise, the above is a sample of an uncommented Realm entry.
+
+        ## The PostreSQL driver JAR file should be placed in TOMCAT_HOME/lib. Again, Tomcat needs to be
+           restarted for it to find this file.
+
+       
+
+

@@ -1,0 +1,62 @@
+ # What is JSF?
+
+    ## Java web APIs/frameworks
+
+            higher levels:     JSF, Struts, Tapestry, Wicket, Spring Web Flow,...
+                               -----------------------------------------------------------------------
+               base level:     explicit servlets, JSP scripts (perhaps with backend POJOs), EL & JSTL
+                        
+    ## JSP scripts are, in effect, high-level abstractions servlets that generate HTTP responses 
+       through copious 'print' statements.
+
+       ### Indeed, JSP scripts translated into servlet instances:
+
+             JSP script------->servlet instance that prints the HTML response document
+ 
+       ### JSP scripts are suited to be the (templated) 'views' in an MVC architecture.
+
+    ## No matter what level you work at in Java web apps, a solid knowledge of servlets and JSP is essential.
+
+ -----------------------------------------------------------------------------------------------------------------
+
+  # JSF as the (still dominant) next level up from servlets/JSP:
+
+    ## 'Richer' web controls.
+
+    ## Automatic generation of JS.
+
+    ## Support for page navigation.
+
+    ## Various other feature improvements.
+  
+  # JSF stands for 'Java Server Faces'
+
+    ## Various implementations and extensions are available.
+     
+    ## The interface/implemenation pieces come, as usual, in JAR files.
+
+    ## JSF uses the 'interceptor' pattern:
+
+       -- Deployed WAR file with the JSF libraries (JAR files)
+                        
+                         JSF servlet      our HTML files, related assets, and back-end code
+                             /                          /
+    	 HTTP request  +-------------+          +-----------------+
+    	-------------->| interceptor |<-------->| web application |
+    	               +-------------+          +-----------------+
+
+        ### The JSF servlet acts as the controller, with model and business-logic logic through POJOs (a mix of
+            regular JavaBean and JSF @ManagedBean classes.
+
+        ### JSF pages provide rich UI components as the 'views' in such an architecture.
+
+    ## JSF scripts are parsed as XML documents, which then are rendered as (X)HTML response pages.
+
+          JSF script------->HTML output of an XML (SAX) parser
+
+    ## JSF has an explicit separation-of-concerns architecture (basically, MVC), with the JSF
+       pages as the templated views.
+
+    ## In short, JSF is higher level than JSP and explicit servlets.
+
+
